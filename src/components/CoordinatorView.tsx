@@ -289,7 +289,7 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
         </div>
       )}
       {/* Executive KPI Metric Cards Row (Center Leader Feature Parity) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+      <div className="animate-staggered-intro" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
         <MetricCard
           title="Active Center Volunteers"
           value={centerVolunteers.filter((v: any) => v.status !== 'INACTIVE').length}
@@ -328,13 +328,13 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
 
       {/* Retention Risk Watchlist Section */}
       {((data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId)).length > 0 && (
-        <div className="glass-panel" style={{ padding: '20px', borderColor: 'rgba(204, 17, 0, 0.35)' }}>
+        <div className="glass-panel animate-chroma-border" style={{ padding: '20px', borderColor: 'rgba(204, 17, 0, 0.35)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertTriangle size={18} color="#CC1100" />
               <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Centre Leader Retention Risk Watchlist</h3>
             </div>
-            <span className="badge badge-at-risk">
+            <span className="badge badge-at-risk animate-sonar-alert" role="status" aria-live="polite">
               {((data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId)).length} High Risk
             </span>
           </div>

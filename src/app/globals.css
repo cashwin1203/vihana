@@ -236,3 +236,171 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(204, 17, 0, 0.45);
 }
+
+/* ==========================================
+   PRODUCTION OPTIMIZED ANIMATIONS
+   - GPU Accelerated (will-change)
+   - Cross-Browser Vendor Prefixes (-webkit-, -moz-)
+   - Accessibility (prefers-reduced-motion)
+   ========================================== */
+
+/* 1. STAGGERED INTRO ANIMATION */
+@-webkit-keyframes staggeredFadeUp {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 16px, 0);
+    transform: translate3d(0, 16px, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes staggeredFadeUp {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 16px, 0);
+    transform: translate3d(0, 16px, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-staggered-intro > * {
+  -webkit-animation: staggeredFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: staggeredFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+  opacity: 0;
+}
+
+.animate-staggered-intro > *:nth-child(1) { -webkit-animation-delay: 0.05s; animation-delay: 0.05s; }
+.animate-staggered-intro > *:nth-child(2) { -webkit-animation-delay: 0.12s; animation-delay: 0.12s; }
+.animate-staggered-intro > *:nth-child(3) { -webkit-animation-delay: 0.19s; animation-delay: 0.19s; }
+.animate-staggered-intro > *:nth-child(4) { -webkit-animation-delay: 0.26s; animation-delay: 0.26s; }
+
+/* 2. CHROMA BORDER SPIN ANIMATION */
+@-webkit-keyframes chromaRotate {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes chromaRotate {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.animate-chroma-border {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.animate-chroma-border::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    #CC1100 0deg,
+    #f59e0b 120deg,
+    #10b981 240deg,
+    #CC1100 360deg
+  );
+  -webkit-animation: chromaRotate 6s linear infinite;
+  animation: chromaRotate 6s linear infinite;
+  will-change: transform;
+  z-index: -2;
+}
+
+.animate-chroma-border::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: var(--bg-card);
+  border-radius: inherit;
+  z-index: -1;
+}
+
+/* 3. SONAR ALERT ANIMATION */
+@-webkit-keyframes sonarPulse {
+  0% {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    opacity: 0.9;
+    box-shadow: 0 0 0 0 rgba(204, 17, 0, 0.6);
+  }
+  70% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 10px rgba(204, 17, 0, 0);
+  }
+  100% {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    opacity: 0.9;
+    box-shadow: 0 0 0 0 rgba(204, 17, 0, 0);
+  }
+}
+
+@keyframes sonarPulse {
+  0% {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    opacity: 0.9;
+    box-shadow: 0 0 0 0 rgba(204, 17, 0, 0.6);
+  }
+  70% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 10px rgba(204, 17, 0, 0);
+  }
+  100% {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    opacity: 0.9;
+    box-shadow: 0 0 0 0 rgba(204, 17, 0, 0);
+  }
+}
+
+.animate-sonar-alert {
+  -webkit-animation: sonarPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: sonarPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform, opacity;
+}
+
+/* Accessibility: Disable motion for users with reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-staggered-intro > *,
+  .animate-chroma-border::before,
+  .animate-sonar-alert {
+    -webkit-animation: none !important;
+    animation: none !important;
+    will-change: auto !important;
+    opacity: 1 !important;
+    -webkit-transform: none !important;
+    transform: none !important;
+  }
+}
+

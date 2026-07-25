@@ -103,7 +103,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
       </div>
 
       {/* KPI Cards Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+      <div className="animate-staggered-intro" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
         <MetricCard
           title="Active Volunteers"
           value={metrics.activeVolunteers}
@@ -193,7 +193,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
               <AlertTriangle size={18} color="#fb7185" />
               <h3 style={{ fontSize: '1.1rem' }}>Retention Risk Watchlist</h3>
             </div>
-            <span className="badge badge-at-risk">{atRiskList.length} HIGH Risk Volunteers</span>
+            <span className="badge badge-at-risk animate-sonar-alert" role="status" aria-live="polite">{atRiskList.length} HIGH Risk Volunteers</span>
           </div>
 
           {atRiskList.length === 0 ? (
