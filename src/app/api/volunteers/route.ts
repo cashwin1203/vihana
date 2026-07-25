@@ -94,15 +94,19 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
-    const { id, status, role, centerId } = body;
+    const { id, name, email, phone, whatsappPhone, skills, status, role, centerId } = body;
 
-    // Task 1: Deactivating volunteer sets status: INACTIVE while preserving attendance history
     const updated = await prisma.volunteer.update({
       where: { id },
       data: {
+        ...(name && { name }),
+        ...(email && { email }),
+        ...(phone && { phone }),
+        ...(whatsappPhone !== undefined && { whatsappPhone }),
+        ...(skills !== undefined && { skills }),
         ...(status && { status }),
         ...(role && { role }),
-        ...(centerId !== undefined && { centerId }),
+        ...(centerId !== undefined && { centerId: centerId === '' ? null : centerId }),
       },
       include: {
         center: true,
@@ -110,7 +114,7 @@ export async function PATCH(req: Request) {
       },
     });
 
-    const auditAction = status === 'INACTIVE' ? 'DEACTIVATE_VOLUNTEER' : 'UPDATE_VOLUNTEER_STATUS';
+    const auditAction = status === 'INACTIVE' ? 'DEACTIVATE_VOLUNTEER' : 'UPDATE_VOLUNTEER_PROFILE';
     await logSecurityAudit('ADMIN', auditAction, {
       volunteerId: id,
       volunteerName: updated.name,

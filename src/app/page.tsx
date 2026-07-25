@@ -7,11 +7,13 @@ import CoordinatorView from '@/components/CoordinatorView';
 import VolunteerView from '@/components/VolunteerView';
 import AISummaryModal from '@/components/AISummaryModal';
 import WhatsAppSimulatorModal from '@/components/WhatsAppSimulatorModal';
+import VolunteerManagementModal from '@/components/VolunteerManagementModal';
 
 export default function Home() {
   const [activeRole, setActiveRole] = useState<'CHAPTER_LEADER' | 'COORDINATOR' | 'VOLUNTEER'>('CHAPTER_LEADER');
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isWASimulatorOpen, setIsWASimulatorOpen] = useState(false);
+  const [isVolManagerOpen, setIsVolManagerOpen] = useState(false);
 
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [sessionsData, setSessionsData] = useState<any[]>([]);
@@ -52,6 +54,7 @@ export default function Home() {
         currentRole={activeRole}
         onRoleChange={setActiveRole}
         onOpenWASimulator={() => setIsWASimulatorOpen(true)}
+        onOpenVolunteerManager={() => setIsVolManagerOpen(true)}
         data={dashboardData}
       />
 
@@ -97,6 +100,14 @@ export default function Home() {
         isOpen={isWASimulatorOpen}
         onClose={() => setIsWASimulatorOpen(false)}
         volunteers={volunteersData}
+        onRefresh={fetchData}
+      />
+
+      {/* Volunteer Directory & Roster Management Modal */}
+      <VolunteerManagementModal
+        isOpen={isVolManagerOpen}
+        onClose={() => setIsVolManagerOpen(false)}
+        centers={dashboardData?.centers || []}
         onRefresh={fetchData}
       />
 

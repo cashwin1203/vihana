@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { UserCheck, Sparkles, Smartphone, Rocket } from 'lucide-react';
+import { UserCheck, Sparkles, Smartphone, Rocket, Users } from 'lucide-react';
 import AISummaryModal from './AISummaryModal';
 import LaunchActivityModal from './LaunchActivityModal';
 
@@ -9,10 +9,11 @@ interface HeaderProps {
   currentRole: 'CHAPTER_LEADER' | 'COORDINATOR' | 'VOLUNTEER';
   onRoleChange: (role: 'CHAPTER_LEADER' | 'COORDINATOR' | 'VOLUNTEER') => void;
   onOpenWASimulator?: () => void;
+  onOpenVolunteerManager?: () => void;
   data?: any;
 }
 
-export default function Header({ currentRole, onRoleChange, onOpenWASimulator, data }: HeaderProps) {
+export default function Header({ currentRole, onRoleChange, onOpenWASimulator, onOpenVolunteerManager, data }: HeaderProps) {
   const [showAICopilot, setShowAICopilot] = useState(false);
   const [showLaunchHub, setShowLaunchHub] = useState(false);
 
@@ -80,6 +81,17 @@ export default function Header({ currentRole, onRoleChange, onOpenWASimulator, d
 
         {/* Action Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+
+          {/* Manage Volunteers Button */}
+          {onOpenVolunteerManager && (
+            <button
+              className="btn btn-primary"
+              onClick={onOpenVolunteerManager}
+              style={{ fontSize: '0.82rem' }}
+            >
+              <Users size={15} /> Manage Volunteers
+            </button>
+          )}
 
           {/* 20-Min Launch Games */}
           <button
