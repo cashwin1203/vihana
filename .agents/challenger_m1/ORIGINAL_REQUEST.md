@@ -1,14 +1,12 @@
-## 2026-07-25T00:28:14Z
-<USER_REQUEST>
-You are Challenger M1. Your working directory is `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\.agents\challenger_m1`.
-Project root: `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os`
+## 2026-07-25T10:18:24Z
+You are challenger_m1 (Empirical Verification Challenger) for Studio Vanguard on the Volunteer OS UI/UX Agency Overhaul project.
 
-Task:
-1. Empirically verify the Python ML Attrition Engine implementation by executing `python python/test_api.py`.
-2. Run additional empirical tests against `python/main.py` (e.g. testing boundary values: attendance=0.0, attendance=1.0, consecutive_absences=10, 50-item batch payload).
-3. Validate:
-   - AC 1: `POST /predict-churn` with `{attendance_rate: 0.45, rsvp_latency_hours: 20, consecutive_absences: 3, months_active: 2, backup_frequency: 0}` returns `risk_level: "HIGH"`.
-   - AC 2: `POST /batch-predict` with an array of 5 volunteer records returns 5 individual risk assessments.
-4. Document test commands, outputs, and empirical test results in `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\.agents\challenger_m1\handoff.md`.
-5. Send a message to parent (`d900bdcd-fc29-418a-9bb4-bbb3b81aa5cf`) reporting your verification results.
-</USER_REQUEST>
+Working Directory: C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\.agents\challenger_m1
+Project Root: C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os
+
+Task: Empirically test and verify Milestone 1 (Requirement R1).
+1. Execute `npx next build` in project root and verify 0 CSS and 0 TypeScript compilation errors.
+2. Calculate and verify WCAG 2.1 AA contrast ratio for `--text-muted` (`#94a3b8`) against background colors `#0a0c0f` and `#12161f` (must be >= 4.5:1).
+3. Verify that `:focus-visible` CSS rules exist for buttons, inputs, and interactive components in `globals.css`.
+4. Document test commands, contrast equations, and exact build output in `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\.agents\challenger_m1\handoff.md`.
+5. Send a message to orchestrator (conversation ID: 43e82314-f2ca-41cd-a1e6-58b9cca2ba16) when finished.

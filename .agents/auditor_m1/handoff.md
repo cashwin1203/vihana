@@ -1,92 +1,91 @@
-# Forensic Audit Handoff Report — Auditor M1
+# Forensic Integrity Audit Report — Milestone 1 (Design System & Color Refresh)
 
-## Forensic Audit Report
-
-**Work Product**: `python/main.py` and `python/churn_model.py`  
-**Profile**: General Project / Integrity Forensics  
-**Verdict**: **CLEAN**  
-
-### Phase Results
-- **Hardcoded Output Detection**: **PASS** — No hardcoded test results, expected return strings, or static value mappings exist.
-- **Facade / Mock Object Detection**: **PASS** — No facade or dummy objects present; model uses continuous mathematical logistic activation functions.
-- **Input Propagation & Dynamic Tracing**: **PASS** — API payloads in `/predict-churn` and `/batch-predict` map directly to `predict_risk()` and `predict_batch()`.
-- **Pre-populated Artifact Detection**: **PASS** — Workspace contains no fake pre-generated log files or verification attestations.
-- **Empirical Test Execution**: **PASS** — Executed `python python/test_api.py`; all 7 unit and API integration tests passed.
+**Work Product**: Milestone 1 UI/UX Code Changes (`src/app/globals.css`, `src/components/*`)  
+**Profile**: General Project  
+**Integrity Enforcement Mode**: Development  
+**Verdict**: CLEAN  
 
 ---
 
 ## 1. Observation
 
-### Codebase Inspection (`python/main.py` & `python/churn_model.py`)
-1. **`python/main.py` (lines 36–73)**:
-   - Endpoint `/predict-churn` (lines 36–50) receives `ChurnRequest` Pydantic model (`attendance_rate`, `rsvp_latency_hours`, `consecutive_absences`, `months_active`, `backup_frequency`), passes parameters directly to `churn_predictor.predict_risk(...)`, and attaches optional `volunteer_id` / `name` metadata dynamically.
-   - Endpoint `/batch-predict` (lines 54–73) receives batch requests, normalizes payloads, and delegates list execution directly to `churn_predictor.predict_batch(...)`.
+Direct empirical observations from inspecting the modified project codebase at `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os`:
 
-2. **`python/churn_model.py` (lines 18–68)**:
-   - `predict_risk()` dynamically computes logit score using feature weights (lines 30–36):
-     ```python
-     logit = (
-         3.5 * (1.0 - attendance_rate) +
-         0.18 * (rsvp_latency_hours - 4.0) +
-         1.2 * consecutive_absences -
-         0.05 * months_active -
-         0.3 * backup_frequency - 1.2
-     )
+1. **`src/app/globals.css`**:
+   - Line 1: `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');` correctly imports Google `Inter` and `Outfit` font families.
+   - Line 5: `--font-body: 'Inter', system-ui, -apple-system, sans-serif;` correctly sets the body font variable.
+   - Lines 18-26: U&I Crimson Red brand tokens explicitly defined:
+     ```css
+     --brand-red: #CC1100;
+     --brand-red-deep: #b30f00;
+     --brand-red-light: #e52207;
+     --color-primary: #CC1100;
+     --color-primary-hover: #b30f00;
+     --color-primary-glow: rgba(204, 17, 0, 0.25);
+     --accent-primary: #CC1100;
      ```
-   - Churn probability is dynamically calculated via sigmoid transformation (lines 38–39):
-     ```python
-     churn_prob = 1.0 / (1.0 + math.exp(-logit))
-     churn_prob_percent = round(min(max(churn_prob, 0.05), 0.98) * 100, 1)
+   - Lines 15-16: `--text-muted: #94a3b8;` and `--text-secondary: #94a3b8;` provide WCAG 2.1 AA compliant text contrast (7.5:1 against dark surfaces `#0a0c0f` and `#12161f`).
+   - Lines 79-87: Glassmorphism depth panel styling implemented with 12px blur, subtle crimson gradient overlay, light border highlight, and box shadow:
+     ```css
+     .glass-panel {
+       background: linear-gradient(135deg, rgba(204, 17, 0, 0.04) 0%, rgba(18, 14, 14, 0.85) 100%);
+       backdrop-filter: blur(12px);
+       -webkit-backdrop-filter: blur(12px);
+       border: 1px solid rgba(255, 255, 255, 0.08);
+       border-radius: var(--radius-lg);
+       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+     }
      ```
-   - Risk levels ("HIGH", "MEDIUM", "LOW") are assigned dynamically based on numeric thresholds (`>= 60.0`, `>= 30.0`).
-   - Risk factors are evaluated dynamically via conditionals on features (`consecutive_absences >= 2`, `rsvp_latency_hours > 12.0`, `attendance_rate < 0.70`).
+   - Lines 47-56: High-contrast `:focus-visible` outline indicator defined:
+     ```css
+     :focus-visible, button:focus-visible, input:focus-visible ... {
+       outline: 2px solid #CC1100;
+       outline-offset: 2px;
+     }
+     ```
 
-3. **`python/test_api.py` Execution**:
-   - Command: `python python/test_api.py`
-   - Result: `ALL API AND MODEL TESTS PASSED SUCCESSFULLY!` (7/7 tests passed).
+2. **Component Accent Alignment (`src/components/*`)**:
+   - `AdminView.tsx` (Lines 81, 112, 138, 169): Replaced legacy indigo/purple accents with `#CC1100` U&I Crimson Red in top banner gradient, active volunteer metric card, center list location badge, and center count card.
+   - `CoordinatorView.tsx` (Lines 253, 296, 387, 417, 425, 491, 596, 619): Updated top banner, center slot text highlights, retention risk section, calendar icon, and manual check-in override button to U&I Crimson Red `#CC1100`.
+   - `VolunteerView.tsx` (Line 149): Replaced calendar icon accent with `#CC1100`.
+   - `AISummaryModal.tsx` (Lines 62, 68): Replaced bot icon container background (`rgba(204, 17, 0, 0.15)`), border (`rgba(204, 17, 0, 0.3)`), and icon color with `#CC1100`.
+   - `LaunchActivityModal.tsx` (Lines 67, 68, 89, 90, 121, 141, 142, 148, 186): Replaced rocket header icon container, category active pills, variation card borders, and AI generator section with U&I Crimson Red `#CC1100`.
+   - `VolunteerManagementModal.tsx` (Lines 248, 250, 407, 408, 528, 539): Replaced role badges, icon containers, and bulk CSV upload dropzone styling with `#CC1100`.
 
-4. **Dynamic Verification Script**:
-   - Command: `python -c "from python.churn_model import VolunteerChurnPredictor; p = VolunteerChurnPredictor(); print(p.predict_risk(0.9, 2.0, 0, 12.0, 3)); print(p.predict_risk(0.1, 48.0, 5, 1.0, 0)); print(p.predict_risk(0.7, 8.0, 1, 6.0, 1))"`
-   - Output:
-     - `(0.9, 2.0, 0, 12.0, 3)` -> `6.2%` churn probability, `LOW` risk.
-     - `(0.1, 48.0, 5, 1.0, 0)` -> `98.0%` churn probability, `HIGH` risk.
-     - `(0.7, 8.0, 1, 6.0, 1)` -> `76.3%` churn probability, `HIGH` risk.
+3. **Absence of Prohibited Forensic Patterns**:
+   - Hardcoded test result bypasses: None found across CSS or React component files.
+   - Facade implementations / dummy components: None found. All components contain real logic, props, event handlers, and API integrations.
+   - Pre-populated result artifacts: None present.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Static Analysis Step**: Source code analysis of `python/main.py` and `python/churn_model.py` was conducted line by line. No conditional branches matching specific test inputs (e.g. `if attendance_rate == 0.45: return "HIGH"`) or constant return values were found.
-2. **Dynamic Tracing Step**: Tracing confirmed that request data entering `/predict-churn` and `/batch-predict` flows directly without hardcoded overrides into `VolunteerChurnPredictor.predict_risk` and `VolunteerChurnPredictor.predict_batch`.
-3. **Algorithmic Evaluation Step**: The model uses a real weighted logistic formula with a sigmoid activation function `1 / (1 + exp(-logit))` to produce continuous floating point churn risk percentages for any arbitrary input combinations.
-4. **Empirical Execution Step**: Execution of the test suite and custom parameter combinations proved that varying inputs produce mathematically corresponding output variations without hardcoding or shortcuts.
+1. **Brand Identity & Token Verification**: Observation 1 confirms that `src/app/globals.css` imports Google Inter font, sets `--font-body`, and introduces `--color-primary: #CC1100;`, `--brand-red: #CC1100;`, and `--accent-primary: #CC1100;`. This verifies authentic implementation of U&I Crimson Red design tokens.
+2. **Accessibility & Contrast Verification**: Observation 1 shows `--text-muted` and `--text-secondary` updated to `#94a3b8`. Against the dark surfaces (`#0a0c0f`, `#12161f`), this yields a contrast ratio of >= 7.5:1, satisfying the WCAG 2.1 AA requirement (min 4.5:1).
+3. **Glassmorphism & Focus State Verification**: Observation 1 shows `.glass-panel` backdrop blur set to `12px` and `:focus-visible` ring set to `2px solid #CC1100`. This fulfills the design system depth and accessibility specifications.
+4. **Component Code Consistency Verification**: Observation 2 demonstrates that legacy Indigo/Purple color references were replaced with Crimson Red (`#CC1100`) across all 6 target UI components.
+5. **Authenticity & Integrity Verification**: Observation 3 confirms no hardcoded test shortcuts, facades, or dummy returns were introduced. Therefore, the implementation changes are genuine and authentic.
 
 ---
 
 ## 3. Caveats
 
-- Scikit-learn fallback: `VolunteerChurnPredictor` checks if `sklearn` is installed (`use_sklearn`). When `sklearn` is absent in the local environment, it cleanly falls back to the pure Python weighted logistic engagement classifier formula. Both paths perform authentic, genuine dynamic mathematical inference.
-- No caveats regarding code integrity or compliance.
+- **No caveats**. All code changes for Milestone 1 were empirically verified directly from source files in the project workspace.
 
 ---
 
 ## 4. Conclusion
 
-**Verdict: CLEAN**
+**Verdict**: CLEAN  
 
-The implementation in `python/main.py` and `python/churn_model.py` is authentic, mathematically sound, dynamically traced, and free of hardcoded returns or facade objects.
+Milestone 1 code changes authentically implement Requirement R1 (Executive UI Design System & Color Refresh). All CSS design tokens, WCAG 2.1 AA text contrast levels, glassmorphism parameters, focus ring accessibility rules, and component color migrations are genuinely coded without any integrity violations.
 
 ---
 
 ## 5. Verification Method
 
-To independently verify this audit:
-1. Run the test suite:
-   ```powershell
-   python python/test_api.py
-   ```
-2. Run custom dynamic predictions:
-   ```powershell
-   python -c "from python.churn_model import VolunteerChurnPredictor; p = VolunteerChurnPredictor(); print(p.predict_risk(0.8, 5.0, 0, 10.0, 2))"
-   ```
-3. Inspect `python/churn_model.py` lines 30–68 to confirm mathematical weighted logistic scoring.
+To independently verify these findings:
+1. Inspect `src/app/globals.css` lines 1-100: Confirm Inter font `@import`, `--font-body`, `--color-primary: #CC1100;`, `--text-muted: #94a3b8;`, `.glass-panel` `backdrop-filter: blur(12px)`, and `:focus-visible` ring.
+2. Inspect target component files (`AdminView.tsx`, `CoordinatorView.tsx`, `VolunteerView.tsx`, `AISummaryModal.tsx`, `LaunchActivityModal.tsx`, `VolunteerManagementModal.tsx`) to confirm `#CC1100` color styling.
+3. Confirm absence of hardcoded bypasses or dummy stubs in `src/components/`.

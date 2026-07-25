@@ -1,50 +1,34 @@
-# NGO Volunteer Management Platform - Master Execution Plan
+# Plan: Studio Vanguard UI/UX Agency Overhaul
 
-## Objectives
-Deliver a fully functioning, production-ready NGO Volunteer Management Platform for U&I India (Vihana Center, Bangalore) fulfilling all acceptance criteria across Go Core API, Meta WhatsApp Cloud API Integration, WhatsApp Volunteer Identity & RBAC, Python ML Attrition Engine, Volunteer Roster & Attendance Records, Multi-Center Chapter Dashboard, Emergency Session Cancellation, and India DPDP Act 2023 Compliance.
+## Studio Vanguard Roles
+- **Design Director**: Visual hierarchy, Crimson Red (`#CC1100`) identity, brand coherence.
+- **Lead UI/UX Architect**: Spatial layout, dashboard ergonomics (`AdminView` / `CoordinatorView`), component density.
+- **Motion & Micro-interaction Lead**: Hover lifts, modal spring physics, counter transitions, pulse indicators.
+- **Design System & Component Engineer**: Glassmorphism CSS tokens, gradients, skeleton loaders, responsive grid.
+- **Accessibility & Contrast Specialist**: WCAG 2.1 AA compliance, >=44px touch targets, focus rings.
 
 ## Milestone Plan
 
-### Milestone 0: Exploration & Architecture Blueprinting
-- **Goal**: Read existing codebase, analyze Prisma schema, Next.js routes, Python FastAPI setup, security utils, and seed data.
-- **Worker**: Explorer subagent (`teamwork_preview_explorer`)
-- **Outputs**: Comprehensive architecture report in `.agents/explorer_m0/analysis.md`
+### Milestone 0: Exploration & UI/UX Audit
+- **Objective**: Audit current CSS (`globals.css`), component architecture, layout bugs, responsive breakpoints, contrast gaps.
+- **Action**: Spawn Explorer subagent (`explorer_m0`) to inspect code, map CSS tokens, components, modals, and list targeted changes.
 
-### Milestone 1: Python ML Attrition Engine & API Extensions (R4)
-- **Goal**: Implement `/predict-churn` and `/batch-predict` endpoints in FastAPI (`python/main.py`), utilizing `churn_model.py`.
-- **Worker**: Implementer (`teamwork_preview_worker`)
-- **Reviewer**: Reviewer (`teamwork_preview_reviewer`)
-- **Challenger**: Challenger (`teamwork_preview_challenger`)
-- **Auditor**: Forensic Auditor (`teamwork_preview_auditor`)
+### Milestone 1: Design System & Color Refresh (R1)
+- **Objective**: Implement U&I Crimson (`#CC1100`) design system, glassmorphism tokens, elevated shadow depth, dark-mode gradient overlays, and WCAG AA contrast.
+- **Subagents**: Worker (`implementer_m1`), Reviewer (`reviewer_m1`), Challenger (`challenger_m1`), Auditor (`auditor_m1`).
+- **Verification**: `npx next build` passes without styling or compilation errors; contrast ratio verification.
 
-### Milestone 2: Go Core API Microservice (R1)
-- **Goal**: Build standalone Go service in `go-api/` exposing `GET /health`, `POST /volunteers`, `GET /volunteers/:id`, `GET /volunteers/export`.
-- **Worker**: Implementer (`teamwork_preview_worker`)
-- **Reviewer**: Reviewer (`teamwork_preview_reviewer`)
-- **Challenger**: Challenger (`teamwork_preview_challenger`)
-- **Auditor**: Forensic Auditor (`teamwork_preview_auditor`)
+### Milestone 2: High-Impact Motion & Micro-Interactions (R2)
+- **Objective**: Hardware-accelerated hover lifts (`translateY(-2px)`), modal entrance spring physics (`cubic-bezier(0.16, 1, 0.3, 1)`), stat card counter entrance transitions, live status badge pulse indicators.
+- **Subagents**: Worker (`implementer_m2`), Reviewer (`reviewer_m2`), Challenger (`challenger_m2`), Auditor (`auditor_m2`).
+- **Verification**: Smooth keyframe definitions in CSS/Tailwind and React hooks/state transitions; `npx next build` clean build.
 
-### Milestone 3: Meta WhatsApp Cloud API Webhook Integration & Simulator Fallback (R2, R3)
-- **Goal**: Implement `/api/webhooks/whatsapp` handling subscription verification and HMAC-SHA256 signature checking, RSVP/check-in processing, phone lookup auth, fallback to simulator.
-- **Worker**: Implementer (`teamwork_preview_worker`)
-- **Reviewer**: Reviewer (`teamwork_preview_reviewer`)
-- **Challenger**: Challenger (`teamwork_preview_challenger`)
-- **Auditor**: Forensic Auditor (`teamwork_preview_auditor`)
+### Milestone 3: Dashboard Ergonomics & Layout Polish (R3)
+- **Objective**: Refine Chapter Leader (`AdminView`) and Centre Leader (`CoordinatorView`) card layouts, metric card density, spacing (`gap`/`padding`), empty states, loading skeletons, modal section dividers.
+- **Subagents**: Worker (`implementer_m3`), Reviewer (`reviewer_m3`), Challenger (`challenger_m3`), Auditor (`auditor_m3`).
+- **Verification**: Structural check of all view containers and modal components; clean build.
 
-### Milestone 4: Volunteer Roster, Attendance, Emergency Cancellation & DPDP Compliance (R3, R5, R7, R8)
-- **Goal**: Implement deactivation, manual check-in override (+3.0 hours), emergency session cancellation + broadcast, PII phone masking on `GET /api/volunteers`, AuditLog records for admin actions, student locus codes.
-- **Worker**: Implementer (`teamwork_preview_worker`)
-- **Reviewer**: Reviewer (`teamwork_preview_reviewer`)
-- **Challenger**: Challenger (`teamwork_preview_challenger`)
-- **Auditor**: Forensic Auditor (`teamwork_preview_auditor`)
-
-### Milestone 5: Multi-Center Chapter Dashboard & Watchlist (R6)
-- **Goal**: Build Chapter Leader UI with per-center metrics (volunteers, attendance rate last 4 sessions, at-risk count, total hours), and At-risk Watchlist with recommended coordinator actions.
-- **Worker**: Implementer (`teamwork_preview_worker`)
-- **Reviewer**: Reviewer (`teamwork_preview_reviewer`)
-- **Challenger**: Challenger (`teamwork_preview_challenger`)
-- **Auditor**: Forensic Auditor (`teamwork_preview_auditor`)
-
-### Milestone 6: End-to-End Verification & Forensic Integrity Audit
-- **Goal**: Execute full test harness across all acceptance criteria and obtain clean forensic auditor verification.
-- **Worker**: Challenger + Auditor
+### Milestone 4: Responsive Layout & Touch Targets (R4) & Final Victory Gate
+- **Objective**: Mobile to desktop viewport responsiveness (320px to 1920px), minimum 44px touch targets on buttons/inputs/controls, clear focus rings, zero horizontal scroll breakage, full E2E build verification.
+- **Subagents**: Worker (`implementer_m4`), Reviewer (`reviewer_m4`), Challenger (`challenger_m4`), Auditor (`auditor_m4`).
+- **Verification**: `npx next build` clean build, victory claim sent to Sentinel (`47a651e2-f3ac-47b7-bbdd-cd610cbda8a2`).

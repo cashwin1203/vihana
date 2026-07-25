@@ -1,19 +1,17 @@
-# Orchestrator Context Recovery & Reference
+# Context Recovery & Technical Specifications
 
-## Project Metadata
-- Project: NGO Volunteer Management Platform (U&I India - Vihana Center, Bangalore)
-- Root Directory: `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os`
-- Working Directory: `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\.agents\orchestrator`
-- User Request File: `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\.agents\ORIGINAL_REQUEST.md`
+## Technical Stack
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS + custom CSS variables in `globals.css`
+- **Icons**: Lucide React (`lucide-react`)
+- **Database**: Prisma (`@prisma/client`)
+- **Design Tokens**: U&I Crimson (`#CC1100`), Dark glassmorphism (`backdrop-filter: blur(12px)`), Google Inter/Outfit fonts
 
-## Key Architecture & Technology Stack
-- Next.js 14 (App Router) frontend with glassmorphism UI
-- Python FastAPI microservice (`python/`) with `churn_model.py` and `voice_processor.py`
-- Go microservice (`go-api/`) for core REST operations
-- Prisma ORM (`prisma/schema.prisma`) with SQLite database (`prisma/dev.db`)
-- Security (`src/lib/security.ts`): HMAC-SHA256 signature verification, PII masking, audit logging
+## Requirements Mapping
+- **R1**: Visual Hierarchy, Crimson Red (`#CC1100`), Glassmorphism, Elevated depth shadows, Google Inter/Outfit fonts, WCAG AA contrast.
+- **R2**: Interactive hover lifts (`transform: translateY(-2px)`), Spring physics modals (`cubic-bezier(0.16, 1, 0.3, 1)`), Stat card counter transitions, Live center pulse badge.
+- **R3**: Dashboard ergonomics (`AdminView`, `CoordinatorView`), spacing consistency, empty states, loading skeletons, modal dividers & explicit action buttons.
+- **R4**: Responsive layout (320px - 1920px), minimum 44px touch targets, focus states, zero horizontal scroll breakage.
 
-## Workflow Protocol & Rules
-- Dispatch-only orchestrator (never edit source code directly, never run builds directly).
-- Every spawned subagent must have its own directory under `.agents/<agent_name>/`.
-- Hard veto on forensic audit failure.
+## Acceptance Criteria Verification Commands
+- `npx next build`

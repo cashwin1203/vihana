@@ -107,8 +107,8 @@ export default function VolunteerView({ volunteers, sessions, onRefresh }: Volun
       </div>
 
       {/* Personal Impact Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div className="glass-panel" style={{ padding: '18px' }}>
+      <div className="animate-staggered-intro" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        <div className="glass-panel interactive-card" style={{ padding: '18px' }}>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>
             Total Contribution
           </div>
@@ -118,7 +118,7 @@ export default function VolunteerView({ volunteers, sessions, onRefresh }: Volun
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Verified Field Tutoring</span>
         </div>
 
-        <div className="glass-panel" style={{ padding: '18px' }}>
+        <div className="glass-panel interactive-card" style={{ padding: '18px' }}>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>
             Attendance Rate
           </div>
@@ -128,7 +128,7 @@ export default function VolunteerView({ volunteers, sessions, onRefresh }: Volun
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Excellent Reliability</span>
         </div>
 
-        <div className="glass-panel" style={{ padding: '18px' }}>
+        <div className="glass-panel interactive-card" style={{ padding: '18px' }}>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>
             Weekly Fixed Slot
           </div>
@@ -143,14 +143,15 @@ export default function VolunteerView({ volunteers, sessions, onRefresh }: Volun
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
         
         {/* Next Saturday RSVP Card */}
-        <div className="glass-panel-glow" style={{ padding: '24px' }}>
+        <div className="glass-panel-glow interactive-card" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Calendar size={20} color="#6366f1" />
+              <Calendar size={20} color="#CC1100" />
               <h3 style={{ fontSize: '1.15rem' }}>Next Session RSVP</h3>
             </div>
             {myAttendance?.rsvpStatus && (
               <span className={`badge badge-${myAttendance.rsvpStatus.toLowerCase()}`}>
+                <span className={myAttendance.rsvpStatus === 'ABSENT' ? 'pulse-dot-red' : 'pulse-dot-green'} />
                 RSVP: {myAttendance.rsvpStatus}
               </span>
             )}

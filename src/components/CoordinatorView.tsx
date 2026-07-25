@@ -250,7 +250,7 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* Top Banner — Centre Leader Operations Dashboard */}
-      <div className="glass-panel" style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(204, 17, 0, 0.15) 0%, rgba(168, 85, 247, 0.08) 100%)', border: '1px solid rgba(204, 17, 0, 0.3)' }}>
+      <div className="glass-panel" style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(204, 17, 0, 0.15) 0%, rgba(204, 17, 0, 0.05) 100%)', border: '1px solid rgba(204, 17, 0, 0.3)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h2 style={{ fontSize: '1.4rem', marginBottom: '6px' }}>
@@ -286,14 +286,18 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
             <h2 style={{ fontSize: '1.3rem', margin: 0 }}>
               {currentCenter?.name || 'Vihana Center'}
             </h2>
-            {currentCenter?.isPausedForHoliday && (
+            {currentCenter?.isPausedForHoliday ? (
               <span className="badge badge-pending" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Palmtree size={12} /> Holiday Pause Active
+              </span>
+            ) : (
+              <span className="badge badge-active">
+                <span className="pulse-dot-green" /> Live Session Active
               </span>
             )}
           </div>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
-            {currentCenter?.location} • Slot: <strong style={{ color: '#a855f7' }}>{currentCenter?.dayOfWeek || 'Saturday'} {currentCenter?.slotTime || '2:30 PM - 5:30 PM'}</strong>
+            {currentCenter?.location} • Slot: <strong style={{ color: '#CC1100' }}>{currentCenter?.dayOfWeek || 'Saturday'} {currentCenter?.slotTime || '2:30 PM - 5:30 PM'}</strong>
           </p>
         </div>
 
@@ -429,6 +433,7 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
               <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Centre Leader Retention Risk Watchlist</h3>
             </div>
             <span className="badge badge-at-risk animate-sonar-alert" role="status" aria-live="polite">
+              <span className="pulse-dot-red" />
               {((data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId)).length} High Risk
             </span>
           </div>
@@ -437,6 +442,7 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
             {((data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId)).map((vol: any) => (
               <div
                 key={vol.id}
+                className="interactive-card"
                 style={{
                   background: 'rgba(204, 17, 0, 0.08)',
                   padding: '14px 16px',
@@ -451,6 +457,7 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <h4 style={{ fontSize: '0.96rem', margin: 0, color: '#fff' }}>{vol.name}</h4>
                     <span className="badge badge-at-risk" style={{ fontSize: '0.68rem' }}>
+                      <span className="pulse-dot-red" />
                       HIGH Risk ({vol.churnProbability || 85}%)
                     </span>
                   </div>
@@ -487,11 +494,12 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
         <div className="glass-panel" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Calendar size={18} color="#6366f1" />
+              <Calendar size={18} color="#CC1100" />
               <h3 style={{ fontSize: '1.1rem' }}>Saturday Session Roster</h3>
             </div>
             {upcomingSession && (
               <span className={`badge badge-${upcomingSession.status.toLowerCase()}`}>
+                <span className={upcomingSession.status === 'CANCELLED' ? 'pulse-dot-red' : 'pulse-dot-green'} />
                 {upcomingSession.status}
               </span>
             )}
@@ -592,9 +600,9 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
                         onClick={() => handleManualCheckIn(att.id)}
                         title="Coordinator Manual Check-In Override (Logs 3.0 hrs)"
                         style={{
-                          background: att.checkInStatus === 'PRESENT' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.15)',
-                          border: att.checkInStatus === 'PRESENT' ? '1px solid #10b981' : '1px solid #6366f1',
-                          color: att.checkInStatus === 'PRESENT' ? '#34d399' : '#818cf8',
+                          background: att.checkInStatus === 'PRESENT' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(204, 17, 0, 0.15)',
+                          border: att.checkInStatus === 'PRESENT' ? '1px solid #10b981' : '1px solid #CC1100',
+                          color: att.checkInStatus === 'PRESENT' ? '#34d399' : '#ff6b5b',
                           padding: '4px 8px',
                           borderRadius: '6px',
                           cursor: 'pointer',
@@ -616,7 +624,7 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
         {/* Post Session Execution & Topic Logging */}
         <div className="glass-panel" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <BookOpen size={18} color="#a855f7" />
+            <BookOpen size={18} color="#CC1100" />
             <h3 style={{ fontSize: '1.1rem' }}>Log Educational Session Notes</h3>
           </div>
 

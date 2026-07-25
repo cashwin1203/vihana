@@ -64,8 +64,8 @@ export default function LaunchActivityModal({ isOpen, onClose }: LaunchActivityM
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ background: 'rgba(168, 85, 247, 0.2)', padding: '8px', borderRadius: '10px', display: 'flex' }}>
-              <Rocket size={24} color="#a855f7" />
+            <div style={{ background: 'rgba(204, 17, 0, 0.15)', padding: '8px', borderRadius: '10px', display: 'flex' }}>
+              <Rocket size={24} color="#CC1100" />
             </div>
             <div>
               <h3 style={{ fontSize: '1.25rem', margin: 0 }}>20-Min Launch & De-stress Activity Hub</h3>
@@ -86,9 +86,9 @@ export default function LaunchActivityModal({ isOpen, onClose }: LaunchActivityM
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               style={{
-                background: selectedCategory === cat ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255,255,255,0.05)',
-                border: selectedCategory === cat ? '1px solid #a855f7' : '1px solid var(--border-color)',
-                color: selectedCategory === cat ? '#c084fc' : 'var(--text-secondary)',
+                background: selectedCategory === cat ? 'rgba(204, 17, 0, 0.20)' : 'rgba(255,255,255,0.05)',
+                border: selectedCategory === cat ? '1px solid #CC1100' : '1px solid var(--border-color)',
+                color: selectedCategory === cat ? '#ff6b5b' : 'var(--text-secondary)',
                 padding: '6px 12px',
                 borderRadius: '20px',
                 fontSize: '0.78rem',
@@ -118,7 +118,7 @@ export default function LaunchActivityModal({ isOpen, onClose }: LaunchActivityM
             >
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.72rem', color: '#c084fc', background: 'rgba(168, 85, 247, 0.15)', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.72rem', color: '#ff6b5b', background: 'rgba(204, 17, 0, 0.15)', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
                     {g.category}
                   </span>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>⏱️ {g.durationMinutes} mins</span>
@@ -138,14 +138,14 @@ export default function LaunchActivityModal({ isOpen, onClose }: LaunchActivityM
         {/* AI Game Variation Generator Section */}
         <div
           style={{
-            background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.9) 100%)',
-            border: '1px solid rgba(168, 85, 247, 0.4)',
+            background: 'linear-gradient(135deg, rgba(204, 17, 0, 0.10) 0%, rgba(15, 23, 42, 0.9) 100%)',
+            border: '1px solid rgba(204, 17, 0, 0.3)',
             borderRadius: '14px',
             padding: '20px'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-            <Sparkles size={18} color="#c084fc" />
+            <Sparkles size={18} color="#CC1100" />
             <h4 style={{ fontSize: '1.05rem', margin: 0, color: '#fff' }}>Submit Game Idea & Get Creative AI Variations</h4>
           </div>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
@@ -175,7 +175,7 @@ export default function LaunchActivityModal({ isOpen, onClose }: LaunchActivityM
           {/* Render Variations */}
           {variations.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '14px' }}>
-              <div style={{ fontSize: '0.8rem', color: '#c084fc', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.8rem', color: '#ff6b5b', fontWeight: 600 }}>
                 💡 3 Creative 20-Min Variations for "{customIdea}":
               </div>
               {variations.map((v, idx) => (
@@ -183,7 +183,7 @@ export default function LaunchActivityModal({ isOpen, onClose }: LaunchActivityM
                   key={idx}
                   style={{
                     background: 'rgba(15, 23, 42, 0.8)',
-                    border: '1px solid rgba(168, 85, 247, 0.25)',
+                    border: '1px solid rgba(204, 17, 0, 0.25)',
                     padding: '12px 14px',
                     borderRadius: '8px'
                   }}

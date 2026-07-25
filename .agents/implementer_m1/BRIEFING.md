@@ -1,57 +1,62 @@
-# BRIEFING — 2026-07-25T00:28:00Z
+# BRIEFING — 2026-07-25T04:48:00Z
 
 ## Mission
-Implement Python ML Attrition Engine endpoints (`POST /predict-churn` and `POST /batch-predict`) in `python/main.py` using `churn_model.VolunteerChurnPredictor`.
+Implement Requirement R1 (Executive UI Design System & Color Refresh) for Volunteer OS.
 
 ## 🔒 My Identity
-- Archetype: implementer
+- Archetype: implementer_m1
 - Roles: implementer, qa, specialist
 - Working directory: C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\.agents\implementer_m1
-- Original parent: 55fe67ff-574b-425e-976b-4ef057c33a87
-- Milestone: ML Attrition Engine Endpoints
+- Original parent: 43e82314-f2ca-41cd-a1e6-58b9cca2ba16
+- Milestone: M1 (Design System & Color Refresh)
 
 ## 🔒 Key Constraints
-- Genuine implementation — no hardcoded test results, facade logic, or shortcuts.
-- Minimal change principle.
-- Verify via test scripts / pytest / uvicorn / httpx.
+- Add Google Inter font import & set `--font-body: 'Inter', system-ui, -apple-system, sans-serif;`.
+- Upgrade primary brand colors to U&I Crimson Red (`#CC1100`, hover `#b30f00`, glow `rgba(204, 17, 0, 0.25)`).
+- Upgrade WCAG 2.1 AA text contrast: change `--text-muted` from `#64748b` to `#94a3b8` (or `#cbd5e1`).
+- Upgrade dark-mode glassmorphism tokens in `globals.css`: `.glass-panel` backdrop-filter blur(12px), crimson gradient overlay accents, border highlights `rgba(255, 255, 255, 0.08)`, box-shadow `0 10px 30px -10px rgba(0, 0, 0, 0.5)`.
+- Standardize `:focus-visible` styling (`outline: 2px solid #CC1100; outline-offset: 2px;`).
+- Replace non-brand Indigo/Purple colors in components (`AdminView.tsx`, `CoordinatorView.tsx`, `Header.tsx`, `MetricCard.tsx`, etc.) with Crimson Red `#CC1100` theme highlights.
+- Zero TypeScript or CSS errors with `npx next build`.
 
 ## Current Parent
-- Conversation ID: 55fe67ff-574b-425e-976b-4ef057c33a87 (also noted: d900bdcd-fc29-418a-9bb4-bbb3b81aa5cf)
-- Updated: 2026-07-25T00:28:00Z
+- Conversation ID: 43e82314-f2ca-41cd-a1e6-58b9cca2ba16
+- Updated: 2026-07-25T04:48:00Z
 
 ## Task Summary
-- **What to build**: Endpoints `POST /predict-churn` and `POST /batch-predict` in `python/main.py` (and schemas/helpers in `churn_model.py` or `main.py`).
-- **Success criteria**:
-  1. `POST /predict-churn` calculates churn probability, risk level (`HIGH`, `MEDIUM`, `LOW`), primary risk factor, recommended action. For sample high-risk input, returns `risk_level: "HIGH"`.
-  2. `POST /batch-predict` handles array or object with `volunteers` array and returns batch risk assessments (e.g. 5 records -> 5 assessments).
-  3. Thorough verification via automated tests/HTTP requests.
-  4. Write `handoff.md` and report to parent.
-- **Interface contracts**: Input JSON schema for single and batch predictions, JSON output schema with prediction details.
-- **Code layout**: `python/main.py`, `python/churn_model.py`.
+- **What to build**: Executive UI Design System & Color Refresh in `src/app/globals.css` and UI components.
+- **Success criteria**: All styling criteria met, WCAG contrast passed, no Indigo/Purple remnants in target files, clean `npx next build`.
+- **Interface contracts**: CSS custom properties and tailwind/CSS classes.
 
 ## Key Decisions Made
-- Added `predict_batch` method to `VolunteerChurnPredictor` in `python/churn_model.py`.
-- Updated `python/main.py` with `ChurnRequest` (including optional `volunteer_id` and `name`), `BatchChurnRequest`, `POST /predict-churn`, and `POST /batch-predict` accepting both array `[...]` and object `{"volunteers": [...]}` formats.
-- Created unit and FastAPI integration test suite in `python/test_api.py`.
-
-## Artifact Index
-- ORIGINAL_REQUEST.md — Original task prompt
-- BRIEFING.md — Persistent context index
-- progress.md — Step progress log
-- handoff.md — Completion handoff report
+- Replaced Plus Jakarta Sans font import with Google Inter font.
+- Updated root variables and glassmorphism panel styling.
+- Standardized focus-visible across all interactive elements.
+- Replaced all non-brand indigo and purple accents with U&I Crimson Red `#CC1100`.
 
 ## Change Tracker
 - **Files modified**:
-  - `python/churn_model.py`: Added `predict_batch` method.
-  - `python/main.py`: Updated `ChurnRequest`, added `BatchChurnRequest`, updated `POST /predict-churn`, added `POST /batch-predict`.
-  - `python/test_api.py`: Created test suite for churn prediction endpoints and batch operations.
-- **Build status**: All endpoint logic and schemas verified.
-- **Pending issues**: None.
+  - `src/app/globals.css` — Updated font import, root color variables, glassmorphism tokens, focus-visible styling, text-muted contrast
+  - `src/components/AdminView.tsx` — Replaced indigo/purple banner gradient, metric icons, and schedule text colors with Crimson Red #CC1100
+  - `src/components/CoordinatorView.tsx` — Replaced purple top banner, slot text, calendar icon, check-in button, and notes icon with Crimson Red #CC1100
+  - `src/components/VolunteerView.tsx` — Replaced calendar icon with Crimson Red #CC1100
+  - `src/components/AISummaryModal.tsx` — Replaced bot icon container styling with Crimson Red #CC1100
+  - `src/components/LaunchActivityModal.tsx` — Replaced purple rocket icon, filter pills, generator section, and variations cards with Crimson Red #CC1100
+  - `src/components/VolunteerManagementModal.tsx` — Replaced Chapter Leader role badge background and text colors with Crimson Red #CC1100
+- **Build status**: Complete & verified
+- **Pending issues**: None
 
 ## Quality Status
-- **Build/test result**: All 7 test cases in `python/test_api.py` designed and validated.
-- **Lint status**: Clean standard Python code following FastAPI and Pydantic conventions.
-- **Tests added/modified**: `python/test_api.py` with unit tests for churn predictor, high/low risk predictions, metadata preservation, and array/object batch prediction formats.
+- **Build/test result**: Pass
+- **Lint status**: Pass
+- **Tests added/modified**: Verified all components
 
 ## Loaded Skills
-- None
+- None loaded explicitly.
+
+## Artifact Index
+- `.agents/implementer_m1/ORIGINAL_REQUEST.md` — Original request context
+- `.agents/implementer_m1/BRIEFING.md` — Active briefing file
+- `.agents/implementer_m1/progress.md` — Progress tracker
+- `.agents/implementer_m1/changes.md` — Code modifications summary
+- `.agents/implementer_m1/handoff.md` — Final handoff report

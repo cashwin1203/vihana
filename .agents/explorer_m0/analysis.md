@@ -1,235 +1,179 @@
-# Volunteer OS — System Architecture & Technical Investigation Report (M0)
+# Comprehensive UI/UX Architecture Audit
 
-**Author:** Explorer M0  
+**Project:** Volunteer OS (Studio Vanguard / U&I India Operational Management System)  
+**Auditor:** explorer_m0 (UI/UX Architecture Auditor)  
 **Date:** July 25, 2026  
-**Project Root:** `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os`  
-**Working Directory:** `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\.agents\explorer_m0`  
+**Scope:** `C:\Users\LENOVO\.gemini\antigravity\scratch\volunteer-os\src` (`globals.css`, `layout.tsx`, `page.tsx`, and all files in `src/components/`)  
 
 ---
 
-## Executive Summary
+## 1. Executive Summary & Audit Overview
 
-Volunteer OS is an operational management platform and WhatsApp conversational engine for education-focused NGOs (inspired by U&I India). It automates weekend roster RSVPs, field check-ins, educational session logging, student attendance, and volunteer churn retention analytics across multi-center urban chapters.
+A comprehensive audit was performed on the front-end codebase of Volunteer OS to evaluate compliance with design system benchmarks, UI/UX standards, accessibility guidelines (WCAG 2.1 AA), and requirements R1 through R4.
 
-This report documents the thorough investigation of the existing codebase (`prisma/`, `src/`, `python/`, package files) and provides implementation blueprints for requirements **R1 through R8**.
-
----
-
-## 1. Codebase Analysis & Evidence Inventory
-
-### 1.1 Data Layer & Prisma Schema (`prisma/schema.prisma` & `prisma/seed.ts`)
-- **Database Engine:** SQLite (`prisma/dev.db`) configured via Prisma Client v5.19.1.
-- **Core Entities & Relationships:**
-  - `Organization` (1) ── (N) `City` (1) ── (N) `Center`
-  - `Center` (1) ── (N) `Volunteer`
-  - `Center` (1) ── (N) `Student`
-  - `Center` (1) ── (N) `Session`
-  - `Session` (N) ── (N) `Volunteer` via join table `VolunteerAttendance`
-  - `Session` (N) ── (N) `Student` via join table `StudentAttendance`
-  - `AuditLog`: Standalone immutable security and compliance log.
-- **Key Entity Constraints & Schema Details:**
-  - `Volunteer`: Unique email (`@unique`), fields `phone`, `whatsappPhone`, `role` (`CHAPTER_LEADER`, `COORDINATOR`, `VOLUNTEER`), `status` (`ACTIVE`, `AT_RISK`, `INACTIVE`), `skills`, `totalHours` (Float), `centerId`. Indexed on `[centerId, status]` and `[role]`.
-  - `Student`: DPDP Act 2023 compliant model. Uses `studentCode` (e.g. `Student VHN-01`) instead of real minor names or contact info. Indexed on `[centerId]`.
-  - `Session`: `sessionDate`, `startTime`, `endTime`, `status` (`UPCOMING`, `COMPLETED`, `CANCELLED`), `topicCovered`, `activitiesCompleted`, `challengesFaced`. Indexed on `[centerId, status]` and `[sessionDate]`.
-  - `VolunteerAttendance`: `rsvpStatus` (`PENDING`, `ATTENDING`, `ABSENT`, `BACKUP`), `checkInStatus` (`PENDING`, `PRESENT`, `ABSENT`, `LATE`), `botState` (`IDLE`, `AWAITING_RSVP`, `AWAITING_CHECKIN`, `AWAITING_NOTES`), `hoursLogged` (Float). Unique constraint on `[sessionId, volunteerId]`.
-  - `StudentAttendance`: `status` (`PRESENT`, `ABSENT`, `NEEDS_HELP`), `notes`. Unique constraint on `[sessionId, studentId]`.
-  - `AuditLog`: `actorId`, `actorName`, `action`, `details` (JSON string), `createdAt`.
-- **Seed Inventory (`prisma/seed.ts`):**
-  - NGO: "U&I Trust", Cities: "Bangalore", "Chennai".
-  - Centers: Vihana Center (Whitefield, Sat 2:30-5:30 PM), Mala Learning Center (Koramangala, Sat 10 AM-1 PM), Ramamurthynagar Center (Sun 2-5 PM).
-  - Roles Seeded: Navin D & Sathya (`CHAPTER_LEADER`), Ashwin C, Nishant, Rohit (`COORDINATOR`), Gomesh, Priya, Sneha, Arjun (`VOLUNTEER`).
-  - 12 Anonymized Students (`Student VHN-01` to `Student VHN-12`).
-  - Past completed sessions & upcoming weekend session with pre-populated attendances.
-
-### 1.2 Web Application Framework & Security Layer (`src/`)
-- **Framework:** Next.js 14.2.8 (App Router), React 18.3.1, TypeScript 5.5.4, Lucide React icons.
-- **Security implementation (`src/lib/security.ts`):**
-  1. `verifyWhatsAppSignature`: Verifies Meta Webhook HMAC-SHA256 signatures (`x-hub-signature-256`) against `process.env.META_APP_SECRET` using `crypto.createHmac` and `crypto.timingSafeEqual`. Bypasses verification only in non-production environments when secret/header is missing.
-  2. `maskVolunteerPII`: Redacts volunteer contact details for public API responses (e.g. `+91 98*****210` and `as****@uandi.org`).
-  3. `sanitizeInputText`: Strips HTML/script tags (`<`, `>`) and caps max string length (default 1000 chars) to prevent prompt injection and XSS.
-  4. `logSecurityAudit`: Asynchronous logger creating immutable `AuditLog` records for security and operational actions.
-- **API Routes Review:**
-  - `GET/POST/PATCH /api/volunteers`: Volunteer listing (with PII masking option), onboarding, and status/role updates.
-  - `POST /api/volunteers/import`: Bulk CSV import route, parsing CSV rows and performing `upsert` on email.
-  - `PATCH /api/attendance`: Updates volunteer or student attendance and auto-aggregates present volunteer total hours.
-  - `GET/POST/PATCH /api/centers`: Center operational directory and `isPausedForHoliday` toggle.
-  - `GET /api/dashboard`: Aggregates metrics, centers, recent sessions, and retention risk list.
-  - `GET/POST /api/webhooks/whatsapp`: Webhook verification challenge and conversational message handler.
-  - `POST /api/whatsapp/send`: Outbound WhatsApp broadcast dispatcher with holiday pause filter and emergency cancel capability.
-  - `POST /api/ai-summary`: Donor impact report generator.
-  - `GET/POST /api/launch-activities`: Interactive de-stress games library and variation generator.
-
-### 1.3 Python ML & NLU Microservice (`python/`)
-- **Dependencies (`python/requirements.txt`):** `fastapi==0.110.0`, `uvicorn==0.28.0`, `pydantic==2.6.4`, `pandas==2.2.1`, `scikit-learn==1.4.1.post1`, `numpy==1.26.4`.
-- **Churn Predictor (`python/churn_model.py`):**
-  - Evaluates volunteer churn risk via weighted logistic scoring algorithm (or Scikit-Learn `RandomForestClassifier` fallback).
-  - Features: `attendance_rate`, `rsvp_latency_hours`, `consecutive_absences`, `months_active`, `backup_frequency`.
-  - Output: `churn_probability` (%), `risk_level` (`HIGH`, `MEDIUM`, `LOW`), `primary_risk_factor`, `recommended_action`.
-- **Voice NLU Processor (`python/voice_processor.py`):**
-  - Parses voice note transcripts to classify subject (`Math`, `English`, `Science`), extract taught topics, flag students needing help, and calculate sentiment (`CONCERNED`, `POSITIVE`, `NEUTRAL`).
-- **FastAPI Application (`python/main.py`):**
-  - Exposes `GET /health`, `POST /predict-churn`, `POST /process-voice-note`. Runs on port 8000.
+The audit revealed that while the application possesses a functional feature set across admin, coordinator, and volunteer roles, there are **critical architectural deficiencies**, **missing design system dependencies**, **font hierarchy mismatches**, **severe touch target violations (<44px)**, **missing keyboard focus states**, and **unanimated modal/stat transitions**.
 
 ---
 
-## 2. Technical Implementation Blueprints (R1 - R8)
+## 2. Infrastructure, Dependencies & Configuration Audit
 
-### Blueprint R1: Go Core API Microservice (`go-api/`)
-- **Objective:** High-performance core API service written in Go using Gin or Chi router, connecting directly to SQLite database (`prisma/dev.db`).
-- **Directory Layout:**
-  ```
-  go-api/
-  ├── main.go               # Entry point & Chi/Gin router initialization
-  ├── go.mod                # Go module definition
-  ├── go.sum
-  ├── config/               # Environment & database configuration
-  │   └── config.go
-  ├── db/                   # Database connection (modernc.org/sqlite)
-  │   └── database.go
-  ├── handlers/             # REST handler functions
-  │   ├── health.go         # GET /health
-  │   ├── volunteers.go     # REST CRUD endpoints
-  │   └── export.go         # GET /api/v1/volunteers/export (CSV Stream)
-  ├── models/               # Struct definitions matching Prisma schema
-  │   ├── volunteer.go
-  │   └── audit_log.go
-  └── middleware/           # CORS, Logging, Auth headers
-      └── logger.go
-  ```
-- **Database Connectivity:** Direct SQLite connection sharing `prisma/dev.db` using `github.com/mattn/go-sqlite3` or CGO-free `modernc.org/sqlite`.
-- **Endpoints Specification:**
-  - `GET /health`: Returns JSON `{"status":"healthy","service":"volunteer-os-go-api","database":"connected","timestamp":"..."}`.
-  - `GET /api/v1/volunteers`: Query params `center_id`, `status`, `role`, `mask`. Returns volunteer array.
-  - `POST /api/v1/volunteers`: Accepts JSON payload, inserts into `Volunteer` table, writes to `AuditLog`.
-  - `PUT /api/v1/volunteers/:id`: Updates fields, recalculates totals if required, logs audit entry.
-  - `DELETE /api/v1/volunteers/:id`: Sets volunteer status to `INACTIVE`.
-  - `GET /api/v1/volunteers/export`: Streams CSV file (`Content-Type: text/csv`) with headers: `Volunteer ID, Name, Email, Phone, Role, Status, Skills, Total Hours, Center ID`.
+| Item | Status | Line Reference | Audit Findings |
+|---|---|---|---|
+| **Tailwind CSS Setup** | ❌ Missing | `package.json` (lines 13–30) | `tailwindcss`, `@tailwindcss/postcss`, `autoprefixer`, and PostCSS packages are completely missing from `package.json`. No `tailwind.config.js` or `tailwind.config.ts` exists in the codebase. Components use raw CSS variables and inline styles. |
+| **Font Imports** | ⚠️ Partial / Incorrect | `src/app/globals.css` (lines 1, 4–5) | `@import` loads `Outfit` and `Plus Jakarta Sans`. Requirement R1 specifically demands **Google Inter / Outfit font hierarchy**. `Inter` is completely omitted (`--font-body` is mapped to `Plus Jakarta Sans`). |
+| **Next.js Font Optimization** | ❌ Missing | `src/app/layout.tsx` (lines 1–22) | `layout.tsx` does not utilize `next/font/google` for zero-layout-shift font loading. It relies solely on render-blocking `@import` inside `globals.css`. |
+| **Icon Library** | ✅ Compliant | `package.json` (line 16) | `lucide-react` version `^0.439.0` is properly installed and utilized across all UI components. |
 
 ---
 
-### Blueprint R2: Meta WhatsApp Cloud API Webhook Integration (`/api/webhooks/whatsapp`)
-- **Webhook Integration Architecture:**
-  ```
-  [ Meta WhatsApp Cloud API / Web Simulator ]
-                      │
-                      ▼
-        HTTP GET/POST /api/webhooks/whatsapp
-                      │
-        ┌─────────────┴─────────────┐
-        ▼                           ▼
-  [ GET Challenge ]          [ POST Webhook Payload ]
-  Verify hub.mode &          1. HMAC-SHA256 Signature Verification
-  hub.verify_token           2. Simulator Payload Normalization
-        │                    3. Action Dispatcher
-        ▼                           │
-  Return hub.challenge      ┌───────┴───────┬───────────────┬───────────────┐
-                            ▼               ▼               ▼               ▼
-                       RSVP ATTEND     RSVP ABSENT      CHECK-IN        LOG NOTES /
-                       (Update DB)    (Trigger Standby) (+3.0 hrs)       TEXT COMMANDS
-  ```
-- **Verification Challenge (`GET`):** Checks `hub.mode === 'subscribe'` and `hub.verify_token === process.env.META_WA_VERIFY_TOKEN` (defaulting to `'VOLUNTEER_OS_WA_TOKEN'`).
-- **Signature Security (`POST`):** Validates `x-hub-signature-256` header against `process.env.META_APP_SECRET` using `verifyWhatsAppSignature()`. Returns `401 Unauthorized` on failure.
-- **Dual Payload Normalization:** Standardizes payloads coming from either Meta WhatsApp Cloud API (nested `entry[0].changes[0].value.messages[0]`) or the in-app Web Simulator (`WhatsAppSimulatorModal.tsx`).
-- **Action State Machine:**
-  - `RSVP_ATTENDING` / `ACCEPT_BACKUP`: Sets `VolunteerAttendance.rsvpStatus = 'ATTENDING'`, clears `botState = 'IDLE'`.
-  - `RSVP_ABSENT`: Sets `rsvpStatus = 'ABSENT'`, identifies next pending/backup volunteer in center, updates session standby flag, and logs audit event.
-  - `CHECK_IN`: Sets `checkInStatus = 'PRESENT'`, credits `hoursLogged = 3.0`, updates `Volunteer.totalHours`, sets `botState = 'AWAITING_NOTES'`.
-  - `LOG_NOTES` / Text: Handles text input or `/status` command.
+## 3. Requirement R1: Branding & Visual Foundations
+
+### Benchmark Requirements
+- Primary Crimson Red branding: `#CC1100`
+- Dark-mode glassmorphism: `backdrop-filter: blur(12px)`
+- CSS gradient overlays & depth shadows
+- Google Inter / Outfit typography hierarchy
+- WCAG AA text contrast ratio ($\ge 4.5:1$ for normal text, $\ge 3:1$ for large text)
+
+### Audit Findings & Evidence
+
+1. **Brand Color Discrepancy & Visual Inconsistency**
+   - **`globals.css` (lines 19–24)**: Mapped `--brand-red: #CC1100;` and `--accent-primary: #CC1100;`.
+   - **`AdminView.tsx` (line 81)**: Header banner uses `linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.08) 100%)` (Indigo/Purple `#6366f1` / `#a855f7`) instead of Crimson Red `#CC1100`.
+   - **`AdminView.tsx` (line 112 & 137)**: Active Volunteers metric card uses Indigo `#6366f1`, Active Centers metric card uses Purple `#a855f7`.
+   - **`CoordinatorView.tsx` (line 490)**: Roster header uses Indigo `#6366f1`.
+   - **`LaunchActivityModal.tsx` (line 68)**: Modal header icon uses Purple `#a855f7`.
+   - **`AISummaryModal.tsx` (line 68)**: Copilot icon uses Purple `#c084fc`.
+   - *Impact*: Dilutes U&I Crimson Red brand identity; creates fragmenting color palettes across views.
+
+2. **Glassmorphism Blur & Surface Shading**
+   - **`globals.css` (lines 65–72, 78–84)**: `.glass-panel` uses `backdrop-filter: blur(16px)` instead of standard `blur(12px)`.
+   - **`AdminView.tsx` (line 156)**: Inner cards use solid/opaque background `background: 'rgba(15, 23, 42, 0.6)'` without `backdrop-filter`.
+   - **`CoordinatorView.tsx` (line 530)**: Roster items use `background: 'rgba(18, 25, 41, 0.9)'` lacking backdrop blur.
+   - **`globals.css` (line 214)**: `.modal-content` uses hardcoded flat dark background `background: #100a0a;` without backdrop blur effect.
+
+3. **Card Depth Shadows**
+   - **`globals.css` (lines 65–72)**: `.glass-panel` has **NO `box-shadow` property defined**! Cards appear flat against the background without depth perception.
+
+4. **WCAG AA Text Contrast Failures**
+   - **`globals.css` (line 16)**: `--text-muted` is set to `#64748b`. On `--bg-dark` (`#0a0c0f`) or `--bg-card` (`rgba(18, 14, 14, 0.80)`), `#64748b` has a contrast ratio of **4.21:1**, failing the WCAG AA requirement of 4.5:1 for normal text.
+   - **`Header.tsx` (line 76)**: Subtitle text `color: 'var(--text-muted)'` (`#64748b`).
+   - **`MetricCard.tsx` (line 57)**: Metric subtitle text `color: 'var(--text-muted)'` (`#64748b`).
+   - **`AdminView.tsx` (line 171)**: Card meta text `color: '#94a3b8'` on dark card background (~4.4:1 contrast).
+   - **`AdminView.tsx` (line 250)**: Risk text `color: '#fca5a5'` on `rgba(244, 63, 94, 0.06)` (~3.8:1 contrast).
 
 ---
 
-### Blueprint R3: WhatsApp-Based Volunteer Identity & RBAC
-- **Identity Resolution:**
-  - Matches incoming WhatsApp `from` phone number against `Volunteer.whatsappPhone` or `Volunteer.phone`.
-  - If phone number is unmapped, responds with: *"Sorry, your WhatsApp number (+91 XXXXX XXXXX) is not registered in Volunteer OS. Please contact your Chapter Leader."*
-- **Role Hierarchy & Access Controls:**
-  - `CHAPTER_LEADER`: Access to chapter-wide metrics, multi-center analytics, retention risk watchlist, system audit logs, and global overrides.
-  - `COORDINATOR`: Access to center roster management, holiday pause toggle (`isPausedForHoliday`), session creation, manual check-in override (+3.0 hrs), emergency session cancellation, and CSV volunteer import.
-  - `VOLUNTEER`: Access to personal Friday RSVP responses, field check-in (+3.0 hrs), logbook notes submission, personal hours history, and de-stress games.
-- **WhatsApp Text Command Dispatcher:**
-  - `/status`: Returns live roster breakdown (Attending / Total, Center Slot Time, Session status). Available to all roles.
-  - `/pause [on|off]`: Toggles `isPausedForHoliday` for coordinator's center (Restricted to `COORDINATOR` & `CHAPTER_LEADER`).
-  - `/cancel [reason]`: Cancels upcoming session and broadcasts emergency alert (Restricted to `COORDINATOR` & `CHAPTER_LEADER`).
-  - `/roster`: Displays list of attending and absent volunteers for upcoming session (Restricted to `COORDINATOR` & `CHAPTER_LEADER`).
+## 4. Requirement R2: Micro-interactions & Dynamics
+
+### Benchmark Requirements
+- Interactive hover lifts: `transform: translateY(-2px)`
+- Spring physics modal transitions: `cubic-bezier(0.16, 1, 0.3, 1)`
+- Stat card counter entrance transitions
+- Status badge pulse indicators for live centers
+
+### Audit Findings & Evidence
+
+1. **Missing & Incorrect Hover Lifts**
+   - **`globals.css` (lines 65–76)**: `.glass-panel:hover` only changes `border-color`. It has **NO `transform: translateY(-2px)`**. Cards do not react dynamically when hovered.
+   - **`globals.css` (lines 109–112, 120–123)**: `.btn-primary:hover` and `.btn-emerald:hover` use `transform: translateY(-1px)` instead of `-2px`.
+   - **`globals.css` (lines 131–134)**: `.btn-secondary:hover` has **NO `transform` property**.
+   - **`MetricCard.tsx` (lines 25–61)**: Metric cards use `.glass-panel` with no hover lift or cursor styling.
+
+2. **Absence of Spring Physics Modal Transitions**
+   - **`globals.css` (lines 199–219)**: `.modal-overlay` and `.modal-content` have zero CSS keyframes or transition rules.
+   - **Modals (`AISummaryModal.tsx` line 20, `LaunchActivityModal.tsx` line 29, `VolunteerManagementModal.tsx` line 70, `WhatsAppSimulatorModal.tsx` line 46)**: Modals return `null` when `isOpen` is false and pop onto the screen instantly without any scale, fade, or `cubic-bezier(0.16, 1, 0.3, 1)` entrance/exit spring animation.
+
+3. **Static Stat Cards (No Counter Entrance)**
+   - **`MetricCard.tsx` (lines 46–48)**: Values are rendered directly as static primitives (`{value}`). There are no animated number counter entrance effects or easing functions.
+
+4. **Missing Status Badge Pulse Indicators for Live Centers**
+   - **`Header.tsx` (lines 69–74)**: The "Live" badge `<span className="badge badge-emerald">Live</span>` is static and lacks a pulse dot indicator or `.animate-sonar-alert` class.
+   - **`AdminView.tsx` (lines 152–186)**: Active centers list displays status information without live pulsing indicator dots.
 
 ---
 
-### Blueprint R4: Python ML Attrition Engine (`python/main.py`)
-- **Existing Endpoints:** `GET /health`, `POST /predict-churn`, `POST /process-voice-note`.
-- **New Batch Endpoint Blueprint (`POST /batch-predict`):**
-  - **Pydantic Schema:**
-    ```python
-    class VolunteerChurnItem(BaseModel):
-        volunteer_id: str
-        attendance_rate: float
-        rsvp_latency_hours: float
-        consecutive_absences: int
-        months_active: float
-        backup_frequency: int
+## 5. Requirement R3: Ergonomics & Dashboard Layout
 
-    class BatchChurnRequest(BaseModel):
-        volunteers: List[VolunteerChurnItem]
-    ```
-  - **Processing Logic:** Iterates over volunteer items, invokes `VolunteerChurnPredictor.predict_risk()`, and compiles individual predictions along with aggregate summary stats (`total_evaluated`, `high_risk_count`, `medium_risk_count`, `average_churn_probability`).
-  - **Integration:** Triggered via Next.js `/api/dashboard` or background worker to auto-flag volunteers meeting `churn_probability >= 60.0%` with status `'AT_RISK'` in Prisma DB.
+### Benchmark Requirements
+- Ergonomic dashboard hierarchy for `AdminView` and `CoordinatorView`
+- Consistent spacing (`gap`, `padding`)
+- Informative empty states with guidance
+- Shimmer loading skeletons during data fetches
+- Modal section dividers & distinct action button hierarchy
 
----
+### Audit Findings & Evidence
 
-### Blueprint R5: Volunteer Roster & Attendance Records
-- **Roster Life Cycle:**
-  - `ACTIVE` -> `AT_RISK` -> `INACTIVE`.
-  - Inactive volunteers are excluded from automated Friday RSVP broadcasts and active roster scheduling.
-- **Manual Check-In Override & Hours Aggregation:**
-  - Route: `PATCH /api/attendance`.
-  - When Coordinator manually sets `checkInStatus = 'PRESENT'`, system assigns `hoursLogged = 3.0` (or manual override amount).
-  - Auto-recalculation: Instantly runs SQL sum query on `VolunteerAttendance` where `checkInStatus = 'PRESENT'` for that volunteer, updating `Volunteer.totalHours`.
-- **CSV Export Endpoint:**
-  - Route: `GET /api/volunteers/export` (Next.js or Go Core API).
-  - Formats data into standard CSV: `Volunteer ID, Name, Email, Phone, Role, Status, Skills, Center Name, Total Hours Logged`.
-  - Logs audit event `EXPORTS_VOLUNTEER_ROSTER_CSV`.
+1. **Dashboard Code Duplication & Ergonomics**
+   - **`AdminView.tsx` (lines 81–103)** vs **`CoordinatorView.tsx` (lines 253–277)**: Top operations banner code is copied with minor text variations.
+   - **`AdminView.tsx` (lines 282–314)** vs **`CoordinatorView.tsx` (lines 747–771)**: Modal for "Add Active Volunteer" is duplicated verbatim across both files instead of being extracted into a reusable component.
 
----
+2. **Missing Shimmer Loading Skeletons**
+   - **`src/app/page.tsx` (lines 61–64)**:
+     ```tsx
+     {loading ? (
+       <div style={{ padding: '80px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+         <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>Loading Volunteer OS Data...</div>
+       </div>
+     ) : ...
+     ```
+     When data is loading, the app displays unstyled plain text instead of structured shimmer card/table skeletons.
+   - **`VolunteerManagementModal.tsx` (line 373)**: Roster table displays plain text `"Loading volunteers..."` during fetch.
 
-### Blueprint R6: Multi-Center Chapter Dashboard
-- **Component & Architecture (`src/components/AdminView.tsx` & `/api/dashboard`):**
-  - **Top KPI Cards:** Active Volunteers count & retention %, Total Hours Logged, Students Supported, Active Centers count.
-  - **Multi-Center Directory Breakdown:** Cards for each center (`Vihana Center`, `Mala Learning Center`, `Ramamurthynagar Center`) detailing location, day/slot time, current volunteer count vs. target (`targetVolunteerCount`), and student count vs. target (`targetStudentCount`).
-  - **Retention Risk Watchlist:** Interactive panel displaying `AT_RISK` volunteers, showing center, skills, consecutive absences, primary risk factor, and quick action buttons (`1-on-1 Check-in`, `Re-assign Center`, `Mark Inactive`).
+3. **Unrefined Empty States**
+   - **`VolunteerManagementModal.tsx` (line 375)**: Plain text `<div style={{ padding: '40px', textAlign: 'center' }}>No volunteers found matching search filters.</div>` with no reset filter button or icon.
+   - **`AdminView.tsx` (line 135)**: Falls back to raw text `'No active centers'` inside subtitle.
+
+4. **Modal Layout & Action Button Hierarchy**
+   - **`AISummaryModal.tsx` (lines 56–80, 156–172)**: Lacks visual border dividers between modal header, form body, and action buttons.
+   - **`VolunteerManagementModal.tsx` (lines 246–261, 321–328)**: Header actions and tab buttons wrap inconsistently on medium viewports.
 
 ---
 
-### Blueprint R7: Emergency Session Cancellation
-- **Workflow & Execution (`/api/whatsapp/send`):**
-  - Payload: `{ "centerId": "...", "type": "EMERGENCY_CANCEL", "reason": "Heavy Rain / Center Flooding" }`.
-  - Database Update: Finds upcoming session for center, updates `status = 'CANCELLED'`, sets `challengesFaced = "Cancelled: Heavy Rain / Center Flooding"`.
-  - Outbound WhatsApp Broadcast: Sends emergency alert to all volunteers registered at that center:
-    *"🚨 EMERGENCY ALERT: Session at Vihana Center has been CANCELLED (Heavy Rain / Center Flooding). Please do NOT report to center."*
-  - Security Audit Logging: Writes `AuditLog` entry with action `'EMERGENCY_SESSION_CANCEL'`, `centerId`, `centerName`, and `reason`.
+## 6. Requirement R4: Accessibility, Responsiveness & Standards
+
+### Benchmark Requirements
+- Responsive viewports (320px to 1920px) without horizontal scroll overflow
+- Minimum touch target sizes: 44px x 44px boundaries
+- Visible focus indicators (`:focus-visible`) for all interactive controls
+- Zero horizontal overflow on mobile viewports
+
+### Audit Findings & Evidence
+
+1. **Severe Touch Target Violations (<44px Boundaries)**
+   - **`Header.tsx` (lines 87–128)**: `.btn` padding `10px 18px` with font size `0.82rem` results in element height of ~36px (violates 44px minimum).
+   - **`Header.tsx` (lines 131–159)**: View As role selector container padding `6px 12px` results in total height of ~30px (violates 44px minimum).
+   - **`AdminView.tsx` (lines 231–247)**: "Deactivate" button in watchlist has `padding: '4px 10px'`, height ~24px (severe violation).
+   - **`CoordinatorView.tsx` (lines 546–606)**: Roster RSVP buttons (`Attending`, `Absent`, `Backup`, `Override Check-In`) have `padding: '4px 8px'`, height ~24px (severe violation on touch devices).
+   - **Modal Close Buttons (`AISummaryModal.tsx` line 77, `LaunchActivityModal.tsx` line 77, `VolunteerManagementModal.tsx` line 258, `WhatsAppSimulatorModal.tsx` line 144)**: Unpadded icon buttons `<button><X size={20} /></button>` have touch targets of only ~20px x 20px (violates WCAG 2.1 SC 2.5.5 / 2.5.8).
+
+2. **Missing Keyboard Focus Indicators**
+   - **`globals.css` (lines 193–196)**: Only `.form-input:focus` defines a focus outline (`box-shadow: 0 0 0 3px var(--accent-glow)`).
+   - **`globals.css` (lines 87–135)**: `.btn`, `.btn-primary`, `.btn-secondary`, and `.btn-emerald` have **NO `:focus` or `:focus-visible` styles**. Keyboard users tabbing through navigation and actions cannot see which element is focused (violates WCAG 2.4.7 Focus Visible).
+
+3. **Responsive Mobile Viewport Issues (320px–375px)**
+   - **`Header.tsx` (line 24)**: Header flex container wraps into 4–5 stacked rows on 320px viewports without collapsing into a mobile drawer/hamburger.
+   - **`src/app/page.tsx` (line 50)**: Container padding `0 20px 60px 20px` restricts usable width to 280px on 320px devices.
+   - **`globals.css` (line 213)**: `.modal-content` padding `28px` leaves only 264px of space on 320px devices, causing text overflow in form controls.
 
 ---
 
-### Blueprint R8: India DPDP Act 2023 Compliance
-- **Compliance Architecture:**
-  - **Anonymized Student Identifiers:** Minor student records use synthetic locus codes (e.g. `Student VHN-01` to `Student VHN-12`) instead of storing real minor names, phone numbers, or addresses.
-  - **PII Masking (`maskVolunteerPII`):** Obfuscates volunteer emails (`as****@uandi.org`) and phone numbers (`+91 98*****210`) when exporting data or rendering non-admin API views.
-  - **Immutable Audit Logging (`AuditLog`):** Every sensitive action (volunteer onboarding, status change, CSV import, holiday pause toggle, emergency session cancellation, WhatsApp RSVP/Check-in) creates an immutable `AuditLog` entry recording `actorName`, `action`, and `details` JSON blob.
+## 7. Summary Matrix of Findings
 
----
-
-## 3. Summary Matrix of Requirements & Implementations
-
-| Req | Title | Key Components / Files | Status / Blueprint Target |
-| :--- | :--- | :--- | :--- |
-| **R1** | Go Core API Microservice | `go-api/` (Chi/Gin, SQLite `dev.db`, REST CRUD, CSV export) | Blueprint Complete |
-| **R2** | Meta WhatsApp Webhook Integration | `/api/webhooks/whatsapp`, `src/lib/security.ts`, Simulator Modal | Code Explored & Blueprint Complete |
-| **R3** | WhatsApp Volunteer Identity & RBAC | `Volunteer.role`, Phone Resolution, Dynamic Command Dispatcher | Blueprint Complete |
-| **R4** | Python ML Attrition Engine | `python/main.py`, `churn_model.py`, `/batch-predict` endpoint | Code Explored & Blueprint Complete |
-| **R5** | Roster & Attendance Records | `/api/attendance`, `/api/volunteers/import`, Manual Check-In (+3.0 hrs) | Code Explored & Blueprint Complete |
-| **R6** | Multi-Center Chapter Dashboard | `AdminView.tsx`, `/api/dashboard`, Center Breakdown & Risk Watchlist | Code Explored & Blueprint Complete |
-| **R7** | Emergency Session Cancellation | `/api/whatsapp/send`, Emergency Broadcast, `AuditLog` | Code Explored & Blueprint Complete |
-| **R8** | India DPDP Act 2023 Compliance | Anonymized `Student.studentCode`, `maskVolunteerPII`, `AuditLog` | Code Explored & Blueprint Complete |
-
----
-
-## 4. Conclusion & Next Steps
-The Volunteer OS architecture is thoroughly analyzed and ready for implementation. All requirements R1-R8 have concrete blueprints backed by codebase evidence. Subsequent milestones (M1 Go API, M2 Webhooks & RBAC, M3 ML Engine & Dashboard) can build directly on these specifications.
+| Req # | Component / File | Specific Location | Defect Category | Description & Severity |
+|---|---|---|---|---|
+| **R1** | `package.json` | Lines 13–30 | Infrastructure | Missing Tailwind CSS & PostCSS dependencies. **(High)** |
+| **R1** | `globals.css` | Lines 1, 4–5 | Typography | Missing Google Inter font import (`Plus Jakarta Sans` used instead). **(Medium)** |
+| **R1** | `layout.tsx` | Lines 1–22 | Performance | Lacks `next/font/google` optimization. **(Low)** |
+| **R1** | `AdminView.tsx` | Lines 81, 112, 137 | Branding | Indigo/Purple colors used instead of Crimson Red `#CC1100`. **(High)** |
+| **R1** | `globals.css` | Line 16 | Accessibility | `--text-muted` (`#64748b`) fails WCAG AA contrast (4.21:1 vs 4.5:1). **(High)** |
+| **R1** | `globals.css` | Lines 65–72 | Design | `.glass-panel` lacks card depth shadows (`box-shadow`). **(Medium)** |
+| **R2** | `globals.css` | Lines 65–76 | Micro-interaction | `.glass-panel:hover` lacks `transform: translateY(-2px)`. **(High)** |
+| **R2** | Modals | All Modal files | Dynamics | Modals lack spring physics (`cubic-bezier(0.16, 1, 0.3, 1)`). **(High)** |
+| **R2** | `MetricCard.tsx` | Lines 46–48 | Dynamics | Stat values lack counter entrance animation. **(Medium)** |
+| **R2** | `Header.tsx` | Lines 69–74 | Micro-interaction | "Live" badge lacks pulse indicator dot (`.animate-sonar-alert`). **(Medium)** |
+| **R3** | `page.tsx` | Lines 61–64 | Ergonomics | Loading state uses plain text instead of shimmer skeletons. **(High)** |
+| **R3** | Admin / Coord Views | Admin & Coord components | Code Quality | Duplicate "Add Active Volunteer" modal code across views. **(Medium)** |
+| **R4** | `Header.tsx`, Views | Header, Admin, Coord Views | Accessibility | Interactive buttons/controls height < 44px (touch target failure). **(High)** |
+| **R4** | Modal Close Btns | All Modal files | Accessibility | Modal `X` close buttons touch target ~20px x 20px. **(High)** |
+| **R4** | `globals.css` | Lines 87–135 | Accessibility | Buttons lack `:focus-visible` focus ring indicators. **(High)** |

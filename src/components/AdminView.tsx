@@ -78,7 +78,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* Top Banner */}
-      <div className="glass-panel" style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.08) 100%)', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+      <div className="glass-panel" style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(204, 17, 0, 0.15) 0%, rgba(204, 17, 0, 0.05) 100%)', border: '1px solid rgba(204, 17, 0, 0.3)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h2 style={{ fontSize: '1.4rem', marginBottom: '6px' }}>Chapter Leader Operations Dashboard (Navin D & Sathya)</h2>
@@ -109,7 +109,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
           value={metrics.activeVolunteers}
           subtitle={`${metrics.volunteerRetentionRate}% Retention Rate`}
           icon={Users}
-          color="#6366f1"
+          color="#CC1100"
           badgeText="Healthy"
           badgeVariant="active"
         />
@@ -134,7 +134,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
           value={metrics.totalCenters}
           subtitle={centers.length > 0 ? centers.map((c: any) => c.name).join(', ') : 'No active centers'}
           icon={Building2}
-          color="#a855f7"
+          color="#CC1100"
         />
       </div>
 
@@ -145,13 +145,17 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
         <div className="glass-panel" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
             <h3 style={{ fontSize: '1.1rem' }}>Center Capacity & Operations</h3>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{centers.length} Active Centers</span>
+            <span className="badge badge-active">
+              <span className="pulse-dot-green" />
+              {centers.length} Active Centers
+            </span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {centers.map((c: any) => (
               <div
                 key={c.id}
+                className="interactive-card"
                 style={{
                   background: 'rgba(15, 23, 42, 0.6)',
                   padding: '16px',
@@ -166,7 +170,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
                 <div>
                   <h4 style={{ fontSize: '0.98rem', marginBottom: '4px' }}>{c.name}</h4>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    {c.location} • <strong style={{ color: '#a855f7' }}>{c.dayOfWeek} {c.slotTime}</strong>
+                    {c.location} • <strong style={{ color: '#CC1100' }}>{c.dayOfWeek} {c.slotTime}</strong>
                   </p>
                   <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     <span>Attendance Rate (Last 4): <strong style={{ color: '#38bdf8' }}>{c.attendanceRateLast4 ?? c.attendanceRate ?? 100}%</strong></span>
@@ -193,7 +197,10 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
               <AlertTriangle size={18} color="#fb7185" />
               <h3 style={{ fontSize: '1.1rem' }}>Retention Risk Watchlist</h3>
             </div>
-            <span className="badge badge-at-risk animate-sonar-alert" role="status" aria-live="polite">{atRiskList.length} HIGH Risk Volunteers</span>
+            <span className="badge badge-at-risk animate-sonar-alert" role="status" aria-live="polite">
+              <span className="pulse-dot-red" />
+              {atRiskList.length} HIGH Risk Volunteers
+            </span>
           </div>
 
           {atRiskList.length === 0 ? (
@@ -206,6 +213,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
               {atRiskList.map((vol: any) => (
                 <div
                   key={vol.id}
+                  className="interactive-card"
                   style={{
                     background: 'rgba(244, 63, 94, 0.06)',
                     padding: '16px',
@@ -221,6 +229,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <h4 style={{ fontSize: '0.96rem', color: '#fecdd3', margin: 0 }}>{vol.name}</h4>
                         <span className="badge badge-at-risk" style={{ fontSize: '0.68rem' }}>
+                          <span className="pulse-dot-red" />
                           HIGH Risk ({vol.churnProbability ?? 0}%)
                         </span>
                       </div>

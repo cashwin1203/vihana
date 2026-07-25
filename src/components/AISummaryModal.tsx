@@ -59,13 +59,13 @@ export default function AISummaryModal({ isOpen, onClose, centerName = 'Vihana C
               width: '36px',
               height: '36px',
               borderRadius: '10px',
-              background: 'rgba(168, 85, 247, 0.15)',
+              background: 'rgba(204, 17, 0, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '1px solid rgba(168, 85, 247, 0.3)'
+              border: '1px solid rgba(204, 17, 0, 0.3)'
             }}>
-              <Bot size={20} color="#c084fc" />
+              <Bot size={20} color="#CC1100" />
             </div>
             <div>
               <h3 style={{ fontSize: '1.2rem', margin: 0 }}>AI Impact Copilot</h3>

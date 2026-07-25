@@ -404,8 +404,8 @@ export default function VolunteerManagementModal({ isOpen, onClose, centers, onR
                             fontWeight: 600,
                             padding: '2px 8px',
                             borderRadius: '4px',
-                            background: vol.role === 'CHAPTER_LEADER' ? 'rgba(168, 85, 247, 0.15)' : vol.role === 'COORDINATOR' ? 'rgba(204, 17, 0, 0.15)' : 'rgba(255,255,255,0.06)',
-                            color: vol.role === 'CHAPTER_LEADER' ? '#c084fc' : vol.role === 'COORDINATOR' ? '#ff6b5b' : 'var(--text-secondary)'
+                            background: vol.role === 'CHAPTER_LEADER' ? 'rgba(204, 17, 0, 0.15)' : vol.role === 'COORDINATOR' ? 'rgba(204, 17, 0, 0.15)' : 'rgba(255,255,255,0.06)',
+                            color: vol.role === 'CHAPTER_LEADER' ? '#ff6b5b' : vol.role === 'COORDINATOR' ? '#ff6b5b' : 'var(--text-secondary)'
                           }}>
                             {vol.role === 'COORDINATOR' ? 'Centre Leader' : vol.role === 'CHAPTER_LEADER' ? 'Chapter Leader' : 'Volunteer'}
                           </span>
