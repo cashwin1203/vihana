@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, X, Edit2, Search, Filter, Check, Plus, FileSpreadsheet, Download, Save, UserX, UserCheck, Shield, Phone, Mail, MapPin } from 'lucide-react';
+import { Users, X, Edit2, Search, Filter, Check, Plus, FileSpreadsheet, Download, Save, UserX, UserCheck, Shield, Phone, Mail, MapPin, Upload } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface VolunteerManagementModalProps {
   isOpen: boolean;
@@ -39,9 +40,10 @@ export default function VolunteerManagementModal({ isOpen, onClose, centers, onR
   const [newRole, setNewRole] = useState('VOLUNTEER');
   const [newCenterId, setNewCenterId] = useState('');
 
-  // Bulk CSV state
+  // Bulk CSV / Excel Upload state
   const [csvText, setCsvText] = useState('Name, Email, Phone, Skills, Role\nRahul Sharma, rahul@example.com, +91 98765 11111, Math, VOLUNTEER\nSneha Roy, sneha@example.com, +91 98765 22222, English, COORDINATOR');
   const [csvMsg, setCsvMsg] = useState<string | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
 
   const fetchVolunteers = async () => {
     setLoading(true);
@@ -66,6 +68,43 @@ export default function VolunteerManagementModal({ isOpen, onClose, centers, onR
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadedFileName(file.name);
+    const reader = new FileReader();
+
+    if (file.name.endsWith('.csv') || file.type === 'text/csv') {
+      reader.onload = (evt) => {
+        const text = evt.target?.result as string;
+        if (text) {
+          setCsvText(text);
+          setCsvMsg(`📁 File loaded: "${file.name}" (${text.split('\n').filter(Boolean).length - 1} rows)`);
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      // Excel file (.xlsx, .xls)
+      reader.onload = (evt) => {
+        try {
+          const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const csv = XLSX.utils.sheet_to_csv(worksheet);
+          setCsvText(csv);
+          const lineCount = csv.split('\n').filter(Boolean).length - 1;
+          setCsvMsg(`📊 Excel sheet loaded: "${file.name}" (${lineCount} rows)`);
+        } catch (err) {
+          console.error('Failed to parse Excel file:', err);
+          setCsvMsg('❌ Failed to parse Excel file. Please ensure it is a valid .xlsx or .xls document.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
 
   const handleOpenEdit = (vol: any) => {
     setEditingVol(vol);
@@ -168,6 +207,24 @@ export default function VolunteerManagementModal({ isOpen, onClose, centers, onR
     window.open('/api/volunteers?export=csv', '_blank');
   };
 
+  const handleExportExcel = () => {
+    const rows = filteredVolunteers.map((v) => ({
+      'Volunteer Name': v.name,
+      'Email Address': v.email,
+      'Phone': v.phone || v.whatsappPhone || 'N/A',
+      'Role': v.role,
+      'Status': v.status,
+      'Center': v.center?.name || 'Unassigned',
+      'Total Hours': v.totalHours || 0,
+      'Skills': v.skills || '',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Volunteers');
+    XLSX.writeFile(workbook, `volunteers_roster_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   // Filter volunteers
   const filteredVolunteers = volunteers.filter((v) => {
     const matchesSearch = v.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -261,9 +318,14 @@ export default function VolunteerManagementModal({ isOpen, onClose, centers, onR
             </button>
           </div>
 
-          <button className="btn btn-secondary" onClick={handleExportCSV} style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
-            <Download size={14} /> Export CSV
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className="btn btn-secondary" onClick={handleExportCSV} style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+              <Download size={14} /> Export CSV
+            </button>
+            <button className="btn btn-emerald" onClick={handleExportExcel} style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+              <FileSpreadsheet size={14} /> Export Excel (.xlsx)
+            </button>
+          </div>
         </div>
 
         {/* TAB 1: ROSTER VIEW & EDIT */}
@@ -453,17 +515,50 @@ export default function VolunteerManagementModal({ isOpen, onClose, centers, onR
           </form>
         )}
 
-        {/* TAB 3: BULK CSV UPLOAD */}
+        {/* TAB 3: BULK CSV & EXCEL UPLOAD */}
         {activeTab === 'BULK_CSV' && (
           <form onSubmit={handleBulkCSVImport} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <h4 style={{ fontSize: '1.05rem', margin: 0 }}>Bulk Upload Volunteer CSV</h4>
+            <h4 style={{ fontSize: '1.05rem', margin: 0 }}>Bulk Upload Volunteer Roster (Excel / CSV)</h4>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0 }}>
-              Paste or edit CSV rows to onboard/update an entire roster in 5 seconds.
+              Upload an Excel (.xlsx, .xls) or CSV (.csv) file, or paste text directly to onboard an entire roster.
             </p>
 
+            {/* File Upload Box */}
+            <div style={{
+              border: '2px dashed rgba(204, 17, 0, 0.4)',
+              borderRadius: '12px',
+              padding: '20px',
+              textAlign: 'center',
+              background: 'rgba(204, 17, 0, 0.04)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <Upload size={28} color="#CC1100" />
+              <div>
+                <strong style={{ fontSize: '0.9rem', color: '#fff' }}>Upload Excel (.xlsx, .xls) or CSV (.csv) File</strong>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                  Drag and drop or select a spreadsheet file from your device
+                </p>
+              </div>
+              <label className="btn btn-secondary" style={{ cursor: 'pointer', padding: '6px 16px', fontSize: '0.82rem' }}>
+                📁 Choose File...
+                <input
+                  type="file"
+                  accept=".csv, .xlsx, .xls"
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
+
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '-6px' }}>
+              Raw Spreadsheet Data Preview / Manual Paste:
+            </label>
             <textarea
               className="form-input"
-              rows={8}
+              rows={6}
               value={csvText}
               onChange={(e) => setCsvText(e.target.value)}
               style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}

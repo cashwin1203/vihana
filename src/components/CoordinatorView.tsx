@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import MetricCard from './MetricCard';
-import { Calendar, UserCheck, Check, X, AlertCircle, Plus, BookOpen, Users, CheckCircle2, Palmtree, Smartphone, Send, FileSpreadsheet, AlertTriangle, Clock, GraduationCap } from 'lucide-react';
+import { Calendar, UserCheck, Check, X, AlertCircle, Plus, BookOpen, Users, CheckCircle2, Palmtree, Smartphone, Send, FileSpreadsheet, AlertTriangle, Clock, GraduationCap, UserPlus, Upload } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface CoordinatorViewProps {
   data: any;
@@ -31,6 +32,36 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
   const [showCSVModal, setShowCSVModal] = useState(false);
   const [csvText, setCsvText] = useState('Name, Email, Phone, Skills\nRahul, rahul@example.com, +91 98765 11111, Math\nSneha, sneha@example.com, +91 98765 22222, English');
   const [broadcastStatus, setBroadcastStatus] = useState<string | null>(null);
+
+  // Add Active Volunteer modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newVolName, setNewVolName] = useState('');
+  const [newVolEmail, setNewVolEmail] = useState('');
+  const [newVolSkills, setNewVolSkills] = useState('Mathematics, English');
+
+  const handleCreateVolunteer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/volunteers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newVolName,
+          email: newVolEmail,
+          skills: newVolSkills,
+          centerId: currentCenter?.id || (centers[0]?.id || null),
+        }),
+      });
+      if (res.ok) {
+        setShowAddModal(false);
+        setNewVolName('');
+        setNewVolEmail('');
+        onRefresh();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleToggleHolidayPause = async () => {
     if (!currentCenter) return;
@@ -74,6 +105,42 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
     } catch (e) {
       console.error(e);
       setBroadcastStatus('Failed to send broadcast');
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    if (file.name.endsWith('.csv') || file.type === 'text/csv') {
+      reader.onload = (evt) => {
+        const text = evt.target?.result as string;
+        if (text) {
+          setCsvText(text);
+          setBroadcastStatus(`📁 File loaded: "${file.name}" (${text.split('\n').filter(Boolean).length - 1} rows)`);
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      // Excel file (.xlsx, .xls)
+      reader.onload = (evt) => {
+        try {
+          const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const csv = XLSX.utils.sheet_to_csv(worksheet);
+          setCsvText(csv);
+          const lineCount = csv.split('\n').filter(Boolean).length - 1;
+          setBroadcastStatus(`📊 Excel sheet loaded: "${file.name}" (${lineCount} rows)`);
+        } catch (err) {
+          console.error('Failed to parse Excel file:', err);
+          setBroadcastStatus('❌ Failed to parse Excel file.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
     }
   };
 
@@ -182,6 +249,33 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
+      {/* Top Banner — Centre Leader Operations Dashboard */}
+      <div className="glass-panel" style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(204, 17, 0, 0.15) 0%, rgba(168, 85, 247, 0.08) 100%)', border: '1px solid rgba(204, 17, 0, 0.3)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h2 style={{ fontSize: '1.4rem', marginBottom: '6px' }}>
+              Centre Leader Operations Dashboard (Ashwin C - {currentCenter?.name || 'Vihana Center'})
+            </h2>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+              Real-time monitoring of center capacity, volunteer retention, and student educational reach for {currentCenter?.name || 'Vihana Center'}.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <a
+              href={`/api/volunteers?centerId=${currentCenter?.id}&export=csv`}
+              download="volunteers.csv"
+              className="btn btn-secondary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            >
+              <FileSpreadsheet size={16} /> Export CSV Roster
+            </a>
+            <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+              <UserPlus size={16} /> Add Active Volunteer
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Center Header & Controls */}
       <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div>
@@ -594,9 +688,39 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
             </div>
 
             <form onSubmit={handleCSVImport} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* File Upload Box */}
+              <div style={{
+                border: '2px dashed rgba(16, 185, 129, 0.4)',
+                borderRadius: '12px',
+                padding: '20px',
+                textAlign: 'center',
+                background: 'rgba(16, 185, 129, 0.04)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <Upload size={28} color="#10b981" />
+                <div>
+                  <strong style={{ fontSize: '0.9rem', color: '#fff' }}>Upload Excel (.xlsx, .xls) or CSV (.csv) File</strong>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                    Drag and drop or select a spreadsheet file from your device
+                  </p>
+                </div>
+                <label className="btn btn-secondary" style={{ cursor: 'pointer', padding: '6px 16px', fontSize: '0.82rem' }}>
+                  📁 Choose File...
+                  <input
+                    type="file"
+                    accept=".csv, .xlsx, .xls"
+                    onChange={handleFileUpload}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+
               <div>
                 <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                  Paste CSV Data (Name, Email, Phone, Skills)
+                  Spreadsheet Preview / Paste CSV Rows (Name, Email, Phone, Skills)
                 </label>
                 <textarea
                   className="form-input"
@@ -614,6 +738,32 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
                 <button type="button" className="btn btn-secondary" onClick={() => setShowCSVModal(false)}>
                   Cancel
                 </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Add Active Volunteer Modal */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>Onboard Active Volunteer to {currentCenter?.name}</h3>
+            <form onSubmit={handleCreateVolunteer} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Full Name</label>
+                <input type="text" className="form-input" required value={newVolName} onChange={(e) => setNewVolName(e.target.value)} placeholder="e.g. Vikram Seth" />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Email Address</label>
+                <input type="email" className="form-input" required value={newVolEmail} onChange={(e) => setNewVolEmail(e.target.value)} placeholder="vikram@example.com" />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Teaching Skills</label>
+                <input type="text" className="form-input" value={newVolSkills} onChange={(e) => setNewVolSkills(e.target.value)} placeholder="Mathematics, Science" />
+              </div>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Add to Roster</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>Cancel</button>
               </div>
             </form>
           </div>
