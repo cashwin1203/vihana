@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calendar, UserCheck, Check, X, AlertCircle, Plus, BookOpen, Users, CheckCircle2, Palmtree, Smartphone, Send, FileSpreadsheet, AlertTriangle } from 'lucide-react';
+import MetricCard from './MetricCard';
+import { Calendar, UserCheck, Check, X, AlertCircle, Plus, BookOpen, Users, CheckCircle2, Palmtree, Smartphone, Send, FileSpreadsheet, AlertTriangle, Clock, GraduationCap } from 'lucide-react';
 
 interface CoordinatorViewProps {
   data: any;
@@ -285,6 +286,103 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
               Open Simulator to Test 📱
             </button>
           )}
+        </div>
+      )}
+      {/* Executive KPI Metric Cards Row (Center Leader Feature Parity) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+        <MetricCard
+          title="Active Center Volunteers"
+          value={centerVolunteers.filter((v: any) => v.status !== 'INACTIVE').length}
+          subtitle={`Rostered for ${currentCenter?.name || 'Vihana Center'}`}
+          icon={Users}
+          color="#CC1100"
+          badgeText="Active"
+          badgeVariant="active"
+        />
+        <MetricCard
+          title="Total Hours Logged"
+          value={`${centerVolunteers.reduce((sum: number, v: any) => sum + (v.totalHours || 0), 0)} hrs`}
+          subtitle={`Verified teaching at ${currentCenter?.name || 'Vihana Center'}`}
+          icon={Clock}
+          color="#10b981"
+          badgeText="Verified"
+          badgeVariant="active"
+        />
+        <MetricCard
+          title="Students Supported"
+          value={currentCenter?.targetStudentCount || 45}
+          subtitle={`Fixed weekly slot tutoring`}
+          icon={GraduationCap}
+          color="#06b6d4"
+        />
+        <MetricCard
+          title="Retention Risk"
+          value={(data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId).length}
+          subtitle="At-Risk volunteers requiring 1-on-1"
+          icon={AlertTriangle}
+          color="#CC1100"
+          badgeText={(data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId).length > 0 ? "Action Required" : "Healthy"}
+          badgeVariant={(data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId).length > 0 ? "at-risk" : "active"}
+        />
+      </div>
+
+      {/* Retention Risk Watchlist Section */}
+      {((data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId)).length > 0 && (
+        <div className="glass-panel" style={{ padding: '20px', borderColor: 'rgba(204, 17, 0, 0.35)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertTriangle size={18} color="#CC1100" />
+              <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Centre Leader Retention Risk Watchlist</h3>
+            </div>
+            <span className="badge badge-at-risk">
+              {((data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId)).length} High Risk
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {((data?.atRiskList || []).filter((v: any) => !selectedCenterId || v.centerId === selectedCenterId)).map((vol: any) => (
+              <div
+                key={vol.id}
+                style={{
+                  background: 'rgba(204, 17, 0, 0.08)',
+                  padding: '14px 16px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(204, 17, 0, 0.25)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <h4 style={{ fontSize: '0.96rem', margin: 0, color: '#fff' }}>{vol.name}</h4>
+                    <span className="badge badge-at-risk" style={{ fontSize: '0.68rem' }}>
+                      HIGH Risk ({vol.churnProbability || 85}%)
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{vol.skills}</span>
+                </div>
+
+                <div style={{ fontSize: '0.78rem', color: '#ff6b5b' }}>
+                  <strong>Primary Risk Factor:</strong> {vol.primaryRiskFactor || 'Multiple consecutive session absences'}
+                </div>
+
+                <div style={{
+                  background: 'rgba(10, 8, 8, 0.6)',
+                  border: '1px solid rgba(245, 158, 11, 0.25)',
+                  borderRadius: '8px',
+                  padding: '8px 12px'
+                }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fbbf24', marginBottom: '2px' }}>
+                    Recommended Centre Leader Action:
+                  </div>
+                  <div style={{ fontSize: '0.76rem', color: '#cbd5e1' }}>
+                    Schedule a 1-on-1 check-in call with {vol.name} before next Saturday's session.
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
