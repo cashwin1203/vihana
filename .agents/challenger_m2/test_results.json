@@ -1,0 +1,52 @@
+{
+  "passed": [
+    {
+      "name": "SQLite DB Direct Check",
+      "detail": "Tables present, 220 existing records in Volunteer table"
+    },
+    {
+      "name": "AC1: GET /health",
+      "detail": "Status 200 OK, {\"status\":\"ok\"}, latency 3.08ms (<500ms limit)"
+    },
+    {
+      "name": "POST /health disallowed method",
+      "detail": "Returned 405 Method Not Allowed"
+    },
+    {
+      "name": "POST /volunteers",
+      "detail": "Created record ID=vol_3cebc89d-5d4e-41d7-ad7f-7ad5d3c063f7 in 54.53ms"
+    },
+    {
+      "name": "AC2: POST /volunteers & GET /volunteers/:id",
+      "detail": "Record created and successfully retrieved via GET /volunteers/vol_3cebc89d-5d4e-41d7-ad7f-7ad5d3c063f7 (2.75ms)"
+    },
+    {
+      "name": "GET /volunteers/:id (404 Not Found)",
+      "detail": "Returned 404 with error msg 'Volunteer not found'"
+    },
+    {
+      "name": "POST /volunteers validation (missing name)",
+      "detail": "Returned 400 Bad Request"
+    },
+    {
+      "name": "AC3: GET /volunteers/export",
+      "detail": "Valid CSV with header 'Name, Email, Phone, Role, Status, TotalHours, Center', 221 data rows (3.05ms)"
+    },
+    {
+      "name": "Adversarial CSV Escaping",
+      "detail": "Escaped quotes and commas correctly: 'O'Connor, \"The Volunteer\" & Co.'"
+    },
+    {
+      "name": "Stress Test Concurrent Writes",
+      "detail": "20/20 concurrent POST requests succeeded without database lock errors"
+    }
+  ],
+  "failed": [],
+  "caveats": [],
+  "latencies": {
+    "GET /health": 3.079299996898044,
+    "POST /volunteers": 54.52740000328049,
+    "GET /volunteers/:id": 2.751899999566376,
+    "GET /volunteers/export": 3.050500003155321
+  }
+}

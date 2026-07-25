@@ -115,6 +115,24 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
     }
   };
 
+  const handleManualCheckIn = async (attendanceId: string) => {
+    try {
+      await fetch('/api/attendance', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'VOLUNTEER',
+          id: attendanceId,
+          checkInStatus: 'PRESENT',
+          hoursLogged: 3.0,
+        }),
+      });
+      onRefresh();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleCreateNewSession = async () => {
     if (!currentCenter) return;
     try {
@@ -377,6 +395,22 @@ export default function CoordinatorView({ data, sessions, volunteers, onRefresh,
                         }}
                       >
                         Backup
+                      </button>
+                      <button
+                        onClick={() => handleManualCheckIn(att.id)}
+                        title="Coordinator Manual Check-In Override (Logs 3.0 hrs)"
+                        style={{
+                          background: att.checkInStatus === 'PRESENT' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.15)',
+                          border: att.checkInStatus === 'PRESENT' ? '1px solid #10b981' : '1px solid #6366f1',
+                          color: att.checkInStatus === 'PRESENT' ? '#34d399' : '#818cf8',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: 600
+                        }}
+                      >
+                        {att.checkInStatus === 'PRESENT' ? '✓ Present (3h)' : 'Override Check-In'}
                       </button>
                     </div>
                   </div>

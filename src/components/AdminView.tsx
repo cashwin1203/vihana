@@ -32,7 +32,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
   const handleCreateVolunteer = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('/api/volunteers', {
+      const res = await fetch('/api/volunteers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -42,9 +42,32 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
           centerId: selectedCenterId || (centers[0]?.id || null),
         }),
       });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error('Failed to create volunteer:', errData.error || res.statusText);
+        return;
+      }
       setShowAddModal(false);
       setNewVolName('');
       setNewVolEmail('');
+      onRefresh();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeactivateVolunteer = async (volId: string) => {
+    try {
+      const res = await fetch('/api/volunteers', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: volId, status: 'INACTIVE' }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error('Failed to deactivate volunteer:', errData.error || res.statusText);
+        return;
+      }
       onRefresh();
     } catch (err) {
       console.error(err);
@@ -64,6 +87,14 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
+            <a
+              href="/api/volunteers?export=csv"
+              download="volunteers.csv"
+              className="btn btn-secondary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            >
+              <FileSpreadsheet size={16} /> Export CSV Roster
+            </a>
             <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
               <UserPlus size={16} /> Add Active Volunteer
             </button>
@@ -101,7 +132,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
         <MetricCard
           title="Active Centers"
           value={metrics.totalCenters}
-          subtitle="Vihana, Mala, Ramamurthynagar"
+          subtitle={centers.length > 0 ? centers.map((c: any) => c.name).join(', ') : 'No active centers'}
           icon={Building2}
           color="#a855f7"
         />
@@ -114,7 +145,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
         <div className="glass-panel" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
             <h3 style={{ fontSize: '1.1rem' }}>Center Capacity & Operations</h3>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>3 Active Centers</span>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{centers.length} Active Centers</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -134,16 +165,20 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
               >
                 <div>
                   <h4 style={{ fontSize: '0.98rem', marginBottom: '4px' }}>{c.name}</h4>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                     {c.location} • <strong style={{ color: '#a855f7' }}>{c.dayOfWeek} {c.slotTime}</strong>
                   </p>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <span>Attendance Rate (Last 4): <strong style={{ color: '#38bdf8' }}>{c.attendanceRateLast4 ?? c.attendanceRate ?? 100}%</strong></span>
+                    <span>At-Risk: <strong style={{ color: c.atRiskVolunteerCount > 0 ? '#fb7185' : '#34d399' }}>{c.atRiskVolunteerCount ?? c.atRiskCount ?? 0}</strong></span>
+                  </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {c._count?.volunteers || 0} / {c.targetVolunteerCount} Volunteers
+                    {c.activeVolunteerCount ?? (c._count?.volunteers || 0)} / {c.targetVolunteerCount} Active Vols
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {c._count?.students || 0} Enrolled Students
+                    {c._count?.students || 0} Students • {c.totalVerifiedHours ?? c.totalHours ?? 0} hrs Logged
                   </div>
                 </div>
               </div>
@@ -158,7 +193,7 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
               <AlertTriangle size={18} color="#fb7185" />
               <h3 style={{ fontSize: '1.1rem' }}>Retention Risk Watchlist</h3>
             </div>
-            <span className="badge badge-at-risk">{atRiskList.length} Volunteers Needing Attention</span>
+            <span className="badge badge-at-risk">{atRiskList.length} HIGH Risk Volunteers</span>
           </div>
 
           {atRiskList.length === 0 ? (
@@ -167,29 +202,74 @@ export default function AdminView({ data, onRefresh }: AdminViewProps) {
               <p style={{ fontSize: '0.88rem' }}>No high-risk volunteer churn detected this week!</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {atRiskList.map((vol: any) => (
                 <div
                   key={vol.id}
                   style={{
                     background: 'rgba(244, 63, 94, 0.06)',
-                    padding: '14px',
+                    padding: '16px',
                     borderRadius: '12px',
-                    border: '1px solid rgba(244, 63, 94, 0.2)',
+                    border: '1px solid rgba(244, 63, 94, 0.25)',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
+                    flexDirection: 'column',
+                    gap: '10px'
                   }}
                 >
-                  <div>
-                    <h4 style={{ fontSize: '0.92rem', color: '#fecdd3' }}>{vol.name}</h4>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                      {vol.center?.name || 'Unassigned'} • {vol.skills}
-                    </p>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <h4 style={{ fontSize: '0.96rem', color: '#fecdd3', margin: 0 }}>{vol.name}</h4>
+                        <span className="badge badge-at-risk" style={{ fontSize: '0.68rem' }}>
+                          HIGH Risk ({vol.churnProbability ?? 0}%)
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                        {vol.center?.name || 'Vihana Center'} • {vol.skills || 'Teaching'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeactivateVolunteer(vol.id)}
+                      title="Deactivate volunteer (preserves historical attendance)"
+                      style={{
+                        background: 'rgba(244, 63, 94, 0.2)',
+                        border: '1px solid #f43f5e',
+                        color: '#fb7185',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.74rem',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Deactivate
+                    </button>
                   </div>
-                  <span className="badge badge-at-risk" style={{ fontSize: '0.68rem' }}>
-                    Missed 2+ Sessions
-                  </span>
+
+                  <div style={{ fontSize: '0.78rem', color: '#fca5a5' }}>
+                    <strong>Primary Risk Factor:</strong> {vol.primaryRiskFactor || 'Multiple consecutive session absences'}
+                  </div>
+
+                  <div style={{
+                    background: 'rgba(15, 23, 42, 0.5)',
+                    border: '1px solid rgba(251, 191, 36, 0.2)',
+                    borderRadius: '8px',
+                    padding: '8px 12px'
+                  }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fbbf24', marginBottom: '4px' }}>
+                      Recommended Coordinator Actions:
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '0.76rem', color: '#cbd5e1' }}>
+                      {(vol.recommendedActions || [
+                        'Schedule 1-on-1 check-in',
+                        'Assign buddy mentor',
+                        'Review RSVP response latency'
+                      ]).map((action: string, idx: number) => (
+                        <li key={idx} style={{ marginBottom: '2px' }}>{action}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               ))}
             </div>

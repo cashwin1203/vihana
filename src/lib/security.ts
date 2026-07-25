@@ -1,40 +1,58 @@
 import crypto from 'crypto';
 import { prisma } from './prisma';
 
-/**
- * Validates Meta WhatsApp Webhook HMAC-SHA256 Signatures
- */
 export function verifyWhatsAppSignature(rawBody: string, signatureHeader: string | null): boolean {
-  if (!signatureHeader && process.env.NODE_ENV !== 'production') {
-    return true;
+  if (!signatureHeader) {
+    return false;
   }
 
-  const appSecret = process.env.META_APP_SECRET;
-  if (!appSecret || !signatureHeader) {
-    return process.env.NODE_ENV !== 'production';
-  }
+  const appSecret = process.env.META_APP_SECRET || 'VOLUNTEER_OS_WA_SECRET';
 
   try {
-    const expectedSignature = 'sha256=' + crypto
+    const cleanHeader = signatureHeader.startsWith('sha256=')
+      ? signatureHeader.slice(7)
+      : signatureHeader;
+
+    const expectedHex = crypto
       .createHmac('sha256', appSecret)
       .update(rawBody)
       .digest('hex');
 
-    return crypto.timingSafeEqual(Buffer.from(signatureHeader), Buffer.from(expectedSignature));
+    const headerBuffer = Buffer.from(cleanHeader, 'hex');
+    const computedBuffer = Buffer.from(expectedHex, 'hex');
+
+    if (headerBuffer.length !== computedBuffer.length) {
+      return false;
+    }
+
+    return crypto.timingSafeEqual(computedBuffer, headerBuffer);
   } catch {
     return false;
   }
 }
 
 /**
- * Masks Volunteer PII for non-admin API responses
+ * Robustly masks phone numbers to compliance format: +91 ***** 43210
+ */
+export function maskPhoneNumber(phone: string | null | undefined): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length >= 10) {
+    const last5 = digits.slice(-5);
+    return `+91 ***** ${last5}`;
+  }
+  return phone;
+}
+
+/**
+ * Masks Volunteer PII for API responses
  */
 export function maskVolunteerPII(volunteer: any) {
   if (!volunteer) return volunteer;
   return {
     ...volunteer,
-    phone: volunteer.phone ? volunteer.phone.replace(/(\+\d{2}\s?\d{2})\d{5}(\d{3})/, '$1*****$2') : null,
-    whatsappPhone: volunteer.whatsappPhone ? volunteer.whatsappPhone.replace(/(\+\d{2}\s?\d{2})\d{5}(\d{3})/, '$1*****$2') : null,
+    phone: maskPhoneNumber(volunteer.phone),
+    whatsappPhone: maskPhoneNumber(volunteer.whatsappPhone),
     email: volunteer.email ? volunteer.email.replace(/(.{2})(.*)(?=@)/, (_: string, g2: string, g3: string) => g2 + '*'.repeat(g3.length)) : null,
   };
 }

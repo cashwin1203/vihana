@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logSecurityAudit } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -99,7 +100,21 @@ export async function PATCH(req: Request) {
         ...(challengesFaced !== undefined && { challengesFaced }),
         ...(status && { status }),
       },
+      include: {
+        center: true,
+      },
     });
+
+    // Task 3 & 5: Immutable AuditLog entry for Emergency Session Cancellation
+    if (status === 'CANCELLED') {
+      await logSecurityAudit('COORDINATOR', 'EMERGENCY_SESSION_CANCEL', {
+        sessionId: updated.id,
+        centerId: updated.centerId,
+        centerName: updated.center?.name,
+        status: 'CANCELLED',
+        reason: challengesFaced || 'Emergency session cancellation',
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (error: any) {

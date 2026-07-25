@@ -9,7 +9,8 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const centerId = searchParams.get('centerId');
     const status = searchParams.get('status');
-    const maskPII = searchParams.get('mask') === 'true';
+    const isExport = searchParams.get('export') === 'csv' || searchParams.get('format') === 'csv';
+    const unmask = searchParams.get('unmask') === 'true';
 
     const where: any = {};
     if (centerId) where.centerId = centerId;
@@ -28,7 +29,28 @@ export async function GET(req: Request) {
       orderBy: { name: 'asc' },
     });
 
-    const output = maskPII ? volunteers.map(maskVolunteerPII) : volunteers;
+    if (isExport) {
+      await logSecurityAudit('ADMIN', 'CSV_EXPORT', {
+        action: 'EXPORT_VOLUNTEERS_CSV',
+        totalRecords: volunteers.length,
+        centerId: centerId || 'ALL',
+      });
+
+      const csvHeader = 'Name,Email,Phone,Role,Status,Skills,Center\n';
+      const csvRows = volunteers
+        .map((v) => `"${v.name}","${v.email}","${v.phone}","${v.role}","${v.status}","${v.skills}","${v.center?.name || ''}"`)
+        .join('\n');
+      
+      return new Response(csvHeader + csvRows, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': 'attachment; filename="volunteers.csv"',
+        },
+      });
+    }
+
+    // Task 4: Ensure GET /api/volunteers does NOT expose raw phone numbers by default
+    const output = unmask ? volunteers : volunteers.map(maskVolunteerPII);
 
     return NextResponse.json(output);
   } catch (error: any) {
@@ -54,7 +76,14 @@ export async function POST(req: Request) {
       },
     });
 
-    await logSecurityAudit('ADMIN', 'ONBOARD_VOLUNTEER', { volunteerName: name, email });
+    // Task 5: Immutable AuditLog for Volunteer creation / onboarding
+    await logSecurityAudit('ADMIN', 'ONBOARD_VOLUNTEER', {
+      volunteerId: volunteer.id,
+      volunteerName: name,
+      email,
+      role: volunteer.role,
+      centerId: volunteer.centerId,
+    });
 
     return NextResponse.json(volunteer, { status: 201 });
   } catch (error: any) {
@@ -67,6 +96,7 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { id, status, role, centerId } = body;
 
+    // Task 1: Deactivating volunteer sets status: INACTIVE while preserving attendance history
     const updated = await prisma.volunteer.update({
       where: { id },
       data: {
@@ -74,9 +104,20 @@ export async function PATCH(req: Request) {
         ...(role && { role }),
         ...(centerId !== undefined && { centerId }),
       },
+      include: {
+        center: true,
+        attendances: true,
+      },
     });
 
-    await logSecurityAudit('ADMIN', 'UPDATE_VOLUNTEER_STATUS', { id, status, role });
+    const auditAction = status === 'INACTIVE' ? 'DEACTIVATE_VOLUNTEER' : 'UPDATE_VOLUNTEER_STATUS';
+    await logSecurityAudit('ADMIN', auditAction, {
+      volunteerId: id,
+      volunteerName: updated.name,
+      status: updated.status,
+      preservedAttendancesCount: updated.attendances.length,
+      role: updated.role,
+    });
 
     return NextResponse.json(updated);
   } catch (error: any) {

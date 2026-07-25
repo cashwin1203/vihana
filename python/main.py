@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Union, Any
 from churn_model import VolunteerChurnPredictor
 from voice_processor import VoiceNoteNLUProcessor
 
@@ -15,11 +15,16 @@ churn_predictor = VolunteerChurnPredictor()
 voice_processor = VoiceNoteNLUProcessor()
 
 class ChurnRequest(BaseModel):
-    attendance_rate: float
-    rsvp_latency_hours: float
-    consecutive_absences: int
-    months_active: float
-    backup_frequency: int
+    attendance_rate: Optional[float] = 0.0
+    rsvp_latency_hours: Optional[float] = 0.0
+    consecutive_absences: Optional[int] = 0
+    months_active: Optional[float] = 0.0
+    backup_frequency: Optional[int] = 0
+    volunteer_id: Optional[Union[str, int]] = None
+    name: Optional[str] = None
+
+class BatchChurnRequest(BaseModel):
+    volunteers: List[ChurnRequest]
 
 class VoiceNoteRequest(BaseModel):
     transcript: str
@@ -38,7 +43,32 @@ def predict_churn(req: ChurnRequest):
             months_active=req.months_active,
             backup_frequency=req.backup_frequency
         )
+        if req.volunteer_id is not None:
+            result["volunteer_id"] = req.volunteer_id
+        if req.name is not None:
+            result["name"] = req.name
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/batch-predict")
+def batch_predict(payload: Union[BatchChurnRequest, List[ChurnRequest]] = Body(...)):
+    try:
+        if isinstance(payload, BatchChurnRequest):
+            items = payload.volunteers
+        elif isinstance(payload, list):
+            items = payload
+        elif isinstance(payload, dict) and "volunteers" in payload:
+            items = [ChurnRequest(**v) if isinstance(v, dict) else v for v in payload["volunteers"]]
+        else:
+            items = []
+
+        predictions = churn_predictor.predict_batch(items)
+
+        return {
+            "predictions": predictions,
+            "count": len(predictions)
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

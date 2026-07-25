@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logSecurityAudit } from '@/lib/security';
 
 export async function PATCH(req: Request) {
   try {
@@ -7,12 +8,17 @@ export async function PATCH(req: Request) {
     const { type, id, rsvpStatus, checkInStatus, hoursLogged, notes, studentStatus } = body;
 
     if (type === 'VOLUNTEER') {
+      // Task 2: Manual Check-In Override logs 3.0 hours by default when PRESENT
+      const effectiveHours = checkInStatus === 'PRESENT'
+        ? (hoursLogged !== undefined && hoursLogged !== null ? Number(hoursLogged) : 3.0)
+        : (hoursLogged !== undefined ? Number(hoursLogged) : undefined);
+
       const attendance = await prisma.volunteerAttendance.update({
         where: { id },
         data: {
           ...(rsvpStatus && { rsvpStatus }),
           ...(checkInStatus && { checkInStatus }),
-          ...(hoursLogged !== undefined && { hoursLogged: Number(hoursLogged) }),
+          ...(effectiveHours !== undefined && { hoursLogged: effectiveHours }),
           ...(notes !== undefined && { notes }),
         },
         include: {
@@ -20,8 +26,8 @@ export async function PATCH(req: Request) {
         },
       });
 
-      // Recalculate volunteer total hours if present
-      if (checkInStatus === 'PRESENT' && hoursLogged) {
+      // Recalculate volunteer total hours if checkInStatus is PRESENT
+      if (attendance.checkInStatus === 'PRESENT') {
         const total = await prisma.volunteerAttendance.aggregate({
           where: {
             volunteerId: attendance.volunteerId,
@@ -35,6 +41,14 @@ export async function PATCH(req: Request) {
         await prisma.volunteer.update({
           where: { id: attendance.volunteerId },
           data: { totalHours: total._sum.hoursLogged || 0 },
+        });
+
+        await logSecurityAudit('COORDINATOR', 'MANUAL_CHECKIN_OVERRIDE', {
+          attendanceId: id,
+          volunteerId: attendance.volunteerId,
+          volunteerName: attendance.volunteer?.name,
+          checkInStatus: 'PRESENT',
+          hoursLogged: attendance.hoursLogged,
         });
       }
 

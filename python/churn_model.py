@@ -25,6 +25,13 @@ class VolunteerChurnPredictor:
     ) -> dict:
         """Calculate churn probability score and risk level for a volunteer."""
 
+        # Sanitize / handle None or missing numerical inputs
+        attendance_rate = 0.0 if attendance_rate is None else float(attendance_rate)
+        rsvp_latency_hours = 0.0 if rsvp_latency_hours is None else float(rsvp_latency_hours)
+        consecutive_absences = 0 if consecutive_absences is None else int(consecutive_absences)
+        months_active = 0.0 if months_active is None else float(months_active)
+        backup_frequency = 0 if backup_frequency is None else int(backup_frequency)
+
         # Weighted logistic scoring algorithm
         # Higher latency & consecutive absences increase risk; higher attendance & backup freq lower risk
         logit = (
@@ -34,6 +41,9 @@ class VolunteerChurnPredictor:
             0.05 * months_active -
             0.3 * backup_frequency - 1.2
         )
+
+        # Bound logit between -50.0 and 50.0 to prevent math.exp(-logit) overflow
+        logit = min(max(logit, -50.0), 50.0)
 
         churn_prob = 1.0 / (1.0 + math.exp(-logit))
         churn_prob_percent = round(min(max(churn_prob, 0.05), 0.98) * 100, 1)
@@ -64,8 +74,63 @@ class VolunteerChurnPredictor:
             "risk_level": risk_level,
             "primary_risk_factor": primary_factor,
             "recommended_action": action,
-            "engine": "Scikit-Learn (RandomForest)" if self.use_sklearn else "Logistic Engagement Classifier"
+            "engine": "Logistic Scoring Classifier"
         }
+
+    def predict_batch(self, volunteers: list) -> list:
+        """Calculate churn predictions for a batch of volunteers."""
+        results = []
+        for v in volunteers:
+            if isinstance(v, dict):
+                att_val = v.get("attendance_rate")
+                attendance_rate = float(att_val) if att_val is not None else 0.0
+
+                lat_val = v.get("rsvp_latency_hours")
+                rsvp_latency_hours = float(lat_val) if lat_val is not None else 0.0
+
+                abs_val = v.get("consecutive_absences")
+                consecutive_absences = int(abs_val) if abs_val is not None else 0
+
+                months_val = v.get("months_active")
+                months_active = float(months_val) if months_val is not None else 0.0
+
+                backup_val = v.get("backup_frequency")
+                backup_frequency = int(backup_val) if backup_val is not None else 0
+
+                volunteer_id = v.get("volunteer_id")
+                name = v.get("name")
+            else:
+                att_val = getattr(v, "attendance_rate", None)
+                attendance_rate = float(att_val) if att_val is not None else 0.0
+
+                lat_val = getattr(v, "rsvp_latency_hours", None)
+                rsvp_latency_hours = float(lat_val) if lat_val is not None else 0.0
+
+                abs_val = getattr(v, "consecutive_absences", None)
+                consecutive_absences = int(abs_val) if abs_val is not None else 0
+
+                months_val = getattr(v, "months_active", None)
+                months_active = float(months_val) if months_val is not None else 0.0
+
+                backup_val = getattr(v, "backup_frequency", None)
+                backup_frequency = int(backup_val) if backup_val is not None else 0
+
+                volunteer_id = getattr(v, "volunteer_id", None)
+                name = getattr(v, "name", None)
+
+            res = self.predict_risk(
+                attendance_rate=attendance_rate,
+                rsvp_latency_hours=rsvp_latency_hours,
+                consecutive_absences=consecutive_absences,
+                months_active=months_active,
+                backup_frequency=backup_frequency
+            )
+            if volunteer_id is not None:
+                res["volunteer_id"] = volunteer_id
+            if name is not None:
+                res["name"] = name
+            results.append(res)
+        return results
 
 if __name__ == "__main__":
     predictor = VolunteerChurnPredictor()
