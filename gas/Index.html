@@ -1,133 +1,433 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <base target="_top">
   <meta charset="utf-8">
-  <title>U&I Vihana Volunteer Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>U&I Vihana Volunteer attendance</title>
+  
+  <!-- Premium Fonts: Outfit (Display & Headings) + Inter (Interface & Data Tabular Nums) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
   <style>
     :root {
       --brand-red: #CC1100;
-      --brand-red-dark: #991100;
-      --bg-dark: #0a0c0f;
-      --bg-card: rgba(22, 16, 16, 0.92);
+      --brand-red-glow: rgba(204, 17, 0, 0.28);
+      --bg-dark: #08090c;
+      --bg-card: rgba(18, 14, 14, 0.90);
+      --bg-input: rgba(255, 255, 255, 0.05);
+      --border-subtle: rgba(255, 255, 255, 0.08);
       --text-primary: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent-green: #10B981;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-green: #10b981;
       --accent-amber: #f59e0b;
       --accent-cyan: #06b6d4;
       --font-heading: 'Outfit', sans-serif;
-      --font-body: 'Inter', sans-serif;
+      --font-body: 'Inter', system-ui, -apple-system, sans-serif;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); }
-    body { background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; padding: 16px; display: flex; justify-content: center; font-family: var(--font-body); }
-    h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
-    .container { width: 100%; max-width: 440px; margin: 0 auto; }
-    .card { background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5); margin-bottom: 16px; }
-    
-    /* Header & Brand Identity */
-    .header { text-align: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-    .logo-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
-    .logo { width: 44px; height: 44px; background: linear-gradient(135deg, #CC1100 0%, #991100 100%); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.15rem; color: #fff; box-shadow: 0 0 18px rgba(204,17,0,0.45), 0 0 0 1px rgba(204,17,0,0.3); font-family: var(--font-heading); }
-    .brand-title { text-align: left; }
-    h1 { font-size: 1.15rem; font-weight: 700; font-family: var(--font-heading); letter-spacing: -0.01em; margin-bottom: 2px; }
-    .sub { font-size: 0.78rem; color: var(--text-muted); }
-    .live-time { font-size: 0.75rem; color: #34d399; font-weight: 600; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-    /* Pulse Badge */
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-top: 10px; letter-spacing: 0.04em; }
-    .badge-open { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
-    .badge-closed { background: rgba(204,17,0,0.15); color: #ff6b5b; border: 1px solid rgba(204,17,0,0.3); }
-    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background-color: #10b981; display: inline-block; animation: pulseRing 2s infinite; }
-    @keyframes pulseRing {
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(204, 17, 0, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-variant-numeric: tabular-nums;
+      min-height: 100dvh;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-heading);
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    /* True Glassmorphism Card Surface */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 20px 50px -15px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(0, 0, 0, 0.4);
+      margin-bottom: 16px;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Header & Brand Identity */
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .logo-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .logo-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #CC1100 0%, #880b00 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(204, 17, 0, 0.45), 0 0 0 1px rgba(204, 17, 0, 0.3);
+      flex-shrink: 0;
+    }
+
+    .brand-titles {
+      text-align: left;
+    }
+
+    .brand-titles h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.25;
+    }
+
+    .brand-titles .sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .live-clock-pill {
+      font-size: 0.74rem;
+      color: #34d399;
+      font-weight: 600;
+      margin-top: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    /* Pulse Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 10px;
+    }
+
+    .badge-open {
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.30);
+    }
+
+    .badge-closed {
+      background: rgba(204, 17, 0, 0.14);
+      color: #ff6b5b;
+      border: 1px solid rgba(204, 17, 0, 0.30);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #10b981;
+      animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes statusPulse {
       0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
       100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
-    /* Roster Auto-Filter & Search */
-    :focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, .filter-pill:focus-visible, .roster-item:focus-visible, .tab-btn:focus-visible {
-      outline: 2px solid #CC1100;
-      outline-offset: 2px;
+    /* Accessible Input Focus States */
+    :focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 2px solid var(--brand-red);
+      outline-offset: 3px;
     }
-    .search-input { width: 100%; min-height: 44px; padding: 12px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: #fff; font-size: 0.95rem; margin-bottom: 10px; outline: none; transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1); will-change: border-color, box-shadow; }
-    .search-input:focus { border-color: var(--brand-red); box-shadow: 0 0 0 3px rgba(204,17,0,0.25); }
-    .filter-pills { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+
+    .search-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-bottom: 12px;
+    }
+
+    .search-input:focus {
+      border-color: var(--brand-red);
+      box-shadow: 0 0 0 3px var(--brand-red-glow);
+    }
+
+    /* Horizontal Filter Pills */
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
     .filter-pills::-webkit-scrollbar { display: none; }
-    .filter-pill { flex: 0 0 auto; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; }
-    .filter-pill:hover { transform: translateY(-2px); border-color: rgba(204,17,0,0.3); color: #ffffff; }
-    .filter-pill.active { background: linear-gradient(135deg, rgba(204,17,0,0.3), rgba(204,17,0,0.15)); border-color: rgba(204,17,0,0.5); color: #ffffff; box-shadow: 0 2px 8px rgba(204,17,0,0.3); }
 
-    .roster-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-    .roster-item { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; }
-    .roster-item:hover { transform: translateY(-2px); background: rgba(204,17,0,0.08); border-color: rgba(204,17,0,0.3); }
-    .role-tag { font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
-    .tag-vol { background: rgba(6,182,212,0.15); color: #22d3ee; }
-    .tag-stu { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .filter-pill {
+      flex: 0 0 auto;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-    /* Buttons */
-    .btn { width: 100%; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 12px 18px; background: linear-gradient(135deg, #CC1100, #991100); border: none; border-radius: 12px; color: #fff; font-weight: 600; font-size: 0.95rem; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 14px rgba(204, 17, 0, 0.35); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, box-shadow; }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(204, 17, 0, 0.45); }
-    .btn-sec { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); box-shadow: none; }
-    .btn-sec:hover { background: rgba(255,255,255,0.12); box-shadow: none; transform: translateY(-2px); }
-    .btn-ai { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; margin-top: 12px; }
+    .filter-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
 
-    /* Check-In Success Modal & Spring Entrance */
-    .success-box { text-align: center; padding: 24px 10px; animation: springEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
-    @keyframes springEntrance {
-      0% { transform: scale(0.7) translateY(20px); opacity: 0; }
-      70% { transform: scale(1.04) translateY(-4px); opacity: 1; }
+    .filter-pill.active {
+      background: linear-gradient(135deg, rgba(204, 17, 0, 0.35) 0%, rgba(136, 11, 0, 0.25) 100%);
+      border-color: rgba(204, 17, 0, 0.50);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(204, 17, 0, 0.25);
+    }
+
+    /* Roster Item Grid */
+    .roster-list {
+      max-height: 290px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .roster-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 48px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .roster-item:hover {
+      transform: translateY(-2px);
+      background: rgba(204, 17, 0, 0.08);
+      border-color: rgba(204, 17, 0, 0.32);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .roster-item:active {
+      transform: scale(0.98);
+    }
+
+    .role-tag {
+      font-size: 0.66rem;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-vol { background: rgba(6, 182, 212, 0.14); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.25); }
+    .tag-stu { background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+
+    /* Action Buttons (Strict 44px+ Touch Targets & Active Press Effect) */
+    .btn {
+      width: 100%;
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #CC1100 0%, #991100 100%);
+      border: none;
+      border-radius: 14px;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 16px rgba(204, 17, 0, 0.35);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(204, 17, 0, 0.45);
+    }
+
+    .btn:active {
+      transform: scale(0.98) translateY(1px);
+    }
+
+    .btn-sec {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      box-shadow: none;
+      color: var(--text-primary);
+    }
+
+    .btn-sec:hover {
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(204, 17, 0, 0.30);
+    }
+
+    .btn-ai {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35);
+    }
+
+    .btn-ai:hover {
+      box-shadow: 0 8px 22px rgba(139, 92, 246, 0.45);
+    }
+
+    /* Spring Entrance Checkmark Modal */
+    .success-box {
+      text-align: center;
+      padding: 24px 10px;
+      animation: springModal 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes springModal {
+      0% { transform: scale(0.85) translateY(16px); opacity: 0; }
       100% { transform: scale(1) translateY(0); opacity: 1; }
     }
 
-    /* Animated SVG Checkmark Icon */
-    .checkmark-wrapper { width: 72px; height: 72px; margin: 0 auto 16px; position: relative; }
+    .checkmark-wrapper {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 16px;
+    }
+
     .svg-checkmark-circle {
       stroke-dasharray: 166;
       stroke-dashoffset: 166;
       stroke-width: 3;
-      stroke: #10B981;
+      stroke: #10b981;
       fill: none;
-      animation: strokeCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-      will-change: stroke-dashoffset;
+      animation: drawCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
     }
+
     .svg-checkmark-check {
       stroke-dasharray: 48;
       stroke-dashoffset: 48;
-      stroke: #10B981;
+      stroke: #10b981;
       stroke-width: 4;
       stroke-linecap: round;
       stroke-linejoin: round;
       fill: none;
-      animation: strokeCheck 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.35s forwards;
-      will-change: stroke-dashoffset;
-    }
-    @keyframes strokeCircle {
-      100% { stroke-dashoffset: 0; }
-    }
-    @keyframes strokeCheck {
-      100% { stroke-dashoffset: 0; }
+      animation: drawCheck 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.35s forwards;
     }
 
-    .timestamp-badge { display: inline-block; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-top: 8px; }
+    @keyframes drawCircle { 100% { stroke-dashoffset: 0; } }
+    @keyframes drawCheck { 100% { stroke-dashoffset: 0; } }
 
-    /* Tabs */
-    .tabs { display: flex; gap: 8px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; }
-    .tab-btn { flex: 1; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; background: none; border: none; color: var(--text-muted); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; }
-    .tab-btn:hover { transform: translateY(-2px); color: #ffffff; }
-    .tab-btn.active { color: var(--brand-red); border-bottom: 2px solid var(--brand-red); }
+    .timestamp-badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.30);
+      color: #34d399;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 8px;
+    }
 
-    /* Accessibility: Reduced Motion */
+    /* Tabs Navigation */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 14px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .tab-btn.active {
+      color: var(--brand-red);
+      border-bottom: 2px solid var(--brand-red);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, ::before, ::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
         transform: none !important;
-        will-change: auto !important;
       }
     }
   </style>
@@ -138,16 +438,16 @@
       
       <!-- BRAND HEADER -->
       <div class="header">
-        <div class="logo-container">
-          <div class="logo" aria-hidden="true">U&amp;I</div>
-          <div class="brand-title">
-            <h1>U&amp;I Vihana Center</h1>
-            <div class="sub">Single-Centre Mobile Check-In</div>
+        <div class="logo-badge-row">
+          <div class="logo-mark" aria-hidden="true">U&amp;I</div>
+          <div class="brand-titles">
+            <h1>U&amp;I Vihana Volunteer attendance</h1>
+            <div class="sub">Vihana Centre Mobile App</div>
           </div>
         </div>
         
-        <div class="live-time" id="liveClockReadout" aria-live="polite" aria-label="Live time and date">
-          Saturday, 30 Jul 2026 | Vihana Center
+        <div class="live-clock-pill" id="liveClockReadout" aria-live="polite">
+          Loading live clock...
         </div>
         
         <div id="sessionBadge" class="status-badge badge-closed" role="status" aria-live="polite">
@@ -155,115 +455,110 @@
         </div>
       </div>
 
-      <!-- VOLUNTEER ROSTER & AUTO-FILTER MODE -->
+      <!-- VOLUNTEER ROSTER & AUTO-FILTER -->
       <div id="volunteerMode">
-        <input type="text" id="searchInput" class="search-input" placeholder="Type your name to check in..." oninput="filterRoster()" aria-label="Search volunteer roster by name">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search your name to check in..." oninput="filterRoster()" aria-label="Search roster by name">
         
         <!-- Filter Pills -->
         <div class="filter-pills" role="tablist" aria-label="Filter roster by category">
-          <button type="button" class="filter-pill active" id="pillAll" role="tab" aria-selected="true" aria-controls="rosterList" onclick="setFilter('ALL')">All (<span id="cntAll">0</span>)</button>
-          <button type="button" class="filter-pill" id="pillVol" role="tab" aria-selected="false" aria-controls="rosterList" onclick="setFilter('VOLUNTEER')">Volunteers (<span id="cntVol">0</span>)</button>
-          <button type="button" class="filter-pill" id="pillStu" role="tab" aria-selected="false" aria-controls="rosterList" onclick="setFilter('STUDENT')">Students (<span id="cntStu">0</span>)</button>
-          <button type="button" class="filter-pill" id="pillChecked" role="tab" aria-selected="false" aria-controls="rosterList" onclick="setFilter('CHECKED_IN')">Checked-In (<span id="cntChecked">0</span>)</button>
+          <button type="button" class="filter-pill active" id="pillAll" role="tab" aria-selected="true" onclick="setFilter('ALL')">All (<span id="cntAll">0</span>)</button>
+          <button type="button" class="filter-pill" id="pillVol" role="tab" aria-selected="false" onclick="setFilter('VOLUNTEER')">Volunteers (<span id="cntVol">0</span>)</button>
+          <button type="button" class="filter-pill" id="pillStu" role="tab" aria-selected="false" onclick="setFilter('STUDENT')">Students (<span id="cntStu">0</span>)</button>
+          <button type="button" class="filter-pill" id="pillChecked" role="tab" aria-selected="false" onclick="setFilter('CHECKED_IN')">Checked-In (<span id="cntChecked">0</span>)</button>
         </div>
 
-        <div class="roster-list" id="rosterList" role="list" aria-label="Volunteer and student roster list">
+        <div class="roster-list" id="rosterList" role="list">
           <div style="text-align:center; padding:20px; color:var(--text-muted);">Loading roster...</div>
         </div>
         
         <div style="text-align:center; margin-top:14px;">
-          <a href="#" onclick="showNewPersonForm(); return false;" style="color:#ff6b5b; font-size:0.8rem; text-decoration:none;" aria-label="Add new person to roster">Not on the list? Add yourself &rarr;</a>
+          <a href="#" onclick="showNewPersonForm(); return false;" style="color:#ff6b5b; font-size:0.8rem; text-decoration:none;">Not on the list? Add yourself &rarr;</a>
         </div>
       </div>
 
-      <!-- CHECK-IN SUCCESS MODAL -->
+      <!-- CHECK-IN SUCCESS CONFIRMATION MODAL -->
       <div id="successMode" class="success-box" style="display:none;" role="dialog" aria-modal="true" aria-label="Check-in Success Confirmation">
         <div class="checkmark-wrapper">
-          <svg class="checkmark-svg" viewBox="0 0 52 52">
+          <svg viewBox="0 0 52 52">
             <circle class="svg-checkmark-circle" cx="26" cy="26" r="23" />
             <path class="svg-checkmark-check" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
           </svg>
         </div>
-        <h2 id="successName" style="margin-bottom:6px; font-size:1.3rem;">Checked In!</h2>
-        <div id="successTime" class="timestamp-badge">Checked in at 10:45:12 AM IST</div>
+        <h2 id="successName" style="margin-bottom:6px; font-size:1.35rem;">Checked In!</h2>
+        <div id="successTime" class="timestamp-badge">Checked in at 04:02 PM</div>
         
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:20px;">
-          <button class="btn" onclick="resetCheckIn()" aria-label="Done with check-in">Done / Next Check-In</button>
-          <button class="btn btn-sec" onclick="resetCheckIn()" aria-label="Return to roster">Back to Roster</button>
+          <button class="btn" onclick="resetCheckIn()">Done / Next Check-In</button>
+          <button class="btn btn-sec" onclick="resetCheckIn()">Back to Roster</button>
         </div>
       </div>
 
       <!-- NEW PERSON FORM -->
-      <div id="newPersonMode" style="display:none;" role="dialog" aria-modal="true" aria-label="First Time Check-In Form">
-        <h3 style="font-size:1rem; margin-bottom:12px;">First Time Check-In</h3>
-        <input type="text" id="newNameInput" class="search-input" placeholder="Your Full Name" aria-label="Your full name">
-        <select id="newRoleSelect" class="search-input" style="background:#161010;" aria-label="Select role">
+      <div id="newPersonMode" style="display:none;" role="dialog" aria-modal="true">
+        <h3 style="font-size:1.05rem; margin-bottom:14px;">First-Time Registration</h3>
+        <input type="text" id="newNameInput" class="search-input" placeholder="Full Name">
+        <select id="newRoleSelect" class="search-input" style="background:#140e0e;">
           <option value="VOLUNTEER">Volunteer</option>
           <option value="STUDENT">Student</option>
         </select>
-        <button class="btn" onclick="submitNewPerson()" aria-label="Add and check in now">Add & Check In Now</button>
-        <button class="btn btn-sec" onclick="cancelNewPerson()" aria-label="Cancel adding person">Back</button>
+        <button class="btn" onclick="submitNewPerson()">Add & Check In Now</button>
+        <button class="btn btn-sec" onclick="cancelNewPerson()">Back</button>
       </div>
 
       <!-- LEADER DASHBOARD -->
       <div id="leaderMode" style="display:none;" role="region" aria-label="Centre Leader Dashboard">
         <h3 style="font-size:1.1rem; margin-bottom:14px; color:var(--brand-red); display:flex; align-items:center; justify-content:space-between;">
           <span>Centre Leader Dashboard</span>
-          <span style="font-size:0.72rem; background:rgba(204,17,0,0.15); border:1px solid rgba(204,17,0,0.3); color:#ff6b5b; padding:2px 8px; border-radius:12px;">Live Monitor</span>
+          <span style="font-size:0.7rem; background:rgba(204,17,0,0.15); border:1px solid rgba(204,17,0,0.3); color:#ff6b5b; padding:2px 8px; border-radius:12px; font-weight:700;">Live</span>
         </h3>
         
         <div id="leaderPinSection" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:14px;">
-          <input type="password" id="pinInput" class="search-input" placeholder="Enter Leader PIN (default: 1234)" aria-label="Leader PIN Input">
-          <button class="btn" onclick="loadLeaderData()" aria-label="Login to dashboard">Login to Dashboard</button>
+          <input type="password" id="pinInput" class="search-input" placeholder="Enter Leader PIN (default: 1234)">
+          <button class="btn" onclick="loadLeaderData()">Login to Dashboard</button>
         </div>
 
         <div id="leaderContent" style="display:none;">
-          <!-- Low Turnout Anomaly Banner -->
           <div id="anomalyContainer" role="status" aria-live="polite"></div>
 
-          <!-- Glassmorphism KPI Panels with Micro-Borders & Depth Shadows -->
+          <!-- Glassmorphism KPI Grid -->
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
-            <div style="background:linear-gradient(135deg, rgba(204,17,0,0.12) 0%, rgba(18,14,14,0.92) 100%); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center; box-shadow:0 10px 30px -10px rgba(0,0,0,0.5);">
-              <div style="font-size:1.6rem; font-weight:700; color:#fff;" id="kpiCheckedIn" aria-label="Today Checked In Count">0</div>
-              <div style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">TODAY CHECKED IN</div>
+            <div style="background:linear-gradient(135deg, rgba(204,17,0,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
+              <div style="font-size:1.6rem; font-weight:700; color:#fff;" id="kpiCheckedIn">0</div>
+              <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">TODAY CHECKED IN</div>
             </div>
-            <div style="background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(18,14,14,0.92) 100%); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center; box-shadow:0 10px 30px -10px rgba(0,0,0,0.5);">
-              <div style="font-size:1.6rem; font-weight:700; color:#fff;" id="kpiTotalVols" aria-label="Active Roster Count">0</div>
-              <div style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">ACTIVE ROSTER</div>
+            <div style="background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
+              <div style="font-size:1.6rem; font-weight:700; color:#fff;" id="kpiTotalVols">0</div>
+              <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">ACTIVE ROSTER</div>
             </div>
-            <div style="background:linear-gradient(135deg, rgba(6,182,212,0.12) 0%, rgba(18,14,14,0.92) 100%); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center; box-shadow:0 10px 30px -10px rgba(0,0,0,0.5);">
-              <div style="font-size:1.6rem; font-weight:700; color:#38bdf8;" id="kpiTurnoutPct" aria-label="Turnout Rate Percentage">0%</div>
-              <div style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">TURNOUT RATE</div>
+            <div style="background:linear-gradient(135deg, rgba(6,182,212,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
+              <div style="font-size:1.6rem; font-weight:700; color:#38bdf8;" id="kpiTurnoutPct">0%</div>
+              <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">TURNOUT RATE</div>
             </div>
-            <div style="background:linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(18,14,14,0.92) 100%); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center; box-shadow:0 10px 30px -10px rgba(0,0,0,0.5);">
-              <div style="font-size:1.6rem; font-weight:700; color:#fb7185;" id="kpiAtRisk" aria-label="Retention Risk Count">0</div>
-              <div style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">RETENTION RISK</div>
+            <div style="background:linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
+              <div style="font-size:1.6rem; font-weight:700; color:#fb7185;" id="kpiAtRisk">0</div>
+              <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">RETENTION RISK</div>
             </div>
           </div>
 
           <!-- Heuristic Attrition Watchlist -->
-          <h4 style="font-size:0.88rem; margin-bottom:10px; color:#ff6b5b; display:flex; align-items:center; gap:6px;">
-            ⚠️ Heuristic Attrition Watchlist
-          </h4>
-          <div id="riskList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:10px; margin-bottom:16px;" role="list" aria-label="At Risk Volunteers List"></div>
+          <h4 style="font-size:0.88rem; margin-bottom:10px; color:#ff6b5b;">⚠️ Heuristic Attrition Watchlist</h4>
+          <div id="riskList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:10px; margin-bottom:16px;"></div>
 
-          <!-- 1-Click Gemini Pro AI Summary Generator -->
-          <button class="btn btn-ai" onclick="generateGeminiSummary()" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9); font-weight:700;" aria-label="Generate 1-Click Gemini AI Executive Summary">
-            ✨ 1-Click Gemini Pro AI Summary
-          </button>
+          <!-- Gemini Pro AI Executive Summary -->
+          <button class="btn btn-ai" onclick="generateGeminiSummary()">✨ 1-Click Gemini Pro AI Summary</button>
           
-          <div id="aiSummaryBox" style="display:none; margin-top:12px; background:rgba(15,23,42,0.95); border:1px solid rgba(139,92,246,0.35); padding:14px; border-radius:12px; font-size:0.82rem; line-height:1.6; white-space:pre-wrap; color:#e2e8f0; box-shadow:0 8px 24px rgba(0,0,0,0.4);" role="region" aria-live="polite" aria-label="AI Summary Content">
+          <div id="aiSummaryBox" style="display:none; margin-top:12px; background:rgba(15,23,42,0.95); border:1px solid rgba(139,92,246,0.35); padding:14px; border-radius:14px; font-size:0.82rem; line-height:1.6; white-space:pre-wrap; color:#e2e8f0;">
             <div id="aiSummaryContent"></div>
-            <button id="copyAiSummaryBtn" class="btn btn-sec" onclick="copyGeminiSummaryText()" style="margin-top:12px; font-size:0.78rem; padding:8px;" aria-label="Copy AI Summary text to clipboard">
+            <button id="copyAiSummaryBtn" class="btn btn-sec" onclick="copyGeminiSummaryText()" style="margin-top:12px; font-size:0.78rem; padding:8px;">
               📋 Copy Summary Text
             </button>
           </div>
         </div>
       </div>
 
-      <div class="tabs" role="tablist" aria-label="Main View Tabs">
-        <button class="tab-btn active" id="tabVol" role="tab" aria-selected="true" aria-expanded="true" onclick="switchTab('VOL')">Volunteer</button>
-        <button class="tab-btn" id="tabLead" role="tab" aria-selected="false" aria-expanded="false" onclick="switchTab('LEAD')">Leader View</button>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" id="tabVol" role="tab" aria-selected="true" onclick="switchTab('VOL')">Volunteer</button>
+        <button class="tab-btn" id="tabLead" role="tab" aria-selected="false" onclick="switchTab('LEAD')">Leader View</button>
       </div>
     </div>
   </div>
@@ -279,11 +574,9 @@
       const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
       document.getElementById('liveClockReadout').innerText = dateStr + ' | ' + timeStr + ' IST | Vihana Center';
     }
-
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 60fps Smooth Counter Animation Hook
     function animateCounter(elementId, targetValue, suffix = '') {
       const el = document.getElementById(elementId);
       if (!el) return;
@@ -297,11 +590,8 @@
         const easeOut = 1 - Math.pow(1 - progress, 3);
         const current = Math.round(target * easeOut);
         el.innerText = current + suffix;
-        if (progress < 1) {
-          requestAnimationFrame(step);
-        } else {
-          el.innerText = target + suffix;
-        }
+        if (progress < 1) requestAnimationFrame(step);
+        else el.innerText = target + suffix;
       }
       requestAnimationFrame(step);
     }
@@ -310,17 +600,16 @@
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(onDataLoaded).getInitialData();
       } else {
-        // Fallback for standalone preview
         onDataLoaded({
           todayDate: new Date().toLocaleDateString(),
-          session: { isOpen: true, startTime: '10:00 AM', endTime: '1:00 PM' },
+          session: { isOpen: true, startTime: '16:00', endTime: '18:00' },
           checkedInIds: ['p1'],
           roster: [
             { id: 'p1', name: 'Gomesh', role: 'VOLUNTEER' },
             { id: 'p2', name: 'Aarav Sharma', role: 'VOLUNTEER' },
             { id: 'p3', name: 'Priya Patel', role: 'STUDENT' },
-            { id: 'p4', name: 'Rohan Gupta', role: 'STUDENT' },
-            { id: 'p5', name: 'Ananya Verma', role: 'VOLUNTEER' }
+            { id: 'p4', name: 'Rohan Kumar', role: 'STUDENT' },
+            { id: 'p5', name: 'Neha Verma', role: 'VOLUNTEER' }
           ]
         });
       }
@@ -347,32 +636,21 @@
 
     function updatePillCounts() {
       if (!gData || !gData.roster) return;
-      const total = gData.roster.length;
-      const vols = gData.roster.filter(p => p.role === 'VOLUNTEER').length;
-      const stus = gData.roster.filter(p => p.role === 'STUDENT').length;
-      const chk = gData.roster.filter(p => gData.checkedInIds && gData.checkedInIds.includes(p.id)).length;
-
-      document.getElementById('cntAll').innerText = total;
-      document.getElementById('cntVol').innerText = vols;
-      document.getElementById('cntStu').innerText = stus;
-      document.getElementById('cntChecked').innerText = chk;
+      document.getElementById('cntAll').innerText = gData.roster.length;
+      document.getElementById('cntVol').innerText = gData.roster.filter(p => p.role === 'VOLUNTEER').length;
+      document.getElementById('cntStu').innerText = gData.roster.filter(p => p.role === 'STUDENT').length;
+      document.getElementById('cntChecked').innerText = gData.roster.filter(p => gData.checkedInIds && gData.checkedInIds.includes(p.id)).length;
     }
 
     function setFilter(filterType) {
       currentFilterPill = filterType;
       ['pillAll', 'pillVol', 'pillStu', 'pillChecked'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-          el.classList.remove('active');
-          el.setAttribute('aria-selected', 'false');
-        }
+        if (el) el.classList.remove('active');
       });
       const activeId = filterType === 'ALL' ? 'pillAll' : filterType === 'VOLUNTEER' ? 'pillVol' : filterType === 'STUDENT' ? 'pillStu' : 'pillChecked';
       const activeEl = document.getElementById(activeId);
-      if (activeEl) {
-        activeEl.classList.add('active');
-        activeEl.setAttribute('aria-selected', 'true');
-      }
+      if (activeEl) activeEl.classList.add('active');
 
       filterRoster();
     }
@@ -380,16 +658,15 @@
     function renderRoster(list) {
       const el = document.getElementById('rosterList');
       if (!list || list.length === 0) {
-        el.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);" role="status">No matching roster members.</div>';
+        el.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">No matching roster members.</div>';
         return;
       }
       let html = '';
       list.forEach(p => {
         const isChecked = gData && gData.checkedInIds && gData.checkedInIds.includes(p.id);
         const tagClass = p.role === 'STUDENT' ? 'tag-stu' : 'tag-vol';
-        const ariaText = isChecked ? `${p.name}, ${p.role}, Already Checked In` : `Tap to check in ${p.name}, ${p.role}`;
         html += `
-          <div class="roster-item" role="listitem" tabindex="0" aria-label="${ariaText}" onclick="doCheckIn('${p.id}')" onkeypress="if(event.key==='Enter'||event.key===' ') doCheckIn('${p.id}')">
+          <div class="roster-item" onclick="doCheckIn('${p.id}')">
             <div>
               <span style="font-weight:600; font-size:0.9rem;">${p.name}</span>
               <span class="role-tag ${tagClass}" style="margin-left:6px;">${p.role}</span>
@@ -405,26 +682,16 @@
       if (!gData || !gData.roster) return;
 
       let list = gData.roster;
-      
-      // Filter by pill
-      if (currentFilterPill === 'VOLUNTEER') {
-        list = list.filter(p => p.role === 'VOLUNTEER');
-      } else if (currentFilterPill === 'STUDENT') {
-        list = list.filter(p => p.role === 'STUDENT');
-      } else if (currentFilterPill === 'CHECKED_IN') {
-        list = list.filter(p => gData.checkedInIds && gData.checkedInIds.includes(p.id));
-      }
+      if (currentFilterPill === 'VOLUNTEER') list = list.filter(p => p.role === 'VOLUNTEER');
+      else if (currentFilterPill === 'STUDENT') list = list.filter(p => p.role === 'STUDENT');
+      else if (currentFilterPill === 'CHECKED_IN') list = list.filter(p => gData.checkedInIds && gData.checkedInIds.includes(p.id));
 
-      // Filter by search query
-      if (q) {
-        list = list.filter(p => p.name.toLowerCase().includes(q));
-      }
-
+      if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
       renderRoster(list);
     }
 
     function doCheckIn(personId) {
-      const exactTimeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + ' IST';
+      const exactTimeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
       
       const showSuccess = (personName, timeDisplay) => {
         document.getElementById('volunteerMode').style.display = 'none';
@@ -439,14 +706,10 @@
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
-          if (res.success) {
-            showSuccess(res.personName, res.time || exactTimeStr);
-          } else {
-            alert(res.reason || "Check-in failed.");
-          }
+          if (res.success) showSuccess(res.personName, res.time || exactTimeStr);
+          else alert(res.reason || "Check-in failed.");
         }).checkIn(personId);
       } else {
-        // Fallback for standalone demo mode
         const person = gData.roster.find(p => p.id === personId);
         showSuccess(person ? person.name : 'Volunteer', exactTimeStr);
       }
@@ -474,7 +737,7 @@
       const role = document.getElementById('newRoleSelect').value;
       if (!name) return alert("Please enter name");
 
-      const exactTimeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + ' IST';
+      const exactTimeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
@@ -498,18 +761,9 @@
     }
 
     function switchTab(tab) {
-      const volTab = document.getElementById('tabVol');
-      const leadTab = document.getElementById('tabLead');
       const isVol = tab === 'VOL';
-
-      volTab.className = "tab-btn " + (isVol ? 'active' : '');
-      volTab.setAttribute('aria-selected', isVol ? 'true' : 'false');
-      volTab.setAttribute('aria-expanded', isVol ? 'true' : 'false');
-
-      leadTab.className = "tab-btn " + (!isVol ? 'active' : '');
-      leadTab.setAttribute('aria-selected', !isVol ? 'true' : 'false');
-      leadTab.setAttribute('aria-expanded', !isVol ? 'true' : 'false');
-
+      document.getElementById('tabVol').className = "tab-btn " + (isVol ? 'active' : '');
+      document.getElementById('tabLead').className = "tab-btn " + (!isVol ? 'active' : '');
       document.getElementById('volunteerMode').style.display = isVol ? 'block' : 'none';
       document.getElementById('successMode').style.display = 'none';
       document.getElementById('newPersonMode').style.display = 'none';
@@ -533,16 +787,9 @@
 
         if (isLowTurnout) {
           document.getElementById('anomalyContainer').innerHTML = `
-            <div style="background:rgba(204,17,0,0.18); border:1px solid rgba(204,17,0,0.45); padding:12px 14px; border-radius:10px; margin-bottom:14px; font-size:0.8rem; color:#ff6b5b;">
-              <div style="display:flex; align-items:center; justify-space-between; gap:8px;">
-                <strong>🚨 Low Turnout Anomaly Warning (${turnPct}% &lt; 60% Threshold)</strong>
-              </div>
+            <div style="background:rgba(204,17,0,0.18); border:1px solid rgba(204,17,0,0.45); padding:12px 14px; border-radius:12px; margin-bottom:14px; font-size:0.8rem; color:#ff6b5b;">
+              <strong>🚨 Low Turnout Anomaly Warning (${turnPct}% &lt; 60% Threshold)</strong>
               <p style="margin:4px 0 8px 0; color:#e2e8f0; font-size:0.75rem;">Center attendance has dropped below 60%. Coordinator intervention is recommended.</p>
-              <div style="display:flex; gap:6px;">
-                <button onclick="alert('🚨 WhatsApp Turnout Broadcast sent to roster!')" style="background:#25d366; color:#075e54; border:none; padding:4px 8px; border-radius:6px; font-size:0.72rem; font-weight:700; cursor:pointer;">
-                  📲 Send WhatsApp Reminder
-                </button>
-              </div>
             </div>`;
         } else {
           document.getElementById('anomalyContainer').innerHTML = '';
@@ -555,21 +802,15 @@
           atRisks.forEach(item => {
             const isHigh = (item.consecutiveAbsences || 3) >= 3 || (item.riskReason && item.riskReason.includes('HIGH'));
             const riskBadge = isHigh ? '<span class="role-tag" style="background:rgba(204,17,0,0.3); color:#ff6b5b; border:1px solid rgba(204,17,0,0.5);">HIGH RISK</span>' : '<span class="role-tag" style="background:rgba(245,158,11,0.3); color:#fbbf24; border:1px solid rgba(245,158,11,0.5);">MODERATE RISK</span>';
-            const consecAbs = item.consecutiveAbsences || (isHigh ? 3 : 2);
-            const dropPct = item.attendanceDropPct || (isHigh ? 40 : 25);
 
             rHtml += `
-              <div style="background:rgba(204,17,0,0.10); padding:10px 12px; border-radius:10px; border:1px solid rgba(204,17,0,0.3); display:flex; flex-direction:column; gap:6px;">
+              <div style="background:rgba(204,17,0,0.10); padding:12px; border-radius:12px; border:1px solid rgba(204,17,0,0.3); display:flex; flex-direction:column; gap:6px;">
                 <div style="display:flex; align-items:center; justify-content:space-between;">
                   <strong style="color:#fff;">${item.name}</strong>
                   ${riskBadge}
                 </div>
-                <div style="font-size:0.72rem; color:#fca5a5;">
-                  ⚠️ <strong>${consecAbs}</strong> consecutive absences &bull; 📉 <strong>${dropPct}%</strong> drop
-                </div>
-                <div style="display:flex; gap:6px; margin-top:4px;">
-                  <button onclick="alert('📞 1-on-1 call scheduled with ${item.name}')" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:3px 8px; border-radius:6px; font-size:0.7rem; cursor:pointer;">📞 1-on-1 Call</button>
-                  <button onclick="alert('🤝 Buddy mentor assigned to support ${item.name}')" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:3px 8px; border-radius:6px; font-size:0.7rem; cursor:pointer;">🤝 Assign Buddy</button>
+                <div style="font-size:0.75rem; color:#fca5a5;">
+                  ⚠️ ${item.riskReason || 'Missed 2 of last 3 sessions'}
                 </div>
               </div>`;
           });
@@ -579,18 +820,16 @@
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
-          if (res.success) {
-            renderDashboard(res.stats, res.anomalyAlert, res.atRiskList);
-          } else { alert(res.reason); }
+          if (res.success) renderDashboard(res.stats, res.anomalyAlert, res.atRiskList);
+          else alert(res.reason);
         }).getLeaderDashboard(pin);
       } else {
-        // Fallback demo data
         renderDashboard(
           { todayCheckedIn: 6, totalVolunteers: 12, turnOutPct: 54 },
-          { isAnomaly: true, message: 'Low turnout warning (<60%)' },
+          { isAnomaly: true },
           [
-            { id: 'p2', name: 'Aarav Sharma', role: 'VOLUNTEER', consecutiveAbsences: 3, attendanceDropPct: 40, riskReason: 'HIGH RISK (3 consecutive absences)' },
-            { id: 'p5', name: 'Priya Patel', role: 'VOLUNTEER', consecutiveAbsences: 2, attendanceDropPct: 25, riskReason: 'MODERATE RISK (25% drop)' }
+            { id: 'p2', name: 'Aarav Sharma', role: 'VOLUNTEER', riskReason: 'Missed 3 consecutive sessions' },
+            { id: 'p5', name: 'Neha Verma', role: 'VOLUNTEER', riskReason: 'Attendance dropped 35% over 4 weeks' }
           ]
         );
       }
@@ -601,7 +840,7 @@
       const box = document.getElementById('aiSummaryBox');
       const content = document.getElementById('aiSummaryContent');
       box.style.display = 'block';
-      content.innerText = "⏳ Synthesizing Gemini 1.5 Flash Executive Summary...";
+      content.innerText = "⏳ Synthesizing Gemini Pro Executive Summary...";
 
       const renderSummary = (text) => {
         lastGeneratedAiText = text;
@@ -610,23 +849,19 @@
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
-          if (res.success) {
-            renderSummary(res.aiSummary);
-          } else {
-            renderSummary("⚠️ " + res.reason);
-          }
+          if (res.success) renderSummary(res.aiSummary);
+          else renderSummary("⚠️ " + res.reason);
         }).generateGeminiExecutiveSummary(pin);
       } else {
         renderSummary(`📈 **Monthly Engagement Overview**
-• **Center Operations & Reach:** Operations at Vihana Center remain active with 12 active volunteers tutoring 45 students across 16 conducted sessions.
-• **Curriculum Execution:** Taught "Fractions & English Reading Comprehension" with hands-on activities.
+• **Center Reach:** Operations at Vihana Center remain active with 12 active volunteers tutoring 45 students across conducted sessions.
+• **Curriculum:** Covered "Fractions & English Reading".
 
 ⚠️ **Volunteer Retention & Attrition Watchlist**
-• **Retention Health:** 2 volunteers flagged for attendance volatility due to university exam schedules.
+• **Retention Health:** 2 volunteers flagged for attendance volatility.
 
-🎯 **Recommended Leader Action Items**
-• Conduct 1-on-1 check-in calls with flagged volunteers.
-• Send automated WhatsApp RSVP reminders 48 hours prior to session.`);
+🎯 **Recommended Action Items**
+• Conduct 1-on-1 check-in calls with flagged volunteers.`);
       }
     }
 
@@ -640,4 +875,3 @@
   </script>
 </body>
 </html>
-
