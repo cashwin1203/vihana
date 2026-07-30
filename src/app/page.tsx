@@ -60,7 +60,7 @@ export default function Home() {
 
       {loading ? (
         <div style={{ padding: '80px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>Loading Volunteer OS Data...</div>
+          <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>Loading U&I Vihana Volunteer Attendance Data...</div>
         </div>
       ) : (
         <main>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserCheck, Sparkles, Smartphone, Rocket, Users } from 'lucide-react';
 import AISummaryModal from './AISummaryModal';
 import LaunchActivityModal from './LaunchActivityModal';
@@ -16,6 +16,19 @@ interface HeaderProps {
 export default function Header({ currentRole, onRoleChange, onOpenWASimulator, onOpenVolunteerManager, data }: HeaderProps) {
   const [showAICopilot, setShowAICopilot] = useState(false);
   const [showLaunchHub, setShowLaunchHub] = useState(false);
+  const [dateTimeStr, setDateTimeStr] = useState<string>('');
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      setDateTimeStr(`${dateStr} | ${timeStr} IST`);
+    };
+    updateClock();
+    const timer = setInterval(updateClock, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <>
@@ -37,7 +50,7 @@ export default function Header({ currentRole, onRoleChange, onOpenWASimulator, o
 
         {/* Brand Identity — U&I Logo + Name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          {/* U&I Logo */}
+          {/* U&I Logo Mark */}
           <div style={{
             width: '48px',
             height: '48px',
@@ -58,7 +71,7 @@ export default function Header({ currentRole, onRoleChange, onOpenWASimulator, o
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h1 style={{
-                fontSize: '1.35rem',
+                fontSize: '1.25rem',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
                 margin: 0,
@@ -66,19 +79,19 @@ export default function Header({ currentRole, onRoleChange, onOpenWASimulator, o
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}>
-                Volunteer OS
+                U&I Vihana Volunteer attendance
               </h1>
               <span
                 className="badge badge-emerald"
-                aria-label="Status: Live"
+                aria-label="Status: Live Pulse"
                 style={{ fontSize: '0.62rem', letterSpacing: '0.06em' }}
               >
                 <span className="pulse-dot-green" />
-                Live
+                Live Pulse
               </span>
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0, letterSpacing: '0.01em' }}>
-              U&I India &nbsp;&bull;&nbsp; <span style={{ color: 'rgba(204, 17, 0, 0.85)', fontWeight: 600 }}>Be The Change</span>
+              U&I India &nbsp;&bull;&nbsp; <span style={{ color: 'rgba(204, 17, 0, 0.85)', fontWeight: 600 }}>Be The Change</span> &nbsp;&bull;&nbsp; <span style={{ color: '#34d399', fontWeight: 500 }}>{dateTimeStr || 'Vihana Center'}</span>
             </p>
           </div>
         </div>
@@ -163,7 +176,7 @@ export default function Header({ currentRole, onRoleChange, onOpenWASimulator, o
                 fontSize: '0.82rem',
                 cursor: 'pointer',
                 outline: 'none',
-                minHeight: 'unset',
+                minHeight: '44px',
               }}
             >
               <option value="CHAPTER_LEADER" style={{ background: '#100a0a' }}>Navin D &amp; Sathya (Chapter Leaders)</option>

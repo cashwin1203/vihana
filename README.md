@@ -1,19 +1,19 @@
-# Volunteer OS
+# U&I Vihana Volunteer attendance
 
-**A Full-Stack Operational Management Platform & Conversational Engine for NGO Learning Centers**
+**A Zero-Cost, Serverless Mobile Attendance System & Operational Platform for U&I Vihana Centre**
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
-[![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=flat-square&logo=sqlite)](https://www.sqlite.org/)
+[![Google Apps Script](https://img.shields.io/badge/Backend-Google%20Apps%20Script-green?style=flat-square&logo=google)](https://script.google.com/)
+[![SQLite](https://img.shields.io/badge/Database-Google%20Sheets%20%2F%20SQLite-003B57?style=flat-square&logo=sqlite)](https://www.sqlite.org/)
 
 ---
 
 ## Overview
 
-Volunteer OS is a full-stack enterprise operating system designed to manage the operational lifecycle of volunteer-led education centers (inspired by U&I India). 
+**U&I Vihana Volunteer attendance** is a tamper-proof, serverless operational management platform and mobile check-in app built specifically for U&I Vihana Centre.
 
-While traditional NGO software focuses primarily on donor fundraising or upfront volunteer recruitment ATS pipelines, Volunteer OS addresses the post-onboarding operational layer: automating weekly roster RSVPs, field check-ins, educational session logging, and chapter retention analytics.
+It features a zero-login mobile web app powered by Google Apps Script + Google Sheets for single-centre operations, combined with a full-stack Next.js administrative dashboard.
 
 ---
 
