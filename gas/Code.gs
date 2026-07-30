@@ -1,13 +1,17 @@
 /**
- * U&I Volunteer OS - Single Centre Production Backend
- * Includes Gemini Pro AI Donor Summaries, Heuristic Attrition Flags, & Low Turnout Alerts
+ * U&I Vihana — Single Centre Volunteer Attendance Backend
+ * Includes Heuristic Attrition Flags, Low Turnout Alerts & Gemini Executive Summary
+ *
+ * SETUP: Upload the U&I logo to Google Drive, copy the file ID from the URL
+ * (drive.google.com/file/d/FILE_ID_HERE/view) and paste it into LOGO_FILE_ID below.
+ * The file does NOT need to be made public — Apps Script reads it as the owner.
  */
 
 const CONFIG = {
   LEADER_PIN: "1234",
   GRACE_MINUTES_BEFORE: 15,
   GRACE_MINUTES_AFTER: 15,
-  LOW_TURNOUT_THRESHOLD_PCT: 50, // Flag alert if < 50% checked in after session start
+  LOW_TURNOUT_THRESHOLD_PCT: 50,
   TIMEZONE: "Asia/Kolkata"
 };
 
@@ -15,8 +19,7 @@ const CONFIG = {
 // WEB APP ENTRY POINT
 // -------------------------------------------------------------
 function doGet(e) {
-  const template = HtmlService.createTemplateFromFile('Index');
-  return template.evaluate()
+  return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle('U&I Vihana Volunteer attendance')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
