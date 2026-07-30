@@ -1,1187 +1,581 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>U&I Vihana — Volunteer Attendance</title>
-
-  <!-- DM Sans: precision UI workhorse. JetBrains Mono: data/codes only. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    /* ─────────────────────────────────────────────────────────────
-       DESIGN TOKENS — brand-derived, no rainbow, 2 neutrals max
-    ───────────────────────────────────────────────────────────── */
     :root {
-      /* Brand */
-      --red:        #CC1100;
-      --red-dim:    rgba(204, 17, 0, 0.14);
-      --red-border: rgba(204, 17, 0, 0.30);
-      --red-hover:  #aa0e00;
-
-      /* Canvas */
-      --bg:         #0A0A0A;
-      --surface:    #111111;
-      --elevated:   #181818;
-
-      /* Borders */
-      --line:       rgba(255, 255, 255, 0.09);
-      --line-hi:    rgba(255, 255, 255, 0.16);
-
-      /* Text */
-      --text:       #F2F2F2;
-      --muted:      #7A7A7A;
-      --faint:      #3D3D3D;
-
-      /* Risk — derived from red, no new hues */
-      --risk-hi-bg:     rgba(204, 17, 0, 0.12);
-      --risk-hi-border: rgba(204, 17, 0, 0.28);
-      --risk-hi-text:   #F87171;
-
-      --risk-md-bg:     rgba(204, 100, 0, 0.10);
-      --risk-md-border: rgba(204, 100, 0, 0.24);
-      --risk-md-text:   #FDBA74;
-
-      /* Confirm green — single semantic exception */
-      --green:      #22C55E;
-      --green-dim:  rgba(34, 197, 94, 0.10);
-      --green-border: rgba(34, 197, 94, 0.22);
-
-      /* Typography */
-      --sans: 'DM Sans', system-ui, -apple-system, sans-serif;
-      --mono: 'JetBrains Mono', monospace;
-
-      /* Geometry */
-      --r: 4px;   /* tool-like — not rounded-app-card */
-      --r-lg: 6px;
+      --ground:      #F7F6F3;
+      --surface:     #FFFFFF;
+      --ink:         #37352F;
+      --ink-2:       #787774;
+      --ink-3:       #AEABA6;
+      --line:        #E9E9E7;
+      --line-hi:     #D3D1CB;
+      --red:         #CC1100;
+      --mint-bg:     #E4F4F1;
+      --mint-border: #B8E0D9;
+      --mint-ink:    #0F6B5C;
+      --peach-bg:    #FFEDD5;
+      --peach-border:#F5D7A8;
+      --peach-ink:   #92400E;
+      --rose-bg:     #FCE7F3;
+      --rose-border: #F0ABCF;
+      --rose-ink:    #9D174D;
+      --serif: 'Source Serif 4', Georgia, serif;
+      --sans:  'Inter', system-ui, sans-serif;
+      --mono:  'JetBrains Mono', monospace;
+      --r-sm: 4px; --r-md: 8px; --r-lg: 12px;
+      --shadow-sm:   0 1px 3px rgba(15,15,15,0.04), 0 1px 2px rgba(15,15,15,0.06);
+      --shadow-md:   0 4px 12px rgba(15,15,15,0.06), 0 2px 4px rgba(15,15,15,0.04);
+      --shadow-lift: 0 8px 24px rgba(15,15,15,0.08), 0 2px 8px rgba(15,15,15,0.04);
     }
-
-    /* ─────────────────────────────────────────────────────────────
-       RESET + BASE
-    ───────────────────────────────────────────────────────────── */
     *, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 15px;
-      line-height: 1.5;
+      background: var(--ground); color: var(--ink);
+      font-family: var(--sans); font-size: 15px; line-height: 1.6;
       -webkit-font-smoothing: antialiased;
-      min-height: 100dvh;
-      padding: 20px 16px 40px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      min-height: 100dvh; padding: 24px 16px 48px;
+      display: flex; justify-content: center;
     }
+    .wrap { width: 100%; max-width: 440px; }
 
-    .wrap {
-      width: 100%;
-      max-width: 432px;
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       HEADER
-    ───────────────────────────────────────────────────────────── */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 16px;
-      margin-bottom: 16px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    /* HEADER */
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .brand  { display: flex; align-items: center; gap: 10px; }
     .brand-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-      flex-shrink: 0;
-      border: 1px solid var(--line-hi);
+      width: 30px; height: 30px; border-radius: 6px; object-fit: cover;
+      flex-shrink: 0; border: 1px solid var(--line); box-shadow: var(--shadow-sm);
     }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name { font-family: var(--mono); font-size: 0.68rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--red); }
+    .brand-sub  { font-size: 0.72rem; color: var(--ink-2); }
+    .clock      { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-3); text-align: right; }
 
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
+    /* TABS */
+    .tabs {
+      display: flex; gap: 2px; padding: 3px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--r-lg); margin-bottom: 20px; box-shadow: var(--shadow-sm);
     }
-
-    .brand-name {
-      font-family: var(--mono);
-      font-size: 0.70rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--red);
+    .tab-btn {
+      flex: 1; min-height: 36px; padding: 6px 12px;
+      background: transparent; border: none; border-radius: 9px;
+      color: var(--ink-2); font-family: var(--sans); font-size: 0.82rem;
+      font-weight: 500; cursor: pointer; transition: all 0.18s ease;
     }
+    .tab-btn:hover { color: var(--ink); }
+    .tab-btn.active { background: var(--ground); color: var(--ink); font-weight: 600; box-shadow: var(--shadow-sm); }
 
-    .brand-sub {
-      font-size: 0.70rem;
-      color: var(--muted);
-      letter-spacing: 0.01em;
+    /* BLOCK CARD */
+    .block {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--r-lg); padding: 20px; margin-bottom: 12px;
+      box-shadow: var(--shadow-sm); transition: box-shadow 0.2s ease;
     }
-
-    .clock {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--muted);
-      text-align: right;
-      white-space: nowrap;
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       PAGE TITLE BLOCK
-    ───────────────────────────────────────────────────────────── */
-    .title-block {
-      margin-bottom: 20px;
-    }
-
+    .page-header { margin-bottom: 10px; }
     .page-title {
-      font-size: 1.45rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-      color: var(--text);
-      text-wrap: balance;
+      font-family: var(--serif); font-size: 1.75rem; font-weight: 500;
+      letter-spacing: -0.02em; line-height: 1.2; color: var(--ink);
       margin-bottom: 10px;
     }
 
-    /* Session status chip — minimal, no dot animation */
+    /* SESSION CHIP */
     .session-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 9px;
-      border-radius: 9999px;
-      font-family: var(--mono);
-      font-size: 0.66rem;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 9999px;
+      font-size: 0.70rem; font-weight: 500; letter-spacing: 0.02em;
+    }
+    .chip-open   { background: var(--mint-bg); border: 1px solid var(--mint-border); color: var(--mint-ink); }
+    .chip-closed { background: var(--surface);  border: 1px solid var(--line);        color: var(--ink-2);    }
+    .chip-dot    { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .chip-open .chip-dot { animation: pulse 2s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .section-label {
+      font-size: 0.72rem; font-weight: 600; color: var(--ink-2);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px;
     }
 
-    .chip-open {
-      background: var(--green-dim);
-      border: 1px solid var(--green-border);
-      color: var(--green);
-    }
-
-    .chip-closed {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--line);
-      color: var(--muted);
-    }
-
-    .chip-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       CARD
-    ───────────────────────────────────────────────────────────── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      padding: 20px;
-      margin-bottom: 12px;
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       SEARCH INPUT
-    ───────────────────────────────────────────────────────────── */
+    /* INPUTS */
     .search {
-      width: 100%;
-      min-height: 44px;
-      padding: 10px 13px;
-      background: var(--elevated);
-      border: 1px solid var(--line);
-      border-radius: var(--r);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.15s ease;
+      width: 100%; min-height: 40px; padding: 9px 12px;
+      background: var(--ground); border: 1px solid var(--line);
+      border-radius: var(--r-md); color: var(--ink); font-family: var(--sans);
+      font-size: 0.88rem; outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
       margin-bottom: 12px;
     }
+    .search::placeholder { color: var(--ink-3); }
+    .search:focus { border-color: var(--line-hi); background: var(--surface); box-shadow: 0 0 0 3px rgba(55,53,47,0.06); }
+    select.search { cursor: pointer; appearance: none; }
 
-    .search::placeholder { color: var(--muted); }
-    .search:focus { border-color: var(--line-hi); }
-
-    select.search { cursor: pointer; }
-
-    /* ─────────────────────────────────────────────────────────────
-       FILTER PILLS
-    ───────────────────────────────────────────────────────────── */
-    .pills {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 14px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
+    /* FILTER PILLS */
+    .pills { display: flex; gap: 4px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
     .pills::-webkit-scrollbar { display: none; }
-
     .pill {
-      flex: 0 0 auto;
-      min-height: 34px;
-      padding: 3px 11px;
-      background: transparent;
-      border: 1px solid var(--line);
-      border-radius: 9999px;
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.12s ease;
-      font-family: var(--sans);
+      flex: 0 0 auto; min-height: 30px; padding: 3px 10px;
+      background: transparent; border: 1px solid var(--line); border-radius: 9999px;
+      font-size: 0.72rem; font-weight: 500; color: var(--ink-2); cursor: pointer;
+      transition: all 0.15s ease; font-family: var(--sans); white-space: nowrap;
     }
+    .pill:hover  { background: var(--ground); color: var(--ink); border-color: var(--line-hi); }
+    .pill.active { background: var(--ink); border-color: var(--ink); color: #FFF; font-weight: 600; }
 
-    .pill:hover {
-      border-color: var(--line-hi);
-      color: var(--text);
-    }
-
-    .pill.active {
-      background: var(--text);
-      border-color: var(--text);
-      color: var(--bg);
-      font-weight: 600;
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       ROSTER LIST
-    ───────────────────────────────────────────────────────────── */
+    /* ROSTER */
     .roster-list {
-      max-height: 300px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--faint) transparent;
+      max-height: 310px; overflow-y: auto; display: flex;
+      flex-direction: column; gap: 4px;
+      scrollbar-width: thin; scrollbar-color: var(--line) transparent;
     }
-
     .roster-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 46px;
-      padding: 10px 12px;
-      background: var(--elevated);
-      border: 1px solid var(--line);
-      border-radius: var(--r);
-      cursor: pointer;
-      transition: border-color 0.12s ease, background 0.12s ease;
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 46px; padding: 10px 13px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--r-md); cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
       -webkit-tap-highlight-color: transparent;
     }
-
-    .roster-item:hover {
-      border-color: var(--line-hi);
-      background: #1F1F1F;
+    .roster-item:hover  { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--line-hi); }
+    .roster-item:active { transform: translateY(0);    box-shadow: var(--shadow-sm); }
+    .item-left   { display: flex; align-items: center; gap: 10px; }
+    .item-avatar {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: var(--ground); border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 600; color: var(--ink-2); flex-shrink: 0;
     }
+    .item-name   { font-size: 0.88rem; font-weight: 500; color: var(--ink); }
+    .item-right  { display: flex; align-items: center; gap: 7px; }
+    .role-tag    { font-size: 0.66rem; font-weight: 500; padding: 2px 7px; border-radius: 4px; }
+    .tag-vol     { background: var(--mint-bg);  border: 1px solid var(--mint-border);  color: var(--mint-ink); }
+    .tag-stu     { background: var(--peach-bg); border: 1px solid var(--peach-border); color: var(--peach-ink); }
+    .item-action { font-size: 0.75rem; color: var(--ink-3); transition: color 0.15s; }
+    .roster-item:hover .item-action { color: var(--ink-2); }
+    .item-done   { font-size: 0.75rem; color: var(--mint-ink); font-weight: 500; }
+    .add-link    { display: block; text-align: center; margin-top: 14px; font-size: 0.76rem; color: var(--ink-3); text-decoration: none; transition: color 0.15s; }
+    .add-link:hover { color: var(--ink-2); }
 
-    .roster-item:active { opacity: 0.75; }
-
-    .item-name {
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .item-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* Role tag — mono, minimal */
-    .role-tag {
-      font-family: var(--mono);
-      font-size: 0.60rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 2px 6px;
-      border-radius: var(--r);
-    }
-
-    .tag-vol {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--line);
-      color: var(--muted);
-    }
-
-    .tag-stu {
-      background: var(--red-dim);
-      border: 1px solid var(--red-border);
-      color: #F87171;
-    }
-
-    .item-action {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--faint);
-    }
-
-    .item-done {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--green);
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       BUTTONS
-    ───────────────────────────────────────────────────────────── */
+    /* BUTTONS */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      min-height: 44px;
-      padding: 10px 16px;
-      border-radius: var(--r);
-      font-family: var(--sans);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.13s ease, opacity 0.13s ease;
-      border: none;
-      letter-spacing: -0.01em;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%; min-height: 42px; padding: 10px 16px;
+      border-radius: var(--r-md); font-family: var(--sans); font-size: 0.88rem;
+      font-weight: 500; cursor: pointer; transition: all 0.18s ease; border: none;
     }
-
-    .btn-primary {
-      background: var(--red);
-      color: #fff;
-    }
-    .btn-primary:hover { background: var(--red-hover); }
-
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--line-hi);
-      color: var(--text);
-    }
-    .btn-ghost:hover { background: rgba(255,255,255,0.05); }
-
-    /* Leader AI summary — use brand red, not rogue purple */
-    .btn-ai {
-      background: var(--elevated);
-      border: 1px solid var(--line-hi);
-      color: var(--text);
-      font-size: 0.82rem;
-      font-weight: 500;
-      margin-top: 10px;
-    }
-    .btn-ai:hover { background: #212121; }
-
     .btn + .btn { margin-top: 8px; }
+    .btn-primary { background: var(--ink); color: #FFF; box-shadow: var(--shadow-sm); }
+    .btn-primary:hover { background: #1a1915; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); }
+    .btn-ghost:hover { background: var(--ground); border-color: var(--line-hi); color: var(--ink); }
+    .btn-ai { background: var(--ground); border: 1px solid var(--line); color: var(--ink); font-size: 0.84rem; }
+    .btn-ai:hover { background: var(--surface); border-color: var(--line-hi); transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
-    /* ─────────────────────────────────────────────────────────────
-       SUCCESS CONFIRMATION
-    ───────────────────────────────────────────────────────────── */
-    .success-box {
-      text-align: center;
-      padding: 32px 16px;
-      animation: fadeUp 0.30s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
+    /* SUCCESS */
+    .success-box { text-align: center; padding: 28px 16px 8px; animation: fadeUp 0.28s cubic-bezier(0.22,1,0.36,1) forwards; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .check-ring  { width: 56px; height: 56px; margin: 0 auto 16px; }
+    .check-circle { stroke-dasharray:157; stroke-dashoffset:157; stroke-width:1.5; stroke:var(--mint-ink); fill:none; animation:drawC 0.4s ease-out forwards; }
+    .check-tick   { stroke-dasharray:40;  stroke-dashoffset:40;  stroke:var(--mint-ink); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; fill:none; animation:drawT 0.25s ease-out 0.25s forwards; }
+    @keyframes drawC { to{stroke-dashoffset:0} }
+    @keyframes drawT { to{stroke-dashoffset:0} }
+    .success-name { font-family:var(--serif); font-size:1.45rem; font-weight:500; letter-spacing:-0.02em; color:var(--ink); margin-bottom:8px; }
+    .time-pill    { display:inline-block; background:var(--mint-bg); border:1px solid var(--mint-border); color:var(--mint-ink); padding:3px 12px; border-radius:9999px; font-size:0.76rem; font-weight:500; margin-bottom:22px; }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    /* DIVIDER */
+    .divider { height:1px; background:var(--line); margin:16px 0; }
 
-    .check-ring {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 18px;
-    }
-
-    .check-circle {
-      stroke-dasharray: 157;
-      stroke-dashoffset: 157;
-      stroke-width: 2;
-      stroke: var(--green);
-      fill: none;
-      animation: drawCircle 0.45s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-    }
-
-    .check-tick {
-      stroke-dasharray: 40;
-      stroke-dashoffset: 40;
-      stroke: var(--green);
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-      animation: drawTick 0.28s cubic-bezier(0.65, 0, 0.45, 1) 0.28s forwards;
-    }
-
-    @keyframes drawCircle { to { stroke-dashoffset: 0; } }
-    @keyframes drawTick   { to { stroke-dashoffset: 0; } }
-
-    .success-name {
-      font-size: 1.35rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-
-    .time-chip {
-      display: inline-block;
-      background: var(--green-dim);
-      border: 1px solid var(--green-border);
-      color: var(--green);
-      padding: 3px 12px;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-family: var(--mono);
-      margin-bottom: 22px;
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       ADD LINK
-    ───────────────────────────────────────────────────────────── */
-    .add-link {
-      display: block;
-      text-align: center;
-      margin-top: 12px;
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.12s ease;
-    }
-    .add-link:hover { color: var(--text); }
-
-    /* ─────────────────────────────────────────────────────────────
-       TABS
-    ───────────────────────────────────────────────────────────── */
-    .tabs {
-      display: flex;
-      gap: 4px;
-      padding: 4px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      margin-bottom: 14px;
-    }
-
-    .tab-btn {
-      flex: 1;
-      min-height: 38px;
-      padding: 7px 12px;
-      background: transparent;
-      border: none;
-      border-radius: var(--r);
-      color: var(--muted);
-      font-family: var(--sans);
-      font-size: 0.80rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.13s ease;
-    }
-
-    .tab-btn:hover { color: var(--text); }
-
-    .tab-btn.active {
-      background: var(--elevated);
-      color: var(--text);
-      font-weight: 600;
-      border: 1px solid var(--line);
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       LEADER DASHBOARD
-    ───────────────────────────────────────────────────────────── */
-    .dash-title {
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    /* PIN login block */
-    .pin-block {
-      background: var(--elevated);
-      border: 1px solid var(--line);
-      border-radius: var(--r);
-      padding: 16px;
-    }
-
-    /* KPI grid — 2×2 */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
-
-    .kpi-cell {
-      background: var(--elevated);
-      border: 1px solid var(--line);
-      border-radius: var(--r);
-      padding: 14px 12px;
-      text-align: center;
-    }
-
-    .kpi-val {
-      font-family: var(--mono);
-      font-size: 1.55rem;
-      font-weight: 500;
-      color: var(--text);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .kpi-val.accent { color: var(--red); }
-
-    .kpi-label {
-      font-size: 0.62rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-    }
-
-    /* Anomaly banner */
-    .anomaly-banner {
-      background: var(--risk-hi-bg);
-      border: 1px solid var(--risk-hi-border);
-      border-radius: var(--r);
-      padding: 10px 12px;
-      margin-bottom: 12px;
-      font-size: 0.78rem;
-      color: var(--risk-hi-text);
-    }
-
-    .anomaly-banner p {
-      margin-top: 3px;
-      font-size: 0.72rem;
-      color: var(--muted);
-    }
-
-    /* Section label */
-    .section-label {
-      font-size: 0.68rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    /* Risk list */
-    .risk-list {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-bottom: 14px;
-    }
-
-    .risk-item {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      background: var(--elevated);
-      border: 1px solid var(--line);
-      border-radius: var(--r);
-      padding: 10px 12px;
-    }
-
-    .risk-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .risk-name {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .risk-badge {
-      font-family: var(--mono);
-      font-size: 0.60rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 2px 7px;
-      border-radius: var(--r);
-    }
-
-    .badge-high {
-      background: var(--risk-hi-bg);
-      border: 1px solid var(--risk-hi-border);
-      color: var(--risk-hi-text);
-    }
-
-    .badge-mod {
-      background: var(--risk-md-bg);
-      border: 1px solid var(--risk-md-border);
-      color: var(--risk-md-text);
-    }
-
-    .risk-reason {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--muted);
-    }
-
-    /* AI Summary box */
-    .ai-summary {
-      margin-top: 10px;
-      background: var(--elevated);
-      border: 1px solid var(--line-hi);
-      border-radius: var(--r);
-      padding: 14px;
-      font-size: 0.80rem;
-      line-height: 1.65;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
-
-    /* Empty state */
-    .empty {
-      text-align: center;
-      padding: 24px 0;
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
-
-    /* Focus visible */
-    :focus-visible {
-      outline: 2px solid var(--red);
-      outline-offset: 2px;
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      *, ::before, ::after {
-        animation: none !important;
-        transition: none !important;
-      }
-    }
+    /* LEADER */
+    .dash-header { font-family:var(--serif); font-size:1.2rem; font-weight:500; letter-spacing:-0.02em; color:var(--ink); margin-bottom:14px; }
+    .pin-block   { background:var(--ground); border:1px solid var(--line); border-radius:var(--r-md); padding:16px; }
+    .kpi-grid    { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+    .kpi-cell    { background:var(--ground); border:1px solid var(--line); border-radius:var(--r-md); padding:14px 13px; transition:transform 0.18s ease, box-shadow 0.18s ease; }
+    .kpi-cell:hover { transform:translateY(-1px); box-shadow:var(--shadow-md); }
+    .kpi-val     { font-family:var(--serif); font-size:1.9rem; font-weight:500; color:var(--ink); line-height:1; margin-bottom:3px; }
+    .kpi-val.accent { color:var(--red); }
+    .kpi-label   { font-size:0.67rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2); }
+    .anomaly-banner { background:var(--rose-bg); border:1px solid var(--rose-border); border-radius:var(--r-md); padding:10px 13px; margin-bottom:14px; font-size:0.80rem; color:var(--rose-ink); animation:fadeUp 0.22s ease forwards; }
+    .anomaly-banner p { margin-top:3px; font-size:0.73rem; color:var(--ink-2); }
+    .risk-list   { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+    .risk-item   { display:flex; flex-direction:column; gap:4px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md); padding:11px 13px; transition:transform 0.18s ease, box-shadow 0.18s ease; }
+    .risk-item:hover { transform:translateY(-1px); box-shadow:var(--shadow-md); }
+    .risk-row    { display:flex; align-items:center; justify-content:space-between; }
+    .risk-name   { font-size:0.88rem; font-weight:500; color:var(--ink); }
+    .risk-badge  { font-size:0.65rem; font-weight:500; padding:2px 8px; border-radius:4px; }
+    .badge-high  { background:var(--rose-bg);  border:1px solid var(--rose-border);  color:var(--rose-ink); }
+    .badge-mod   { background:var(--peach-bg); border:1px solid var(--peach-border); color:var(--peach-ink); }
+    .risk-reason { font-size:0.73rem; color:var(--ink-2); }
+    .ai-summary-box { background:var(--ground); border:1px solid var(--line); border-radius:var(--r-md); padding:14px; margin-top:10px; font-size:0.82rem; line-height:1.7; color:var(--ink); white-space:pre-wrap; animation:fadeUp 0.22s ease forwards; }
+    .empty       { text-align:center; padding:28px 0; color:var(--ink-3); font-size:0.84rem; }
+    :focus-visible { outline:2px solid var(--red); outline-offset:2px; }
+    @media (prefers-reduced-motion:reduce) { *,::before,::after { animation-duration:0.01ms!important; transition-duration:0.01ms!important; } }
   </style>
 </head>
 <body>
-  <div class="wrap" role="main">
+<div class="wrap" role="main">
 
-    <!-- ── TABS — top-level navigation ─────────────────────────── -->
-    <div class="tabs" role="tablist" aria-label="Navigation">
-      <button class="tab-btn active" id="tabVol" role="tab" aria-selected="true"
-              onclick="switchTab('VOL')">Volunteer Check-In</button>
-      <button class="tab-btn" id="tabLead" role="tab" aria-selected="false"
-              onclick="switchTab('LEAD')">Leader View</button>
+  <header class="header">
+    <div class="brand">
+      <img src="<?= logoDataUrl ?>" alt="U&I Logo" class="brand-logo"
+           style="<?= logoDataUrl ? '' : 'display:none;' ?>">
+      <div class="brand-text">
+        <span class="brand-name">U&amp;I India</span>
+        <span class="brand-sub">Vihana Centre</span>
+      </div>
+    </div>
+    <div class="clock" id="liveClock">--</div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" id="tabVol"  role="tab" aria-selected="true"  onclick="switchTab('VOL')">Volunteer</button>
+    <button class="tab-btn"        id="tabLead" role="tab" aria-selected="false" onclick="switchTab('LEAD')">Leader View</button>
+  </div>
+
+  <!-- VOLUNTEER PANEL -->
+  <section id="volPanel" role="region" aria-label="Volunteer check-in">
+    <div class="page-header">
+      <h1 class="page-title">&#x1F4CB; Volunteer Attendance</h1>
+      <span class="session-chip chip-closed" id="sessionBadge">
+        <span class="chip-dot"></span>
+        <span id="sessionLabel">Loading&hellip;</span>
+      </span>
     </div>
 
-    <!-- ── HEADER ───────────────────────────────────────────────── -->
-    <header class="header">
-      <div class="brand">
-        <img
-          src="data:image/png;base64,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"
-          alt="U&I Logo" class="brand-logo">
-        <div class="brand-text">
-          <span class="brand-name">U&amp;I India</span>
-          <span class="brand-sub">Vihana Centre</span>
+    <div class="block" id="volunteerMode">
+      <input type="text" id="searchInput" class="search" placeholder="Search by name&hellip;"
+             oninput="filterRoster()" aria-label="Search roster">
+      <div class="pills" role="tablist">
+        <button class="pill active" id="pillAll"     role="tab" aria-selected="true"  onclick="setFilter('ALL')">All <span id="cntAll">0</span></button>
+        <button class="pill"        id="pillVol"     role="tab" aria-selected="false" onclick="setFilter('VOLUNTEER')">Volunteers <span id="cntVol">0</span></button>
+        <button class="pill"        id="pillStu"     role="tab" aria-selected="false" onclick="setFilter('STUDENT')">Students <span id="cntStu">0</span></button>
+        <button class="pill"        id="pillChecked" role="tab" aria-selected="false" onclick="setFilter('CHECKED_IN')">Checked-In <span id="cntChecked">0</span></button>
+      </div>
+      <div class="roster-list" id="rosterList" role="list">
+        <div class="empty">Loading roster&hellip;</div>
+      </div>
+      <a href="#" class="add-link" onclick="showNewPersonForm();return false;">Not on the list? Add yourself &rarr;</a>
+    </div>
+
+    <div class="block" id="successMode" style="display:none;" role="dialog" aria-modal="true">
+      <div class="success-box">
+        <div class="check-ring">
+          <svg viewBox="0 0 52 52" aria-hidden="true">
+            <circle class="check-circle" cx="26" cy="26" r="25"/>
+            <path   class="check-tick"   d="M14 27l8 8 17-17"/>
+          </svg>
+        </div>
+        <div class="success-name" id="successName">Checked In</div>
+        <div class="time-pill"    id="successTime">--:--</div>
+        <button class="btn btn-primary" onclick="resetCheckIn()">Done &mdash; Next Check-In</button>
+        <button class="btn btn-ghost"   onclick="resetCheckIn()">Back to Roster</button>
+      </div>
+    </div>
+
+    <div class="block" id="newPersonMode" style="display:none;" role="dialog" aria-modal="true">
+      <h2 style="font-family:var(--serif);font-size:1.2rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:14px;">First-Time Registration</h2>
+      <input type="text" id="newNameInput"  class="search" placeholder="Full Name">
+      <select           id="newRoleSelect" class="search">
+        <option value="VOLUNTEER">Volunteer</option>
+        <option value="STUDENT">Student</option>
+      </select>
+      <button class="btn btn-primary" onclick="submitNewPerson()">Add &amp; Check In</button>
+      <button class="btn btn-ghost"   onclick="cancelNewPerson()">Cancel</button>
+    </div>
+  </section>
+
+  <!-- LEADER PANEL -->
+  <section id="leadPanel" style="display:none;" role="region" aria-label="Leader dashboard">
+    <div class="block">
+      <h2 class="dash-header">&#x1F4CA; Centre Dashboard</h2>
+      <div class="pin-block" id="leaderPinSection">
+        <input type="password" id="pinInput" class="search" placeholder="Leader PIN" style="margin-bottom:8px;">
+        <button class="btn btn-primary" onclick="loadLeaderData()">Access Dashboard</button>
+      </div>
+      <div id="leaderContent" style="display:none;">
+        <div id="anomalyContainer" role="status" aria-live="polite"></div>
+        <div class="kpi-grid">
+          <div class="kpi-cell"><div class="kpi-val" id="kpiCheckedIn">0</div><div class="kpi-label">Today In</div></div>
+          <div class="kpi-cell"><div class="kpi-val" id="kpiTotalVols">0</div><div class="kpi-label">Active Roster</div></div>
+          <div class="kpi-cell"><div class="kpi-val" id="kpiTurnoutPct">0%</div><div class="kpi-label">Turnout</div></div>
+          <div class="kpi-cell"><div class="kpi-val accent" id="kpiAtRisk">0</div><div class="kpi-label">At Risk</div></div>
+        </div>
+        <div class="divider"></div>
+        <p class="section-label">Attrition Watchlist</p>
+        <div class="risk-list" id="riskList"></div>
+        <div class="divider"></div>
+        <p class="section-label">Session Summary</p>
+        <button class="btn btn-ai" onclick="generateGeminiSummary()">Generate Executive Summary</button>
+        <div id="aiSummaryBox" style="display:none;">
+          <div class="ai-summary-box" id="aiSummaryContent"></div>
+          <button id="copyAiBtn" class="btn btn-ghost" onclick="copyAiSummary()" style="margin-top:8px;font-size:0.78rem;">Copy to Clipboard</button>
         </div>
       </div>
-      <div class="clock" id="liveClock">--:--</div>
-    </header>
+    </div>
+  </section>
 
-    <!-- ── VOLUNTEER TAB ─────────────────────────────────────────── -->
-    <section id="volPanel" role="region" aria-label="Volunteer check-in">
+</div>
+<script>
+  var gData=null, currentFilter='ALL', lastAiText='';
 
-      <!-- Title + session status -->
-      <div class="title-block">
-        <h1 class="page-title">Volunteer Attendance</h1>
-        <span class="session-chip chip-closed" id="sessionBadge">
-          <span class="chip-dot"></span>
-          <span id="sessionLabel">Loading...</span>
-        </span>
-      </div>
-
-      <!-- Roster card -->
-      <div class="card" id="volunteerMode">
-        <input type="text" id="searchInput" class="search"
-               placeholder="Search roster…" oninput="filterRoster()"
-               aria-label="Search roster by name">
-
-        <div class="pills" role="tablist" aria-label="Filter">
-          <button class="pill active" id="pillAll" role="tab" aria-selected="true"
-                  onclick="setFilter('ALL')">All (<span id="cntAll">0</span>)</button>
-          <button class="pill" id="pillVol" role="tab" aria-selected="false"
-                  onclick="setFilter('VOLUNTEER')">Volunteers (<span id="cntVol">0</span>)</button>
-          <button class="pill" id="pillStu" role="tab" aria-selected="false"
-                  onclick="setFilter('STUDENT')">Students (<span id="cntStu">0</span>)</button>
-          <button class="pill" id="pillChecked" role="tab" aria-selected="false"
-                  onclick="setFilter('CHECKED_IN')">Checked-In (<span id="cntChecked">0</span>)</button>
-        </div>
-
-        <div class="roster-list" id="rosterList" role="list">
-          <div class="empty">Loading roster…</div>
-        </div>
-
-        <a href="#" class="add-link" onclick="showNewPersonForm(); return false;"
-           aria-label="Add yourself if not on the list">Not on the list? Add yourself</a>
-      </div>
-
-      <!-- Success confirmation -->
-      <div class="card" id="successMode" style="display:none;"
-           role="dialog" aria-modal="true" aria-label="Check-in confirmed">
-        <div class="success-box">
-          <div class="check-ring">
-            <svg viewBox="0 0 52 52" aria-hidden="true">
-              <circle class="check-circle" cx="26" cy="26" r="25"/>
-              <path class="check-tick" d="M14 27l8 8 17-17"/>
-            </svg>
-          </div>
-          <div class="success-name" id="successName">Checked In</div>
-          <div class="time-chip" id="successTime">04:00 PM</div>
-          <button class="btn btn-primary" onclick="resetCheckIn()">Done — Next Check-In</button>
-          <button class="btn btn-ghost" onclick="resetCheckIn()">Back to Roster</button>
-        </div>
-      </div>
-
-      <!-- New person registration -->
-      <div class="card" id="newPersonMode" style="display:none;"
-           role="dialog" aria-modal="true" aria-label="First-time registration">
-        <h2 style="font-size:1.1rem; font-weight:600; letter-spacing:-0.02em; margin-bottom:14px;">
-          First-Time Registration
-        </h2>
-        <input type="text" id="newNameInput" class="search" placeholder="Full Name">
-        <select id="newRoleSelect" class="search">
-          <option value="VOLUNTEER">Volunteer</option>
-          <option value="STUDENT">Student</option>
-        </select>
-        <button class="btn btn-primary" onclick="submitNewPerson()">Add &amp; Check In Now</button>
-        <button class="btn btn-ghost" onclick="cancelNewPerson()">Back</button>
-      </div>
-
-    </section>
-
-    <!-- ── LEADER TAB ─────────────────────────────────────────────── -->
-    <section id="leadPanel" style="display:none;" role="region" aria-label="Leader dashboard">
-
-      <div class="card">
-        <p class="dash-title">Centre Dashboard</p>
-
-        <!-- PIN login -->
-        <div class="pin-block" id="leaderPinSection">
-          <input type="password" id="pinInput" class="search"
-                 placeholder="Leader PIN" style="margin-bottom:8px;">
-          <button class="btn btn-primary" onclick="loadLeaderData()">Access Dashboard</button>
-        </div>
-
-        <!-- Dashboard content (hidden until PIN ok) -->
-        <div id="leaderContent" style="display:none;">
-
-          <!-- Anomaly banner (injected if needed) -->
-          <div id="anomalyContainer" role="status" aria-live="polite"></div>
-
-          <!-- KPI grid -->
-          <div class="kpi-grid">
-            <div class="kpi-cell">
-              <div class="kpi-val" id="kpiCheckedIn">0</div>
-              <div class="kpi-label">Today In</div>
-            </div>
-            <div class="kpi-cell">
-              <div class="kpi-val" id="kpiTotalVols">0</div>
-              <div class="kpi-label">Active Roster</div>
-            </div>
-            <div class="kpi-cell">
-              <div class="kpi-val" id="kpiTurnoutPct">0%</div>
-              <div class="kpi-label">Turnout</div>
-            </div>
-            <div class="kpi-cell">
-              <div class="kpi-val accent" id="kpiAtRisk">0</div>
-              <div class="kpi-label">At Risk</div>
-            </div>
-          </div>
-
-          <!-- Attrition watchlist -->
-          <div class="section-label">Attrition Watchlist</div>
-          <div class="risk-list" id="riskList"></div>
-
-          <!-- AI session summary -->
-          <div class="section-label">Session Summary</div>
-          <button class="btn btn-ai" onclick="generateGeminiSummary()">
-            Generate Executive Summary
-          </button>
-          <div id="aiSummaryBox" style="display:none;">
-            <div class="ai-summary" id="aiSummaryContent"></div>
-            <button id="copyAiBtn" class="btn btn-ghost" onclick="copyAiSummary()"
-                    style="margin-top:8px; font-size:0.78rem;">Copy to Clipboard</button>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-  </div><!-- /wrap -->
-
-  <script>
-    /* ─────────────────────────────────────────────────────────────
-       STATE
-    ───────────────────────────────────────────────────────────── */
-    let gData = null;
-    let currentFilter = 'ALL';
-    let lastAiText = '';
-
-    /* ─────────────────────────────────────────────────────────────
-       CLOCK
-    ───────────────────────────────────────────────────────────── */
-    (function tickClock() {
-      const el = document.getElementById('liveClock');
-      function update() {
-        const now = new Date();
-        const d = now.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
-        const t = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
-        el.textContent = d + '  ' + t;
-      }
-      update();
-      setInterval(update, 1000);
-    })();
-
-    /* ─────────────────────────────────────────────────────────────
-       TAB SWITCH
-    ───────────────────────────────────────────────────────────── */
-    function switchTab(tab) {
-      const isVol = tab === 'VOL';
-      document.getElementById('tabVol').className  = 'tab-btn' + (isVol ? ' active' : '');
-      document.getElementById('tabLead').className = 'tab-btn' + (!isVol ? ' active' : '');
-      document.getElementById('tabVol').setAttribute('aria-selected', isVol);
-      document.getElementById('tabLead').setAttribute('aria-selected', !isVol);
-      document.getElementById('volPanel').style.display  = isVol ? 'block' : 'none';
-      document.getElementById('leadPanel').style.display = !isVol ? 'block' : 'none';
+  /* CLOCK */
+  (function(){
+    var el=document.getElementById('liveClock');
+    function upd(){
+      var n=new Date();
+      var d=n.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+      var t=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+      el.textContent=d+'  '+t;
     }
+    upd(); setInterval(upd,1000);
+  })();
 
-    /* ─────────────────────────────────────────────────────────────
-       COUNTER ANIMATION
-    ───────────────────────────────────────────────────────────── */
-    function animateCounter(id, target, suffix) {
-      suffix = suffix || '';
-      const el = document.getElementById(id);
-      if (!el) return;
-      const n = parseFloat(target) || 0;
-      const dur = 550;
-      let t0 = null;
-      function step(ts) {
-        if (!t0) t0 = ts;
-        const p = Math.min((ts - t0) / dur, 1);
-        const ease = 1 - Math.pow(1 - p, 3);
-        el.textContent = Math.round(n * ease) + suffix;
-        if (p < 1) requestAnimationFrame(step);
-        else el.textContent = n + suffix;
-      }
-      requestAnimationFrame(step);
+  /* TABS */
+  function switchTab(tab){
+    var v=tab==='VOL';
+    document.getElementById('tabVol').className ='tab-btn'+(v?' active':'');
+    document.getElementById('tabLead').className='tab-btn'+(!v?' active':'');
+    document.getElementById('tabVol').setAttribute('aria-selected',v);
+    document.getElementById('tabLead').setAttribute('aria-selected',!v);
+    document.getElementById('volPanel').style.display =v?'block':'none';
+    document.getElementById('leadPanel').style.display=!v?'block':'none';
+  }
+
+  /* COUNTER */
+  function animateCounter(id,target,suffix){
+    suffix=suffix||'';
+    var el=document.getElementById(id); if(!el)return;
+    var n=parseFloat(target)||0, dur=600, t0=null;
+    requestAnimationFrame(function step(ts){
+      if(!t0)t0=ts;
+      var p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(n*e)+suffix;
+      if(p<1)requestAnimationFrame(step); else el.textContent=n+suffix;
+    });
+  }
+
+  /* LOAD */
+  window.onload=function(){
+    if(typeof google!=='undefined'&&google.script&&google.script.run){
+      google.script.run.withSuccessHandler(onDataLoaded).getInitialData();
+    } else {
+      onDataLoaded({
+        session:{isOpen:true,startTime:'16:00',endTime:'18:00'},
+        checkedInIds:['p1'],
+        roster:[
+          {id:'p1',name:'Gomesh',role:'VOLUNTEER'},
+          {id:'p2',name:'Aarav Sharma',role:'VOLUNTEER'},
+          {id:'p3',name:'Priya Patel',role:'STUDENT'},
+          {id:'p4',name:'Rohan Kumar',role:'STUDENT'},
+          {id:'p5',name:'Neha Verma',role:'VOLUNTEER'}
+        ]
+      });
     }
+  };
 
-    /* ─────────────────────────────────────────────────────────────
-       INITIAL DATA LOAD
-    ───────────────────────────────────────────────────────────── */
-    window.onload = function() {
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run.withSuccessHandler(onDataLoaded).getInitialData();
+  function onDataLoaded(data){
+    gData=data;
+    var badge=document.getElementById('sessionBadge'), label=document.getElementById('sessionLabel');
+    if(data.session&&data.session.isOpen){
+      badge.className='session-chip chip-open';
+      label.textContent='Open \u00B7 '+data.session.startTime+'\u2013'+data.session.endTime;
+    } else if(data.session&&data.session.isEarly){
+      badge.className='session-chip chip-closed';
+      label.textContent='Opens at '+(data.session.windowStartFormatted||data.session.startTime);
+    } else {
+      badge.className='session-chip chip-closed';
+      label.textContent='Check-In Closed';
+    }
+    updateCounts(); filterRoster();
+  }
+
+  /* ROSTER */
+  function updateCounts(){
+    if(!gData||!gData.roster)return;
+    var r=gData.roster, ci=gData.checkedInIds||[];
+    document.getElementById('cntAll').textContent=r.length;
+    document.getElementById('cntVol').textContent=r.filter(function(p){return p.role==='VOLUNTEER';}).length;
+    document.getElementById('cntStu').textContent=r.filter(function(p){return p.role==='STUDENT';}).length;
+    document.getElementById('cntChecked').textContent=r.filter(function(p){return ci.indexOf(p.id)>-1;}).length;
+  }
+
+  function setFilter(f){
+    currentFilter=f;
+    ['pillAll','pillVol','pillStu','pillChecked'].forEach(function(id){
+      document.getElementById(id).classList.remove('active');
+      document.getElementById(id).setAttribute('aria-selected','false');
+    });
+    var map={ALL:'pillAll',VOLUNTEER:'pillVol',STUDENT:'pillStu',CHECKED_IN:'pillChecked'};
+    var el=document.getElementById(map[f]);
+    if(el){el.classList.add('active');el.setAttribute('aria-selected','true');}
+    filterRoster();
+  }
+
+  function filterRoster(){
+    if(!gData||!gData.roster)return;
+    var q=document.getElementById('searchInput').value.toLowerCase();
+    var list=gData.roster.slice();
+    if(currentFilter==='VOLUNTEER') list=list.filter(function(p){return p.role==='VOLUNTEER';});
+    else if(currentFilter==='STUDENT') list=list.filter(function(p){return p.role==='STUDENT';});
+    else if(currentFilter==='CHECKED_IN') list=list.filter(function(p){return(gData.checkedInIds||[]).indexOf(p.id)>-1;});
+    if(q) list=list.filter(function(p){return p.name.toLowerCase().indexOf(q)>-1;});
+    renderRoster(list);
+  }
+
+  function initials(name){return name.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();}
+
+  function renderRoster(list){
+    var el=document.getElementById('rosterList');
+    if(!list||list.length===0){el.innerHTML='<div class="empty">No matching members.</div>';return;}
+    var ci=(gData&&gData.checkedInIds)?gData.checkedInIds:[];
+    el.innerHTML=list.map(function(p){
+      var ck=ci.indexOf(p.id)>-1;
+      var tc=p.role==='STUDENT'?'tag-stu':'tag-vol';
+      var tl=p.role==='STUDENT'?'Student':'Volunteer';
+      return '<div class="roster-item" role="listitem" tabindex="0"'+
+        ' onclick="doCheckIn(\''+p.id+'\')"'+
+        ' onkeydown="if(event.key===\'Enter\')doCheckIn(\''+p.id+'\')">'+
+        '<div class="item-left">'+
+        '<div class="item-avatar">'+initials(p.name)+'</div>'+
+        '<span class="item-name">'+p.name+'</span></div>'+
+        '<div class="item-right">'+
+        '<span class="role-tag '+tc+'">'+tl+'</span>'+
+        '<span class="'+(ck?'item-done':'item-action')+'">'+(ck?'\u2713':'\u2192')+'</span>'+
+        '</div></div>';
+    }).join('');
+  }
+
+  /* CHECK-IN */
+  function doCheckIn(id){
+    var t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+    var show=function(name,time){
+      document.getElementById('volunteerMode').style.display='none';
+      document.getElementById('successMode').style.display='block';
+      document.getElementById('successName').textContent=name;
+      document.getElementById('successTime').textContent='Checked in at '+time;
+      if(gData&&gData.checkedInIds&&gData.checkedInIds.indexOf(id)<0)gData.checkedInIds.push(id);
+      updateCounts();
+    };
+    if(typeof google!=='undefined'&&google.script&&google.script.run){
+      google.script.run.withSuccessHandler(function(r){
+        if(r.success)show(r.personName,r.time||t); else alert(r.reason||'Check-in failed.');
+      }).checkIn(id);
+    } else {
+      var p=gData.roster.filter(function(r){return r.id===id;})[0];
+      show(p?p.name:'Volunteer',t);
+    }
+  }
+
+  function resetCheckIn(){
+    document.getElementById('successMode').style.display='none';
+    document.getElementById('volunteerMode').style.display='block';
+    document.getElementById('searchInput').value='';
+    setFilter('ALL');
+  }
+
+  /* NEW PERSON */
+  function showNewPersonForm(){
+    document.getElementById('volunteerMode').style.display='none';
+    document.getElementById('newPersonMode').style.display='block';
+  }
+  function cancelNewPerson(){
+    document.getElementById('newPersonMode').style.display='none';
+    document.getElementById('volunteerMode').style.display='block';
+  }
+  function submitNewPerson(){
+    var name=document.getElementById('newNameInput').value.trim();
+    var role=document.getElementById('newRoleSelect').value;
+    if(!name){alert('Please enter your name.');return;}
+    var t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+    if(typeof google!=='undefined'&&google.script&&google.script.run){
+      google.script.run.withSuccessHandler(function(r){
+        if(r.success){
+          document.getElementById('newPersonMode').style.display='none';
+          document.getElementById('successMode').style.display='block';
+          document.getElementById('successName').textContent=r.personName;
+          document.getElementById('successTime').textContent='Added & checked in at '+(r.time||t);
+        } else alert(r.reason);
+      }).registerNewPerson(name,role);
+    } else {
+      var nid='p_'+Date.now();
+      gData.roster.push({id:nid,name:name,role:role});
+      if(!gData.checkedInIds)gData.checkedInIds=[];
+      gData.checkedInIds.push(nid);
+      document.getElementById('newPersonMode').style.display='none';
+      document.getElementById('successMode').style.display='block';
+      document.getElementById('successName').textContent=name;
+      document.getElementById('successTime').textContent='Added & checked in at '+t;
+      updateCounts();
+    }
+  }
+
+  /* LEADER */
+  function loadLeaderData(){
+    var pin=document.getElementById('pinInput').value;
+    var render=function(stats,anomaly,risks){
+      document.getElementById('leaderPinSection').style.display='none';
+      document.getElementById('leaderContent').style.display='block';
+      setTimeout(function(){animateCounter('kpiCheckedIn', stats.todayCheckedIn||0);},0);
+      setTimeout(function(){animateCounter('kpiTotalVols', stats.totalVolunteers||0);},60);
+      setTimeout(function(){animateCounter('kpiTurnoutPct',stats.turnOutPct||0,'%');},120);
+      setTimeout(function(){animateCounter('kpiAtRisk',    risks?risks.length:0);},180);
+      var pct=stats.turnOutPct||0, isLow=pct<60||(anomaly&&anomaly.isAnomaly);
+      var aEl=document.getElementById('anomalyContainer');
+      if(isLow){
+        aEl.innerHTML='<div class="anomaly-banner"><strong>Low Turnout &mdash; '+pct+'% (below 60% threshold)</strong><p>Coordinator review recommended before session ends.</p></div>';
+      } else aEl.innerHTML='';
+      var rEl=document.getElementById('riskList');
+      if(!risks||risks.length===0){
+        rEl.innerHTML='<div class="empty" style="color:var(--mint-ink)">All volunteers within healthy attendance range.</div>';
       } else {
-        // Development preview stub
-        onDataLoaded({
-          todayDate: new Date().toLocaleDateString(),
-          session: { isOpen: true, startTime: '16:00', endTime: '18:00' },
-          checkedInIds: ['p1'],
-          roster: [
-            { id: 'p1', name: 'Gomesh',       role: 'VOLUNTEER' },
-            { id: 'p2', name: 'Aarav Sharma',  role: 'VOLUNTEER' },
-            { id: 'p3', name: 'Priya Patel',   role: 'STUDENT'   },
-            { id: 'p4', name: 'Rohan Kumar',   role: 'STUDENT'   },
-            { id: 'p5', name: 'Neha Verma',    role: 'VOLUNTEER' }
-          ]
-        });
+        rEl.innerHTML=risks.map(function(item){
+          var hi=(item.consecutiveAbsences||0)>=3||(item.riskReason&&item.riskReason.toUpperCase().indexOf('HIGH')>-1);
+          return '<div class="risk-item"><div class="risk-row"><span class="risk-name">'+item.name+'</span>'+
+            '<span class="risk-badge '+(hi?'badge-high':'badge-mod')+'">'+(hi?'High Risk':'Moderate')+'</span></div>'+
+            '<div class="risk-reason">'+(item.riskReason||'Attendance below threshold')+'</div></div>';
+        }).join('');
       }
     };
-
-    function onDataLoaded(data) {
-      gData = data;
-      const badge = document.getElementById('sessionBadge');
-      const label = document.getElementById('sessionLabel');
-
-      if (data.session && data.session.isOpen) {
-        badge.className = 'session-chip chip-open';
-        label.textContent = 'Session Open · ' + data.session.startTime + '–' + data.session.endTime;
-      } else if (data.session && data.session.isEarly) {
-        badge.className = 'session-chip chip-closed';
-        label.textContent = 'Opens at ' + (data.session.windowStartFormatted || data.session.startTime);
-      } else {
-        badge.className = 'session-chip chip-closed';
-        label.textContent = 'Check-In Closed';
-      }
-
-      updateCounts();
-      filterRoster();
+    if(typeof google!=='undefined'&&google.script&&google.script.run){
+      google.script.run.withSuccessHandler(function(r){
+        if(r.success)render(r.stats,r.anomalyAlert,r.atRiskList); else alert(r.reason);
+      }).getLeaderDashboard(pin);
+    } else {
+      render({todayCheckedIn:6,totalVolunteers:12,turnOutPct:54},{isAnomaly:true},[
+        {name:'Aarav Sharma',riskReason:'Missed 3 consecutive sessions'},
+        {name:'Neha Verma',riskReason:'Attendance dropped 35% over 4 weeks'}
+      ]);
     }
+  }
 
-    /* ─────────────────────────────────────────────────────────────
-       ROSTER FILTER + RENDER
-    ───────────────────────────────────────────────────────────── */
-    function updateCounts() {
-      if (!gData || !gData.roster) return;
-      const r = gData.roster;
-      const ci = gData.checkedInIds || [];
-      document.getElementById('cntAll').textContent     = r.length;
-      document.getElementById('cntVol').textContent     = r.filter(p => p.role === 'VOLUNTEER').length;
-      document.getElementById('cntStu').textContent     = r.filter(p => p.role === 'STUDENT').length;
-      document.getElementById('cntChecked').textContent = r.filter(p => ci.includes(p.id)).length;
+  /* GEMINI */
+  function generateGeminiSummary(){
+    var pin=document.getElementById('pinInput').value;
+    var box=document.getElementById('aiSummaryBox'), content=document.getElementById('aiSummaryContent');
+    box.style.display='block'; content.textContent='Generating summary\u2026';
+    var show=function(text){lastAiText=text;content.textContent=text;};
+    if(typeof google!=='undefined'&&google.script&&google.script.run){
+      google.script.run.withSuccessHandler(function(r){
+        if(r.success)show(r.aiSummary); else show('Notice: '+r.reason);
+      }).generateGeminiExecutiveSummary(pin);
+    } else {
+      show('Engagement Overview:\n\u2014 Vihana Centre: 12 volunteers, 45 students.\n\u2014 Today\u2019s turnout: 6 of 12 (54%) \u2014 below target.\n\nRetention Watchlist:\n\u2014 2 volunteers flagged for attendance concerns.\n\u2014 Personal outreach recommended.\n\nAction Items:\n\u2014 Follow up with flagged volunteers by end of week.\n\u2014 Review schedule for recurring low-turnout slots.');
     }
+  }
 
-    function setFilter(f) {
-      currentFilter = f;
-      ['pillAll','pillVol','pillStu','pillChecked'].forEach(id => {
-        document.getElementById(id).classList.remove('active');
-        document.getElementById(id).setAttribute('aria-selected', 'false');
-      });
-      const map = { ALL:'pillAll', VOLUNTEER:'pillVol', STUDENT:'pillStu', CHECKED_IN:'pillChecked' };
-      const el = document.getElementById(map[f]);
-      if (el) { el.classList.add('active'); el.setAttribute('aria-selected','true'); }
-      filterRoster();
-    }
-
-    function filterRoster() {
-      if (!gData || !gData.roster) return;
-      const q = document.getElementById('searchInput').value.toLowerCase();
-      let list = gData.roster;
-      if (currentFilter === 'VOLUNTEER')  list = list.filter(p => p.role === 'VOLUNTEER');
-      else if (currentFilter === 'STUDENT')   list = list.filter(p => p.role === 'STUDENT');
-      else if (currentFilter === 'CHECKED_IN') list = list.filter(p => (gData.checkedInIds||[]).includes(p.id));
-      if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
-      renderRoster(list);
-    }
-
-    function renderRoster(list) {
-      const el = document.getElementById('rosterList');
-      if (!list || list.length === 0) {
-        el.innerHTML = '<div class="empty">No matching members.</div>';
-        return;
-      }
-      const ci = gData && gData.checkedInIds ? gData.checkedInIds : [];
-      el.innerHTML = list.map(p => {
-        const checked = ci.includes(p.id);
-        const tagClass = p.role === 'STUDENT' ? 'tag-stu' : 'tag-vol';
-        return `
-          <div class="roster-item" role="listitem" onclick="doCheckIn('${p.id}')"
-               tabindex="0" onkeydown="if(event.key==='Enter')doCheckIn('${p.id}')">
-            <div>
-              <span class="item-name">${p.name}</span>
-              <span class="role-tag ${tagClass}" style="margin-left:6px;">${p.role}</span>
-            </div>
-            <div class="item-right">
-              <span class="${checked ? 'item-done' : 'item-action'}">${checked ? 'Done' : 'Tap'}</span>
-            </div>
-          </div>`;
-      }).join('');
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       CHECK-IN
-    ───────────────────────────────────────────────────────────── */
-    function doCheckIn(personId) {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
-
-      const showSuccess = (name, time) => {
-        document.getElementById('volunteerMode').style.display = 'none';
-        document.getElementById('successMode').style.display = 'block';
-        document.getElementById('successName').textContent = name;
-        document.getElementById('successTime').textContent = 'Checked in at ' + time;
-        if (gData && gData.checkedInIds && !gData.checkedInIds.includes(personId)) {
-          gData.checkedInIds.push(personId);
-        }
-        updateCounts();
-      };
-
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run.withSuccessHandler(res => {
-          if (res.success) showSuccess(res.personName, res.time || timeStr);
-          else alert(res.reason || 'Check-in failed.');
-        }).checkIn(personId);
-      } else {
-        const p = gData.roster.find(r => r.id === personId);
-        showSuccess(p ? p.name : 'Volunteer', timeStr);
-      }
-    }
-
-    function resetCheckIn() {
-      document.getElementById('successMode').style.display = 'none';
-      document.getElementById('volunteerMode').style.display = 'block';
-      document.getElementById('searchInput').value = '';
-      setFilter('ALL');
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       NEW PERSON
-    ───────────────────────────────────────────────────────────── */
-    function showNewPersonForm() {
-      document.getElementById('volunteerMode').style.display = 'none';
-      document.getElementById('newPersonMode').style.display = 'block';
-    }
-
-    function cancelNewPerson() {
-      document.getElementById('newPersonMode').style.display = 'none';
-      document.getElementById('volunteerMode').style.display = 'block';
-    }
-
-    function submitNewPerson() {
-      const name = document.getElementById('newNameInput').value.trim();
-      const role = document.getElementById('newRoleSelect').value;
-      if (!name) { alert('Please enter your name.'); return; }
-      const timeStr = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
-
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run.withSuccessHandler(res => {
-          if (res.success) {
-            document.getElementById('newPersonMode').style.display = 'none';
-            document.getElementById('successMode').style.display = 'block';
-            document.getElementById('successName').textContent = res.personName;
-            document.getElementById('successTime').textContent = 'Added & checked in at ' + (res.time || timeStr);
-          } else { alert(res.reason); }
-        }).registerNewPerson(name, role);
-      } else {
-        const newId = 'p_' + Date.now();
-        gData.roster.push({ id: newId, name, role });
-        (gData.checkedInIds = gData.checkedInIds || []).push(newId);
-        document.getElementById('newPersonMode').style.display = 'none';
-        document.getElementById('successMode').style.display = 'block';
-        document.getElementById('successName').textContent = name;
-        document.getElementById('successTime').textContent = 'Added & checked in at ' + timeStr;
-        updateCounts();
-      }
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       LEADER DASHBOARD
-    ───────────────────────────────────────────────────────────── */
-    function loadLeaderData() {
-      const pin = document.getElementById('pinInput').value;
-
-      const render = (stats, anomaly, atRisks) => {
-        document.getElementById('leaderPinSection').style.display = 'none';
-        document.getElementById('leaderContent').style.display = 'block';
-
-        animateCounter('kpiCheckedIn',  stats.todayCheckedIn || 0);
-        animateCounter('kpiTotalVols',  stats.totalVolunteers || 0);
-        animateCounter('kpiTurnoutPct', stats.turnOutPct || 0, '%');
-        animateCounter('kpiAtRisk',     atRisks ? atRisks.length : 0);
-
-        const turnPct = stats.turnOutPct ?? 0;
-        const isLow = turnPct < 60 || (anomaly && anomaly.isAnomaly);
-        const aEl = document.getElementById('anomalyContainer');
-        if (isLow) {
-          aEl.innerHTML = `
-            <div class="anomaly-banner">
-              <strong>Low Turnout — ${turnPct}% (below 60% threshold)</strong>
-              <p>Coordinator review recommended before session ends.</p>
-            </div>`;
-        } else {
-          aEl.innerHTML = '';
-        }
-
-        const rEl = document.getElementById('riskList');
-        if (!atRisks || atRisks.length === 0) {
-          rEl.innerHTML = '<div class="empty" style="color:var(--green); padding:12px 0;">All volunteers within healthy attendance range.</div>';
-        } else {
-          rEl.innerHTML = atRisks.map(item => {
-            const hi = (item.consecutiveAbsences || 0) >= 3 ||
-                       (item.riskReason && item.riskReason.toUpperCase().includes('HIGH'));
-            return `
-              <div class="risk-item">
-                <div class="risk-row">
-                  <span class="risk-name">${item.name}</span>
-                  <span class="risk-badge ${hi ? 'badge-high' : 'badge-mod'}">${hi ? 'High' : 'Moderate'}</span>
-                </div>
-                <div class="risk-reason">${item.riskReason || 'Attendance below threshold'}</div>
-              </div>`;
-          }).join('');
-        }
-      };
-
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run.withSuccessHandler(res => {
-          if (res.success) render(res.stats, res.anomalyAlert, res.atRiskList);
-          else alert(res.reason);
-        }).getLeaderDashboard(pin);
-      } else {
-        render(
-          { todayCheckedIn: 6, totalVolunteers: 12, turnOutPct: 54 },
-          { isAnomaly: true },
-          [
-            { name: 'Aarav Sharma', riskReason: 'Missed 3 consecutive sessions' },
-            { name: 'Neha Verma',   riskReason: 'Attendance dropped 35% over 4 weeks' }
-          ]
-        );
-      }
-    }
-
-    /* ─────────────────────────────────────────────────────────────
-       GEMINI EXECUTIVE SUMMARY
-    ───────────────────────────────────────────────────────────── */
-    function generateGeminiSummary() {
-      const pin = document.getElementById('pinInput').value;
-      const box = document.getElementById('aiSummaryBox');
-      const content = document.getElementById('aiSummaryContent');
-      box.style.display = 'block';
-      content.textContent = 'Generating summary…';
-
-      const renderSummary = text => {
-        lastAiText = text;
-        content.textContent = text;
-      };
-
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run.withSuccessHandler(res => {
-          if (res.success) renderSummary(res.aiSummary);
-          else renderSummary('Notice: ' + res.reason);
-        }).generateGeminiExecutiveSummary(pin);
-      } else {
-        renderSummary(
-`Engagement Overview:
-— Vihana Centre is operating with 12 active volunteers and 45 students.
-— Today's turnout: 6/12 (54%) — below target threshold.
-
-Retention Watchlist:
-— 2 volunteers flagged for attendance pattern concerns.
-— Recommend personal outreach before next session.
-
-Action Items:
-— Follow up with flagged volunteers by end of week.
-— Review session schedule for recurring low-turnout slots.`
-        );
-      }
-    }
-
-    function copyAiSummary() {
-      if (!lastAiText) return;
-      navigator.clipboard.writeText(lastAiText).then(() => {
-        const btn = document.getElementById('copyAiBtn');
-        btn.textContent = 'Copied';
-        setTimeout(() => { btn.textContent = 'Copy to Clipboard'; }, 2000);
-      });
-    }
-  </script>
+  function copyAiSummary(){
+    if(!lastAiText)return;
+    navigator.clipboard.writeText(lastAiText).then(function(){
+      var btn=document.getElementById('copyAiBtn');
+      btn.textContent='Copied \u2713';
+      setTimeout(function(){btn.textContent='Copy to Clipboard';},2000);
+    });
+  }
+</script>
 </body>
 </html>
