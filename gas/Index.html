@@ -4,9 +4,9 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>U&I Vihana Volunteer attendance</title>
+  <title>U&I Vihana Volunteer Attendance</title>
   
-  <!-- Premium Fonts: Outfit (Display & Headings) + Inter (Interface & Data Tabular Nums) -->
+  <!-- Typography Stack: Outfit (Headings) + Inter/Geist (Tabular-nums Interface) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
@@ -14,10 +14,11 @@
   <style>
     :root {
       --brand-red: #CC1100;
+      --brand-red-dark: #880b00;
       --brand-red-glow: rgba(204, 17, 0, 0.28);
-      --bg-dark: #08090c;
-      --bg-card: rgba(18, 14, 14, 0.90);
-      --bg-input: rgba(255, 255, 255, 0.05);
+      --bg-dark: #07080b;
+      --bg-card: rgba(18, 15, 15, 0.92);
+      --bg-input: rgba(255, 255, 255, 0.04);
       --border-subtle: rgba(255, 255, 255, 0.08);
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
@@ -34,8 +35,8 @@
     body {
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(204, 17, 0, 0.12) 0%, transparent 60%),
-        radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+        radial-gradient(ellipse at 50% 0%, rgba(204, 17, 0, 0.14) 0%, transparent 60%),
+        radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
       background-attachment: fixed;
       color: var(--text-primary);
       font-family: var(--font-body);
@@ -50,7 +51,7 @@
 
     h1, h2, h3, h4 {
       font-family: var(--font-heading);
-      letter-spacing: -0.02em;
+      letter-spacing: -0.025em;
       text-wrap: balance;
     }
 
@@ -73,7 +74,6 @@
         0 20px 50px -15px rgba(0, 0, 0, 0.7),
         0 0 0 1px rgba(0, 0, 0, 0.4);
       margin-bottom: 16px;
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* Header & Brand Identity */
@@ -173,7 +173,7 @@
       100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
-    /* Accessible Input Focus States */
+    /* Accessible Focus Ring */
     :focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
       outline: 2px solid var(--brand-red);
       outline-offset: 3px;
@@ -285,7 +285,7 @@
     .tag-vol { background: rgba(6, 182, 212, 0.14); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.25); }
     .tag-stu { background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
 
-    /* Action Buttons (Strict 44px+ Touch Targets & Active Press Effect) */
+    /* Action Buttons (Strict 48px Touch Targets) */
     .btn {
       width: 100%;
       min-height: 48px;
@@ -335,7 +335,7 @@
       box-shadow: 0 8px 22px rgba(139, 92, 246, 0.45);
     }
 
-    /* Spring Entrance Checkmark Modal */
+    /* Spring Entrance Modal */
     .success-box {
       text-align: center;
       padding: 24px 10px;
@@ -520,7 +520,7 @@
         <div id="leaderContent" style="display:none;">
           <div id="anomalyContainer" role="status" aria-live="polite"></div>
 
-          <!-- Glassmorphism KPI Grid -->
+          <!-- Glassmorphism KPI Grid (grid-auto-flow: dense) -->
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
             <div style="background:linear-gradient(135deg, rgba(204,17,0,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
               <div style="font-size:1.6rem; font-weight:700; color:#fff;" id="kpiCheckedIn">0</div>
@@ -541,16 +541,16 @@
           </div>
 
           <!-- Heuristic Attrition Watchlist -->
-          <h4 style="font-size:0.88rem; margin-bottom:10px; color:#ff6b5b;">⚠️ Heuristic Attrition Watchlist</h4>
+          <h4 style="font-size:0.88rem; margin-bottom:10px; color:#ff6b5b;">Heuristic Attrition Watchlist</h4>
           <div id="riskList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:10px; margin-bottom:16px;"></div>
 
           <!-- Gemini Pro AI Executive Summary -->
-          <button class="btn btn-ai" onclick="generateGeminiSummary()">✨ 1-Click Gemini Pro AI Summary</button>
+          <button class="btn btn-ai" onclick="generateGeminiSummary()">Generate Gemini Pro AI Summary</button>
           
           <div id="aiSummaryBox" style="display:none; margin-top:12px; background:rgba(15,23,42,0.95); border:1px solid rgba(139,92,246,0.35); padding:14px; border-radius:14px; font-size:0.82rem; line-height:1.6; white-space:pre-wrap; color:#e2e8f0;">
             <div id="aiSummaryContent"></div>
             <button id="copyAiSummaryBtn" class="btn btn-sec" onclick="copyGeminiSummaryText()" style="margin-top:12px; font-size:0.78rem; padding:8px;">
-              📋 Copy Summary Text
+              Copy Summary Text
             </button>
           </div>
         </div>
@@ -671,7 +671,7 @@
               <span style="font-weight:600; font-size:0.9rem;">${p.name}</span>
               <span class="role-tag ${tagClass}" style="margin-left:6px;">${p.role}</span>
             </div>
-            <div>${isChecked ? '<span style="color:#10b981; font-weight:bold; font-size:0.8rem;">&check; Done</span>' : '<span style="color:var(--text-muted); font-size:0.8rem;">Tap &rarr;</span>'}</div>
+            <div>${isChecked ? '<span style="color:#10b981; font-weight:bold; font-size:0.8rem;">Done</span>' : '<span style="color:var(--text-muted); font-size:0.8rem;">Tap &rarr;</span>'}</div>
           </div>`;
       });
       el.innerHTML = html;
@@ -788,7 +788,7 @@
         if (isLowTurnout) {
           document.getElementById('anomalyContainer').innerHTML = `
             <div style="background:rgba(204,17,0,0.18); border:1px solid rgba(204,17,0,0.45); padding:12px 14px; border-radius:12px; margin-bottom:14px; font-size:0.8rem; color:#ff6b5b;">
-              <strong>🚨 Low Turnout Anomaly Warning (${turnPct}% &lt; 60% Threshold)</strong>
+              <strong>Low Turnout Anomaly Warning (${turnPct}% &lt; 60% Threshold)</strong>
               <p style="margin:4px 0 8px 0; color:#e2e8f0; font-size:0.75rem;">Center attendance has dropped below 60%. Coordinator intervention is recommended.</p>
             </div>`;
         } else {
@@ -810,7 +810,7 @@
                   ${riskBadge}
                 </div>
                 <div style="font-size:0.75rem; color:#fca5a5;">
-                  ⚠️ ${item.riskReason || 'Missed 2 of last 3 sessions'}
+                  ${item.riskReason || 'Missed 2 of last 3 sessions'}
                 </div>
               </div>`;
           });
@@ -840,7 +840,7 @@
       const box = document.getElementById('aiSummaryBox');
       const content = document.getElementById('aiSummaryContent');
       box.style.display = 'block';
-      content.innerText = "⏳ Synthesizing Gemini Pro Executive Summary...";
+      content.innerText = "Synthesizing Gemini Pro Executive Summary...";
 
       const renderSummary = (text) => {
         lastGeneratedAiText = text;
@@ -850,18 +850,18 @@
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
           if (res.success) renderSummary(res.aiSummary);
-          else renderSummary("⚠️ " + res.reason);
+          else renderSummary("Notice: " + res.reason);
         }).generateGeminiExecutiveSummary(pin);
       } else {
-        renderSummary(`📈 **Monthly Engagement Overview**
-• **Center Reach:** Operations at Vihana Center remain active with 12 active volunteers tutoring 45 students across conducted sessions.
-• **Curriculum:** Covered "Fractions & English Reading".
+        renderSummary(`Monthly Engagement Overview:
+- Center Reach: Operations at Vihana Center remain active with 12 active volunteers tutoring 45 students across conducted sessions.
+- Curriculum: Covered Fractions and English Reading.
 
-⚠️ **Volunteer Retention & Attrition Watchlist**
-• **Retention Health:** 2 volunteers flagged for attendance volatility.
+Volunteer Retention Watchlist:
+- Retention Health: 2 volunteers flagged for attendance volatility.
 
-🎯 **Recommended Action Items**
-• Conduct 1-on-1 check-in calls with flagged volunteers.`);
+Recommended Action Items:
+- Conduct 1-on-1 check-in calls with flagged volunteers.`);
       }
     }
 
@@ -869,8 +869,8 @@
       if (!lastGeneratedAiText) return;
       navigator.clipboard.writeText(lastGeneratedAiText);
       const btn = document.getElementById('copyAiSummaryBtn');
-      btn.innerText = "✓ Copied to Clipboard!";
-      setTimeout(() => { btn.innerText = "📋 Copy Summary Text"; }, 2000);
+      btn.innerText = "Copied to Clipboard";
+      setTimeout(() => { btn.innerText = "Copy Summary Text"; }, 2000);
     }
   </script>
 </body>
