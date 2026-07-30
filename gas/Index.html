@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <title>U&I Volunteer OS</title>
+  <style>
+    :root {
+      --brand-red: #CC1100;
+      --bg-dark: #0a0c0f;
+      --bg-card: rgba(22, 16, 16, 0.92);
+      --text-primary: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; padding: 16px; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 440px; margin: 0 auto; }
+    .card { background: var(--bg-card); border: 1px solid rgba(204, 17, 0, 0.25); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 16px; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .logo { width: 44px; height: 44px; background: var(--brand-red); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 8px; box-shadow: 0 0 15px rgba(204,17,0,0.4); }
+    h1 { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+    .sub { font-size: 0.8rem; color: var(--text-muted); }
+    .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-top: 10px; }
+    .badge-open { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
+    .badge-closed { background: rgba(204,17,0,0.15); color: #ff6b5b; border: 1px solid rgba(204,17,0,0.3); }
+    .anomaly-banner { background: rgba(245,158,11,0.18); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 10px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; margin-bottom: 12px; text-align: center; }
+    .search-input { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; color: #fff; font-size: 1rem; margin-bottom: 12px; outline: none; }
+    .roster-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .roster-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer; }
+    .role-tag { font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+    .tag-vol { background: rgba(6,182,212,0.15); color: #22d3ee; }
+    .tag-stu { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #CC1100, #991100); border: none; border-radius: 12px; color: #fff; font-weight: 600; font-size: 0.95rem; cursor: pointer; margin-top: 10px; }
+    .btn-sec { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); }
+    .btn-ai { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; margin-top: 12px; }
+    .success-box { text-align: center; padding: 30px 10px; }
+    .checkmark { width: 64px; height: 64px; background: rgba(16,185,129,0.15); border-radius: 50%; color: var(--accent-green); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 16px; border: 2px solid var(--accent-green); }
+    .tabs { display: flex; gap: 8px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; }
+    .tab-btn { flex: 1; padding: 8px; background: none; border: none; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .tab-btn.active { color: var(--brand-red); border-bottom: 2px solid var(--brand-red); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="logo">U&I</div>
+        <h1>Volunteer OS</h1>
+        <div class="sub" id="todayDate">Loading date...</div>
+        <div id="sessionBadge" class="status-badge badge-closed">Checking Session...</div>
+      </div>
+
+      <!-- VOLUNTEER VIEW -->
+      <div id="volunteerMode">
+        <input type="text" id="searchInput" class="search-input" placeholder="Type your name to check in..." oninput="filterRoster()">
+        <div class="roster-list" id="rosterList">
+          <div style="text-align:center; padding:20px; color:var(--text-muted);">Loading roster...</div>
+        </div>
+        <div style="text-align:center; margin-top:14px;">
+          <a href="#" onclick="showNewPersonForm(); return false;" style="color:#ff6b5b; font-size:0.8rem; text-decoration:none;">Not on the list? Add yourself &rarr;</a>
+        </div>
+      </div>
+
+      <!-- SUCCESS CHECKMARK -->
+      <div id="successMode" class="success-box" style="display:none;">
+        <div class="checkmark">&check;</div>
+        <h2 id="successName" style="margin-bottom:6px;">Checked In!</h2>
+        <p id="successTime" style="color:var(--text-muted); font-size:0.88rem;"></p>
+        <button class="btn btn-sec" style="margin-top:20px;" onclick="resetCheckIn()">Done / Next Person</button>
+      </div>
+
+      <!-- NEW PERSON FORM -->
+      <div id="newPersonMode" style="display:none;">
+        <h3 style="font-size:1rem; margin-bottom:12px;">First Time Check-In</h3>
+        <input type="text" id="newNameInput" class="search-input" placeholder="Your Full Name">
+        <select id="newRoleSelect" class="search-input" style="background:#161010;">
+          <option value="VOLUNTEER">Volunteer</option>
+          <option value="STUDENT">Student</option>
+        </select>
+        <button class="btn" onclick="submitNewPerson()">Add & Check In Now</button>
+        <button class="btn btn-sec" onclick="cancelNewPerson()">Back</button>
+      </div>
+
+      <!-- LEADER DASHBOARD -->
+      <div id="leaderMode" style="display:none;">
+        <h3 style="font-size:1rem; margin-bottom:12px; color:var(--brand-red);">Centre Leader Dashboard</h3>
+        
+        <div id="leaderPinSection">
+          <input type="password" id="pinInput" class="search-input" placeholder="Enter Leader PIN (default: 1234)">
+          <button class="btn" onclick="loadLeaderData()">Login to Dashboard</button>
+        </div>
+
+        <div id="leaderContent" style="display:none;">
+          <div id="anomalyContainer"></div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+            <div style="background:rgba(255,255,255,0.04); padding:12px; border-radius:10px; text-align:center;">
+              <div style="font-size:1.4rem; font-weight:700;" id="kpiCheckedIn">0</div>
+              <div style="font-size:0.7rem; color:var(--text-muted);">TODAY CHECKED IN</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04); padding:12px; border-radius:10px; text-align:center;">
+              <div style="font-size:1.4rem; font-weight:700;" id="kpiTotalVols">0</div>
+              <div style="font-size:0.7rem; color:var(--text-muted);">ACTIVE ROSTER</div>
+            </div>
+          </div>
+
+          <h4 style="font-size:0.85rem; margin-bottom:8px; color:#ff6b5b;">⚠️ Heuristic Attrition Watchlist</h4>
+          <div id="riskList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:6px;"></div>
+
+          <button class="btn btn-ai" onclick="generateGeminiSummary()">✨ Generate Gemini AI Donor Summary</button>
+          
+          <div id="aiSummaryBox" style="display:none; margin-top:12px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); padding:12px; border-radius:10px; font-size:0.8rem; line-height:1.5; white-space:pre-wrap;"></div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" id="tabVol" onclick="switchTab('VOL')">Volunteer</button>
+        <button class="tab-btn" id="tabLead" onclick="switchTab('LEAD')">Leader View</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let gData = null;
+
+    window.onload = function() {
+      google.script.run.withSuccessHandler(onDataLoaded).getInitialData();
+    };
+
+    function onDataLoaded(data) {
+      gData = data;
+      document.getElementById('todayDate').innerText = data.todayDate;
+      const sBadge = document.getElementById('sessionBadge');
+      
+      if (data.session && data.session.isOpen) {
+        sBadge.className = "status-badge badge-open";
+        sBadge.innerText = "● Session Open (" + data.session.startTime + " - " + data.session.endTime + ")";
+      } else if (data.session && data.session.isEarly) {
+        sBadge.className = "status-badge badge-closed";
+        sBadge.innerText = "Opens at " + data.session.windowStartFormatted;
+      } else {
+        sBadge.className = "status-badge badge-closed";
+        sBadge.innerText = "Check-in Closed";
+      }
+
+      renderRoster(data.roster);
+    }
+
+    function renderRoster(list) {
+      const el = document.getElementById('rosterList');
+      if (!list || list.length === 0) {
+        el.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">No matching names.</div>';
+        return;
+      }
+      let html = '';
+      list.forEach(p => {
+        const isChecked = gData && gData.checkedInIds && gData.checkedInIds.includes(p.id);
+        const tagClass = p.role === 'STUDENT' ? 'tag-stu' : 'tag-vol';
+        html += `
+          <div class="roster-item" onclick="doCheckIn('${p.id}')">
+            <div>
+              <span style="font-weight:600; font-size:0.9rem;">${p.name}</span>
+              <span class="role-tag ${tagClass}" style="margin-left:6px;">${p.role}</span>
+            </div>
+            <div>${isChecked ? '<span style="color:#10b981; font-weight:bold; font-size:0.8rem;">&check; Done</span>' : '<span style="color:var(--text-muted); font-size:0.8rem;">Tap &rarr;</span>'}</div>
+          </div>`;
+      });
+      el.innerHTML = html;
+    }
+
+    function filterRoster() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      if (!gData || !gData.roster) return;
+      renderRoster(gData.roster.filter(p => p.name.toLowerCase().includes(q)));
+    }
+
+    function doCheckIn(personId) {
+      google.script.run.withSuccessHandler(res => {
+        if (res.success) {
+          document.getElementById('volunteerMode').style.display = 'none';
+          document.getElementById('successMode').style.display = 'block';
+          document.getElementById('successName').innerText = res.personName;
+          document.getElementById('successTime').innerText = "Checked in at " + res.time;
+          if (!gData.checkedInIds.includes(personId)) gData.checkedInIds.push(personId);
+        } else {
+          alert(res.reason || "Check-in failed.");
+        }
+      }).checkIn(personId);
+    }
+
+    function resetCheckIn() {
+      document.getElementById('successMode').style.display = 'none';
+      document.getElementById('volunteerMode').style.display = 'block';
+      document.getElementById('searchInput').value = '';
+      filterRoster();
+    }
+
+    function showNewPersonForm() {
+      document.getElementById('volunteerMode').style.display = 'none';
+      document.getElementById('newPersonMode').style.display = 'block';
+    }
+
+    function cancelNewPerson() {
+      document.getElementById('newPersonMode').style.display = 'none';
+      document.getElementById('volunteerMode').style.display = 'block';
+    }
+
+    function submitNewPerson() {
+      const name = document.getElementById('newNameInput').value;
+      const role = document.getElementById('newRoleSelect').value;
+      if (!name) return alert("Please enter name");
+
+      google.script.run.withSuccessHandler(res => {
+        if (res.success) {
+          document.getElementById('newPersonMode').style.display = 'none';
+          document.getElementById('successMode').style.display = 'block';
+          document.getElementById('successName').innerText = res.personName;
+          document.getElementById('successTime').innerText = "Added & checked in at " + res.time;
+        } else { alert(res.reason); }
+      }).registerNewPerson(name, role);
+    }
+
+    function switchTab(tab) {
+      document.getElementById('tabVol').className = "tab-btn " + (tab === 'VOL' ? 'active' : '');
+      document.getElementById('tabLead').className = "tab-btn " + (tab === 'LEAD' ? 'active' : '');
+      document.getElementById('volunteerMode').style.display = tab === 'VOL' ? 'block' : 'none';
+      document.getElementById('successMode').style.display = 'none';
+      document.getElementById('newPersonMode').style.display = 'none';
+      document.getElementById('leaderMode').style.display = tab === 'LEAD' ? 'block' : 'none';
+    }
+
+    function loadLeaderData() {
+      const pin = document.getElementById('pinInput').value;
+      google.script.run.withSuccessHandler(res => {
+        if (res.success) {
+          document.getElementById('leaderPinSection').style.display = 'none';
+          document.getElementById('leaderContent').style.display = 'block';
+          document.getElementById('kpiCheckedIn').innerText = res.stats.todayCheckedIn;
+          document.getElementById('kpiTotalVols').innerText = res.stats.totalVolunteers;
+
+          if (res.anomalyAlert && res.anomalyAlert.isAnomaly) {
+            document.getElementById('anomalyContainer').innerHTML = `<div class="anomaly-banner">${res.anomalyAlert.message}</div>`;
+          } else {
+            document.getElementById('anomalyContainer').innerHTML = '';
+          }
+
+          let rHtml = '';
+          if (res.atRiskList.length === 0) {
+            rHtml = '<div style="color:var(--accent-green);">All volunteers healthy (>70% attendance)!</div>';
+          } else {
+            res.atRiskList.forEach(item => {
+              rHtml += `<div style="background:rgba(204,17,0,0.12); padding:8px 10px; border-radius:6px; border:1px solid rgba(204,17,0,0.3);">
+                <strong>${item.name}</strong> (${item.role}) &bull; ${item.riskReason}
+              </div>`;
+            });
+          }
+          document.getElementById('riskList').innerHTML = rHtml;
+        } else { alert(res.reason); }
+      }).getLeaderDashboard(pin);
+    }
+
+    function generateGeminiSummary() {
+      const pin = document.getElementById('pinInput').value;
+      const box = document.getElementById('aiSummaryBox');
+      box.style.display = 'block';
+      box.innerText = "⏳ Requesting Gemini Pro AI Summary...";
+
+      google.script.run.withSuccessHandler(res => {
+        if (res.success) {
+          box.innerText = res.aiSummary;
+        } else {
+          box.innerText = "⚠️ " + res.reason;
+        }
+      }).generateGeminiExecutiveSummary(pin);
+    }
+  </script>
+</body>
+</html>
