@@ -4,606 +4,914 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>U&I Vihana Volunteer attendance</title>
-  
-  <!-- Typographic Stack: Playfair Display / Instrument Serif (Editorial Headings) + Geist / Inter (Clean UI & Tabular Mono) -->
+  <title>U&I Vihana — Volunteer Attendance</title>
+
+  <!-- DM Sans: precision UI workhorse. JetBrains Mono: data/codes only. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
   <style>
+    /* ─────────────────────────────────────────────────────────────
+       DESIGN TOKENS — brand-derived, no rainbow, 2 neutrals max
+    ───────────────────────────────────────────────────────────── */
     :root {
-      --brand-accent: #CC1100;
-      --bg-canvas: #090a0d;
-      --bg-surface: #111318;
-      --bg-surface-elevated: #161820;
-      --bg-input: #161820;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-crisp: rgba(255, 255, 255, 0.12);
-      
-      --text-main: #f8fafc;
-      --text-muted: #8e99a8;
-      --text-faint: #525a66;
+      /* Brand */
+      --red:        #CC1100;
+      --red-dim:    rgba(204, 17, 0, 0.14);
+      --red-border: rgba(204, 17, 0, 0.30);
+      --red-hover:  #aa0e00;
 
-      /* Desaturated Warm Muted Pastels */
-      --pastel-red-bg: rgba(253, 235, 236, 0.12);
-      --pastel-red-text: #f87171;
-      --pastel-red-border: rgba(248, 113, 113, 0.25);
+      /* Canvas */
+      --bg:         #0A0A0A;
+      --surface:    #111111;
+      --elevated:   #181818;
 
-      --pastel-green-bg: rgba(237, 243, 236, 0.12);
-      --pastel-green-text: #4ade80;
-      --pastel-green-border: rgba(74, 222, 128, 0.25);
+      /* Borders */
+      --line:       rgba(255, 255, 255, 0.09);
+      --line-hi:    rgba(255, 255, 255, 0.16);
 
-      --pastel-blue-bg: rgba(225, 243, 254, 0.12);
-      --pastel-blue-text: #38bdf8;
-      --pastel-blue-border: rgba(56, 189, 248, 0.25);
+      /* Text */
+      --text:       #F2F2F2;
+      --muted:      #7A7A7A;
+      --faint:      #3D3D3D;
 
-      --pastel-yellow-bg: rgba(251, 243, 219, 0.12);
-      --pastel-yellow-text: #facc15;
-      --pastel-yellow-border: rgba(250, 204, 21, 0.25);
+      /* Risk — derived from red, no new hues */
+      --risk-hi-bg:     rgba(204, 17, 0, 0.12);
+      --risk-hi-border: rgba(204, 17, 0, 0.28);
+      --risk-hi-text:   #F87171;
 
-      --font-editorial: 'Instrument Serif', Georgia, serif;
-      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --risk-md-bg:     rgba(204, 100, 0, 0.10);
+      --risk-md-border: rgba(204, 100, 0, 0.24);
+      --risk-md-text:   #FDBA74;
+
+      /* Confirm green — single semantic exception */
+      --green:      #22C55E;
+      --green-dim:  rgba(34, 197, 94, 0.10);
+      --green-border: rgba(34, 197, 94, 0.22);
+
+      /* Typography */
+      --sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+
+      /* Geometry */
+      --r: 4px;   /* tool-like — not rounded-app-card */
+      --r-lg: 6px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+    /* ─────────────────────────────────────────────────────────────
+       RESET + BASE
+    ───────────────────────────────────────────────────────────── */
+    *, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background-color: var(--bg-canvas);
-      color: var(--text-main);
-      font-family: var(--font-sans);
-      font-variant-numeric: tabular-nums;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
       min-height: 100dvh;
-      padding: 20px 16px;
+      padding: 20px 16px 40px;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      -webkit-font-smoothing: antialiased;
     }
 
-    h1, h2, h3 {
-      font-family: var(--font-editorial);
-      font-weight: 400;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      text-wrap: balance;
-    }
-
-    .container {
+    .wrap {
       width: 100%;
-      max-width: 440px;
-      margin: 0 auto;
+      max-width: 432px;
     }
 
-    /* Flat Bento Surface with Crisp 1px Borders */
-    .card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 24px;
-      margin-bottom: 16px;
-    }
-
-    /* Editorial Header */
+    /* ─────────────────────────────────────────────────────────────
+       HEADER
+    ───────────────────────────────────────────────────────────── */
     .header {
-      margin-bottom: 22px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .brand-meta-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .brand-mark {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--line-hi);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .brand-name {
+      font-family: var(--mono);
+      font-size: 0.70rem;
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--brand-accent);
-      background: rgba(204, 17, 0, 0.12);
-      border: 1px solid rgba(204, 17, 0, 0.25);
-      padding: 3px 8px;
-      border-radius: 4px;
+      color: var(--red);
     }
 
-    .live-clock-mono {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
-
-    .title-h1 {
-      font-size: 1.85rem;
-      color: var(--text-main);
-      margin-bottom: 4px;
-    }
-
-    .sub-editorial {
-      font-size: 0.82rem;
-      color: var(--text-muted);
+    .brand-sub {
+      font-size: 0.70rem;
+      color: var(--muted);
       letter-spacing: 0.01em;
     }
 
-    /* Minimal Status Badges */
-    .status-badge {
+    .clock {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       PAGE TITLE BLOCK
+    ───────────────────────────────────────────────────────────── */
+    .title-block {
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-size: 1.45rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text);
+      text-wrap: balance;
+      margin-bottom: 10px;
+    }
+
+    /* Session status chip — minimal, no dot animation */
+    .session-chip {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
+      padding: 3px 9px;
       border-radius: 9999px;
-      font-size: 0.70rem;
-      font-family: var(--font-mono);
+      font-family: var(--mono);
+      font-size: 0.66rem;
       font-weight: 500;
-      text-transform: uppercase;
       letter-spacing: 0.06em;
-      margin-top: 12px;
+      text-transform: uppercase;
     }
 
-    .badge-open {
-      background: var(--pastel-green-bg);
-      color: var(--pastel-green-text);
-      border: 1px solid var(--pastel-green-border);
+    .chip-open {
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      color: var(--green);
     }
 
-    .badge-closed {
-      background: var(--pastel-red-bg);
-      color: var(--pastel-red-text);
-      border: 1px solid var(--pastel-red-border);
+    .chip-closed {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      color: var(--muted);
     }
 
-    .status-dot-green {
-      width: 6px;
-      height: 6px;
+    .chip-dot {
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
-      background-color: var(--pastel-green-text);
+      background: currentColor;
     }
 
-    .status-dot-red {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: var(--pastel-red-text);
-    }
-
-    /* Focus States */
-    :focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
-      outline: 2px solid var(--brand-accent);
-      outline-offset: 2px;
-    }
-
-    .search-input {
-      width: 100%;
-      min-height: 44px;
-      padding: 12px 14px;
-      background: var(--bg-input);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      color: var(--text-main);
-      font-family: var(--font-sans);
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.18s ease;
+    /* ─────────────────────────────────────────────────────────────
+       CARD
+    ───────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 20px;
       margin-bottom: 12px;
     }
 
-    .search-input:focus {
-      border-color: var(--border-crisp);
+    /* ─────────────────────────────────────────────────────────────
+       SEARCH INPUT
+    ───────────────────────────────────────────────────────────── */
+    .search {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 13px;
+      background: var(--elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+      margin-bottom: 12px;
     }
 
-    /* Horizontal Pastels Filter Pills */
-    .filter-pills {
+    .search::placeholder { color: var(--muted); }
+    .search:focus { border-color: var(--line-hi); }
+
+    select.search { cursor: pointer; }
+
+    /* ─────────────────────────────────────────────────────────────
+       FILTER PILLS
+    ───────────────────────────────────────────────────────────── */
+    .pills {
       display: flex;
-      gap: 6px;
-      margin-bottom: 16px;
+      gap: 5px;
+      margin-bottom: 14px;
       overflow-x: auto;
-      padding-bottom: 2px;
       scrollbar-width: none;
     }
+    .pills::-webkit-scrollbar { display: none; }
 
-    .filter-pills::-webkit-scrollbar { display: none; }
-
-    .filter-pill {
+    .pill {
       flex: 0 0 auto;
-      min-height: 36px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px 12px;
+      min-height: 34px;
+      padding: 3px 11px;
       background: transparent;
-      border: 1px solid var(--border-subtle);
+      border: 1px solid var(--line);
       border-radius: 9999px;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 500;
-      color: var(--text-muted);
+      color: var(--muted);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.12s ease;
+      font-family: var(--sans);
     }
 
-    .filter-pill:hover {
-      border-color: var(--border-crisp);
-      color: var(--text-main);
+    .pill:hover {
+      border-color: var(--line-hi);
+      color: var(--text);
     }
 
-    .filter-pill.active {
-      background: #ffffff;
-      border-color: #ffffff;
-      color: #090a0d;
+    .pill.active {
+      background: var(--text);
+      border-color: var(--text);
+      color: var(--bg);
       font-weight: 600;
     }
 
-    /* Roster Item List */
+    /* ─────────────────────────────────────────────────────────────
+       ROSTER LIST
+    ───────────────────────────────────────────────────────────── */
     .roster-list {
-      max-height: 290px;
+      max-height: 300px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--faint) transparent;
     }
 
     .roster-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      min-height: 44px;
-      padding: 10px 14px;
-      background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
+      min-height: 46px;
+      padding: 10px 12px;
+      background: var(--elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
       cursor: pointer;
-      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: border-color 0.12s ease, background 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .roster-item:hover {
-      border-color: var(--border-crisp);
-      background: #1c1f2a;
+      border-color: var(--line-hi);
+      background: #1F1F1F;
     }
 
-    .roster-item:active {
-      transform: scale(0.98);
+    .roster-item:active { opacity: 0.75; }
+
+    .item-name {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
     }
 
+    .item-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Role tag — mono, minimal */
     .role-tag {
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      padding: 2px 6px;
-      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.60rem;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      padding: 2px 6px;
+      border-radius: var(--r);
     }
 
-    .tag-vol { background: var(--pastel-blue-bg); color: var(--pastel-blue-text); border: 1px solid var(--pastel-blue-border); }
-    .tag-stu { background: var(--pastel-yellow-bg); color: var(--pastel-yellow-text); border: 1px solid var(--pastel-yellow-border); }
+    .tag-vol {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
 
-    /* Utilitarian Solid Buttons (Zero Drop Shadow) */
+    .tag-stu {
+      background: var(--red-dim);
+      border: 1px solid var(--red-border);
+      color: #F87171;
+    }
+
+    .item-action {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--faint);
+    }
+
+    .item-done {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--green);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       BUTTONS
+    ───────────────────────────────────────────────────────────── */
     .btn {
-      width: 100%;
-      min-height: 44px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      width: 100%;
+      min-height: 44px;
       padding: 10px 16px;
-      background: var(--brand-accent);
-      border: 1px solid var(--brand-accent);
-      border-radius: 6px;
-      color: #ffffff;
-      font-weight: 600;
+      border-radius: var(--r);
+      font-family: var(--sans);
       font-size: 0.88rem;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: background 0.13s ease, opacity 0.13s ease;
+      border: none;
+      letter-spacing: -0.01em;
     }
 
-    .btn:hover {
-      background: #b30f00;
-      border-color: #b30f00;
+    .btn-primary {
+      background: var(--red);
+      color: #fff;
     }
+    .btn-primary:hover { background: var(--red-hover); }
 
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .btn-sec {
+    .btn-ghost {
       background: transparent;
-      border: 1px solid var(--border-crisp);
-      color: var(--text-main);
+      border: 1px solid var(--line-hi);
+      color: var(--text);
     }
+    .btn-ghost:hover { background: rgba(255,255,255,0.05); }
 
-    .btn-sec:hover {
-      background: rgba(255, 255, 255, 0.06);
-    }
-
+    /* Leader AI summary — use brand red, not rogue purple */
     .btn-ai {
-      background: #6d28d9;
-      border-color: #6d28d9;
-      color: #ffffff;
-      margin-top: 12px;
+      background: var(--elevated);
+      border: 1px solid var(--line-hi);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 500;
+      margin-top: 10px;
     }
+    .btn-ai:hover { background: #212121; }
 
-    .btn-ai:hover {
-      background: #5b21b6;
-      border-color: #5b21b6;
-    }
+    .btn + .btn { margin-top: 8px; }
 
-    /* Staggered Modal Entrance */
+    /* ─────────────────────────────────────────────────────────────
+       SUCCESS CONFIRMATION
+    ───────────────────────────────────────────────────────────── */
     .success-box {
       text-align: center;
-      padding: 24px 10px;
-      animation: modalFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      padding: 32px 16px;
+      animation: fadeUp 0.30s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
-    @keyframes modalFadeUp {
-      0% { transform: translateY(12px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .checkmark-wrapper {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 16px;
+    .check-ring {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 18px;
     }
 
-    .svg-checkmark-circle {
-      stroke-dasharray: 166;
-      stroke-dashoffset: 166;
-      stroke-width: 2.5;
-      stroke: var(--pastel-green-text);
+    .check-circle {
+      stroke-dasharray: 157;
+      stroke-dashoffset: 157;
+      stroke-width: 2;
+      stroke: var(--green);
       fill: none;
-      animation: drawCircle 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+      animation: drawCircle 0.45s cubic-bezier(0.65, 0, 0.45, 1) forwards;
     }
 
-    .svg-checkmark-check {
-      stroke-dasharray: 48;
-      stroke-dashoffset: 48;
-      stroke: var(--pastel-green-text);
-      stroke-width: 3.5;
+    .check-tick {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      stroke: var(--green);
+      stroke-width: 3;
       stroke-linecap: round;
       stroke-linejoin: round;
       fill: none;
-      animation: drawCheck 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.3s forwards;
+      animation: drawTick 0.28s cubic-bezier(0.65, 0, 0.45, 1) 0.28s forwards;
     }
 
-    @keyframes drawCircle { 100% { stroke-dashoffset: 0; } }
-    @keyframes drawCheck { 100% { stroke-dashoffset: 0; } }
+    @keyframes drawCircle { to { stroke-dashoffset: 0; } }
+    @keyframes drawTick   { to { stroke-dashoffset: 0; } }
 
-    .timestamp-badge {
+    .success-name {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .time-chip {
       display: inline-block;
-      background: var(--pastel-green-bg);
-      border: 1px solid var(--pastel-green-border);
-      color: var(--pastel-green-text);
-      padding: 4px 14px;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+      padding: 3px 12px;
       border-radius: 9999px;
-      font-size: 0.80rem;
-      font-family: var(--font-mono);
-      font-weight: 500;
-      margin-top: 8px;
+      font-size: 0.75rem;
+      font-family: var(--mono);
+      margin-bottom: 22px;
     }
 
-    /* Utilitarian Tabs */
+    /* ─────────────────────────────────────────────────────────────
+       ADD LINK
+    ───────────────────────────────────────────────────────────── */
+    .add-link {
+      display: block;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.12s ease;
+    }
+    .add-link:hover { color: var(--text); }
+
+    /* ─────────────────────────────────────────────────────────────
+       TABS
+    ───────────────────────────────────────────────────────────── */
     .tabs {
       display: flex;
-      gap: 6px;
-      margin-top: 20px;
-      border-top: 1px solid var(--border-subtle);
-      padding-top: 14px;
+      gap: 4px;
+      padding: 4px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      margin-bottom: 14px;
     }
 
     .tab-btn {
       flex: 1;
-      min-height: 40px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      background: none;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      color: var(--text-muted);
+      min-height: 38px;
+      padding: 7px 12px;
+      background: transparent;
+      border: none;
+      border-radius: var(--r);
+      color: var(--muted);
+      font-family: var(--sans);
       font-size: 0.80rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.13s ease;
     }
 
-    .tab-btn:hover {
-      color: var(--text-main);
-    }
+    .tab-btn:hover { color: var(--text); }
 
     .tab-btn.active {
-      background: var(--bg-surface-elevated);
-      border-color: var(--border-crisp);
-      color: var(--text-main);
+      background: var(--elevated);
+      color: var(--text);
       font-weight: 600;
+      border: 1px solid var(--line);
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       LEADER DASHBOARD
+    ───────────────────────────────────────────────────────────── */
+    .dash-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* PIN login block */
+    .pin-block {
+      background: var(--elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 16px;
+    }
+
+    /* KPI grid — 2×2 */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .kpi-cell {
+      background: var(--elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 14px 12px;
+      text-align: center;
+    }
+
+    .kpi-val {
+      font-family: var(--mono);
+      font-size: 1.55rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .kpi-val.accent { color: var(--red); }
+
+    .kpi-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    /* Anomaly banner */
+    .anomaly-banner {
+      background: var(--risk-hi-bg);
+      border: 1px solid var(--risk-hi-border);
+      border-radius: var(--r);
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 0.78rem;
+      color: var(--risk-hi-text);
+    }
+
+    .anomaly-banner p {
+      margin-top: 3px;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    /* Risk list */
+    .risk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+
+    .risk-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      background: var(--elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 10px 12px;
+    }
+
+    .risk-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .risk-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .risk-badge {
+      font-family: var(--mono);
+      font-size: 0.60rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 7px;
+      border-radius: var(--r);
+    }
+
+    .badge-high {
+      background: var(--risk-hi-bg);
+      border: 1px solid var(--risk-hi-border);
+      color: var(--risk-hi-text);
+    }
+
+    .badge-mod {
+      background: var(--risk-md-bg);
+      border: 1px solid var(--risk-md-border);
+      color: var(--risk-md-text);
+    }
+
+    .risk-reason {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    /* AI Summary box */
+    .ai-summary {
+      margin-top: 10px;
+      background: var(--elevated);
+      border: 1px solid var(--line-hi);
+      border-radius: var(--r);
+      padding: 14px;
+      font-size: 0.80rem;
+      line-height: 1.65;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 24px 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    /* Focus visible */
+    :focus-visible {
+      outline: 2px solid var(--red);
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
       *, ::before, ::after {
         animation: none !important;
         transition: none !important;
-        transform: none !important;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container" role="main">
-    <div class="card">
-      
-      <!-- EDITORIAL BRAND HEADER -->
-      <div class="header">
-        <div class="brand-meta-row">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <img src="data:image/png;base64,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" alt="U&I Logo" style="width:36px; height:36px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid rgba(255,255,255,0.2);">
-            <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:600; color:var(--text-main); letter-spacing:0.05em;">U&amp;I INDIA</span>
-          </div>
-          <span class="live-clock-mono" id="liveClockReadout">Loading clock...</span>
-        </div>
+  <div class="wrap" role="main">
 
-        <h1 class="title-h1">U&amp;I Vihana Volunteer attendance</h1>
-        <div class="sub-editorial">Vihana Centre Mobile Portal &bull; U&amp;I India</div>
+    <!-- ── TABS — top-level navigation ─────────────────────────── -->
+    <div class="tabs" role="tablist" aria-label="Navigation">
+      <button class="tab-btn active" id="tabVol" role="tab" aria-selected="true"
+              onclick="switchTab('VOL')">Volunteer Check-In</button>
+      <button class="tab-btn" id="tabLead" role="tab" aria-selected="false"
+              onclick="switchTab('LEAD')">Leader View</button>
+    </div>
+
+    <!-- ── HEADER ───────────────────────────────────────────────── -->
+    <header class="header">
+      <div class="brand">
+        <img
+          src="data:image/png;base64,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"
+          alt="U&I Logo" class="brand-logo">
+        <div class="brand-text">
+          <span class="brand-name">U&amp;I India</span>
+          <span class="brand-sub">Vihana Centre</span>
+        </div>
+      </div>
+      <div class="clock" id="liveClock">--:--</div>
+    </header>
+
+    <!-- ── VOLUNTEER TAB ─────────────────────────────────────────── -->
+    <section id="volPanel" role="region" aria-label="Volunteer check-in">
+
+      <!-- Title + session status -->
+      <div class="title-block">
+        <h1 class="page-title">Volunteer Attendance</h1>
+        <span class="session-chip chip-closed" id="sessionBadge">
+          <span class="chip-dot"></span>
+          <span id="sessionLabel">Loading...</span>
+        </span>
       </div>
 
-      <!-- VOLUNTEER ROSTER & AUTO-FILTER MODE -->
-      <div id="volunteerMode">
-        <input type="text" id="searchInput" class="search-input" placeholder="Filter roster by name..." oninput="filterRoster()" aria-label="Search roster by name">
-        
-        <!-- Filter Pills -->
-        <div class="filter-pills" role="tablist" aria-label="Filter roster by category">
-          <button type="button" class="filter-pill active" id="pillAll" role="tab" aria-selected="true" onclick="setFilter('ALL')">All (<span id="cntAll">0</span>)</button>
-          <button type="button" class="filter-pill" id="pillVol" role="tab" aria-selected="false" onclick="setFilter('VOLUNTEER')">Volunteers (<span id="cntVol">0</span>)</button>
-          <button type="button" class="filter-pill" id="pillStu" role="tab" aria-selected="false" onclick="setFilter('STUDENT')">Students (<span id="cntStu">0</span>)</button>
-          <button type="button" class="filter-pill" id="pillChecked" role="tab" aria-selected="false" onclick="setFilter('CHECKED_IN')">Checked-In (<span id="cntChecked">0</span>)</button>
+      <!-- Roster card -->
+      <div class="card" id="volunteerMode">
+        <input type="text" id="searchInput" class="search"
+               placeholder="Search roster…" oninput="filterRoster()"
+               aria-label="Search roster by name">
+
+        <div class="pills" role="tablist" aria-label="Filter">
+          <button class="pill active" id="pillAll" role="tab" aria-selected="true"
+                  onclick="setFilter('ALL')">All (<span id="cntAll">0</span>)</button>
+          <button class="pill" id="pillVol" role="tab" aria-selected="false"
+                  onclick="setFilter('VOLUNTEER')">Volunteers (<span id="cntVol">0</span>)</button>
+          <button class="pill" id="pillStu" role="tab" aria-selected="false"
+                  onclick="setFilter('STUDENT')">Students (<span id="cntStu">0</span>)</button>
+          <button class="pill" id="pillChecked" role="tab" aria-selected="false"
+                  onclick="setFilter('CHECKED_IN')">Checked-In (<span id="cntChecked">0</span>)</button>
         </div>
 
         <div class="roster-list" id="rosterList" role="list">
-          <div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">Loading roster...</div>
+          <div class="empty">Loading roster…</div>
         </div>
-        
-        <div style="text-align:center; margin-top:14px;">
-          <a href="#" onclick="showNewPersonForm(); return false;" style="color:var(--pastel-red-text); font-size:0.78rem; text-decoration:none;">Not on the list? Add yourself &rarr;</a>
+
+        <a href="#" class="add-link" onclick="showNewPersonForm(); return false;"
+           aria-label="Add yourself if not on the list">Not on the list? Add yourself</a>
+      </div>
+
+      <!-- Success confirmation -->
+      <div class="card" id="successMode" style="display:none;"
+           role="dialog" aria-modal="true" aria-label="Check-in confirmed">
+        <div class="success-box">
+          <div class="check-ring">
+            <svg viewBox="0 0 52 52" aria-hidden="true">
+              <circle class="check-circle" cx="26" cy="26" r="25"/>
+              <path class="check-tick" d="M14 27l8 8 17-17"/>
+            </svg>
+          </div>
+          <div class="success-name" id="successName">Checked In</div>
+          <div class="time-chip" id="successTime">04:00 PM</div>
+          <button class="btn btn-primary" onclick="resetCheckIn()">Done — Next Check-In</button>
+          <button class="btn btn-ghost" onclick="resetCheckIn()">Back to Roster</button>
         </div>
       </div>
 
-      <!-- CHECK-IN SUCCESS CONFIRMATION -->
-      <div id="successMode" class="success-box" style="display:none;" role="dialog" aria-modal="true" aria-label="Check-in Success Confirmation">
-        <div class="checkmark-wrapper">
-          <svg viewBox="0 0 52 52">
-            <circle class="svg-checkmark-circle" cx="26" cy="26" r="23" />
-            <path class="svg-checkmark-check" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-          </svg>
-        </div>
-        <h2 id="successName" style="margin-bottom:4px; font-size:1.6rem; font-family:var(--font-editorial);">Checked In</h2>
-        <div id="successTime" class="timestamp-badge">Checked in at 04:02 PM</div>
-        
-        <div style="display:flex; flex-direction:column; gap:8px; margin-top:20px;">
-          <button class="btn" onclick="resetCheckIn()">Done / Next Check-In</button>
-          <button class="btn btn-sec" onclick="resetCheckIn()">Back to Roster</button>
-        </div>
-      </div>
-
-      <!-- NEW PERSON REGISTRATION -->
-      <div id="newPersonMode" style="display:none;" role="dialog" aria-modal="true">
-        <h3 style="font-size:1.3rem; margin-bottom:12px;">First-Time Registration</h3>
-        <input type="text" id="newNameInput" class="search-input" placeholder="Full Name">
-        <select id="newRoleSelect" class="search-input">
+      <!-- New person registration -->
+      <div class="card" id="newPersonMode" style="display:none;"
+           role="dialog" aria-modal="true" aria-label="First-time registration">
+        <h2 style="font-size:1.1rem; font-weight:600; letter-spacing:-0.02em; margin-bottom:14px;">
+          First-Time Registration
+        </h2>
+        <input type="text" id="newNameInput" class="search" placeholder="Full Name">
+        <select id="newRoleSelect" class="search">
           <option value="VOLUNTEER">Volunteer</option>
           <option value="STUDENT">Student</option>
         </select>
-        <button class="btn" onclick="submitNewPerson()">Add & Check In Now</button>
-        <button class="btn btn-sec" onclick="cancelNewPerson()">Back</button>
+        <button class="btn btn-primary" onclick="submitNewPerson()">Add &amp; Check In Now</button>
+        <button class="btn btn-ghost" onclick="cancelNewPerson()">Back</button>
       </div>
 
-      <!-- LEADER DASHBOARD -->
-      <div id="leaderMode" style="display:none;" role="region" aria-label="Centre Leader Dashboard">
-        <h3 style="font-size:1.3rem; margin-bottom:14px; color:var(--text-main); display:flex; align-items:center; justify-content:space-between;">
-          <span>Leader Dashboard</span>
-          <span style="font-family:var(--font-mono); font-size:0.65rem; background:var(--pastel-blue-bg); border:1px solid var(--pastel-blue-border); color:var(--pastel-blue-text); padding:2px 8px; border-radius:4px; text-transform:uppercase;">Live</span>
-        </h3>
-        
-        <div id="leaderPinSection" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:16px; border-radius:8px;">
-          <input type="password" id="pinInput" class="search-input" placeholder="Leader PIN (default: 1234)">
-          <button class="btn" onclick="loadLeaderData()">Login to Dashboard</button>
+    </section>
+
+    <!-- ── LEADER TAB ─────────────────────────────────────────────── -->
+    <section id="leadPanel" style="display:none;" role="region" aria-label="Leader dashboard">
+
+      <div class="card">
+        <p class="dash-title">Centre Dashboard</p>
+
+        <!-- PIN login -->
+        <div class="pin-block" id="leaderPinSection">
+          <input type="password" id="pinInput" class="search"
+                 placeholder="Leader PIN" style="margin-bottom:8px;">
+          <button class="btn btn-primary" onclick="loadLeaderData()">Access Dashboard</button>
         </div>
 
+        <!-- Dashboard content (hidden until PIN ok) -->
         <div id="leaderContent" style="display:none;">
+
+          <!-- Anomaly banner (injected if needed) -->
           <div id="anomalyContainer" role="status" aria-live="polite"></div>
 
-          <!-- Bento KPI Grid (1px Crisp Borders, Zero Drop Shadow) -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;">
-            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:12px; border-radius:8px; text-align:center;">
-              <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono); color:#fff;" id="kpiCheckedIn">0</div>
-              <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">TODAY CHECKED IN</div>
+          <!-- KPI grid -->
+          <div class="kpi-grid">
+            <div class="kpi-cell">
+              <div class="kpi-val" id="kpiCheckedIn">0</div>
+              <div class="kpi-label">Today In</div>
             </div>
-            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:12px; border-radius:8px; text-align:center;">
-              <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono); color:#fff;" id="kpiTotalVols">0</div>
-              <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">ACTIVE ROSTER</div>
+            <div class="kpi-cell">
+              <div class="kpi-val" id="kpiTotalVols">0</div>
+              <div class="kpi-label">Active Roster</div>
             </div>
-            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:12px; border-radius:8px; text-align:center;">
-              <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono); color:var(--pastel-blue-text);" id="kpiTurnoutPct">0%</div>
-              <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">TURNOUT RATE</div>
+            <div class="kpi-cell">
+              <div class="kpi-val" id="kpiTurnoutPct">0%</div>
+              <div class="kpi-label">Turnout</div>
             </div>
-            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:12px; border-radius:8px; text-align:center;">
-              <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono); color:var(--pastel-red-text);" id="kpiAtRisk">0</div>
-              <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">RETENTION RISK</div>
+            <div class="kpi-cell">
+              <div class="kpi-val accent" id="kpiAtRisk">0</div>
+              <div class="kpi-label">At Risk</div>
             </div>
           </div>
 
-          <!-- Heuristic Attrition Watchlist -->
-          <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--pastel-red-text); font-weight:600;">Heuristic Attrition Watchlist</h4>
-          <div id="riskList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
+          <!-- Attrition watchlist -->
+          <div class="section-label">Attrition Watchlist</div>
+          <div class="risk-list" id="riskList"></div>
 
-          <!-- Gemini Pro AI Executive Summary -->
-          <button class="btn btn-ai" onclick="generateGeminiSummary()">Generate Gemini Pro AI Summary</button>
-          
-          <div id="aiSummaryBox" style="display:none; margin-top:12px; background:var(--bg-surface-elevated); border:1px solid var(--border-crisp); padding:14px; border-radius:8px; font-size:0.82rem; line-height:1.6; white-space:pre-wrap; color:var(--text-main);">
-            <div id="aiSummaryContent"></div>
-            <button id="copyAiSummaryBtn" class="btn btn-sec" onclick="copyGeminiSummaryText()" style="margin-top:12px; font-size:0.76rem; padding:6px 12px;">
-              Copy Summary Text
-            </button>
+          <!-- AI session summary -->
+          <div class="section-label">Session Summary</div>
+          <button class="btn btn-ai" onclick="generateGeminiSummary()">
+            Generate Executive Summary
+          </button>
+          <div id="aiSummaryBox" style="display:none;">
+            <div class="ai-summary" id="aiSummaryContent"></div>
+            <button id="copyAiBtn" class="btn btn-ghost" onclick="copyAiSummary()"
+                    style="margin-top:8px; font-size:0.78rem;">Copy to Clipboard</button>
           </div>
+
         </div>
       </div>
+    </section>
 
-      <div class="tabs" role="tablist">
-        <button class="tab-btn active" id="tabVol" role="tab" aria-selected="true" onclick="switchTab('VOL')">Volunteer</button>
-        <button class="tab-btn" id="tabLead" role="tab" aria-selected="false" onclick="switchTab('LEAD')">Leader View</button>
-      </div>
-    </div>
-  </div>
+  </div><!-- /wrap -->
 
   <script>
+    /* ─────────────────────────────────────────────────────────────
+       STATE
+    ───────────────────────────────────────────────────────────── */
     let gData = null;
-    let currentFilterPill = 'ALL';
-    let lastGeneratedAiText = '';
+    let currentFilter = 'ALL';
+    let lastAiText = '';
 
-    function updateClock() {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short' });
-      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      document.getElementById('liveClockReadout').innerText = dateStr + ' | ' + timeStr + ' IST';
+    /* ─────────────────────────────────────────────────────────────
+       CLOCK
+    ───────────────────────────────────────────────────────────── */
+    (function tickClock() {
+      const el = document.getElementById('liveClock');
+      function update() {
+        const now = new Date();
+        const d = now.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
+        const t = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+        el.textContent = d + '  ' + t;
+      }
+      update();
+      setInterval(update, 1000);
+    })();
+
+    /* ─────────────────────────────────────────────────────────────
+       TAB SWITCH
+    ───────────────────────────────────────────────────────────── */
+    function switchTab(tab) {
+      const isVol = tab === 'VOL';
+      document.getElementById('tabVol').className  = 'tab-btn' + (isVol ? ' active' : '');
+      document.getElementById('tabLead').className = 'tab-btn' + (!isVol ? ' active' : '');
+      document.getElementById('tabVol').setAttribute('aria-selected', isVol);
+      document.getElementById('tabLead').setAttribute('aria-selected', !isVol);
+      document.getElementById('volPanel').style.display  = isVol ? 'block' : 'none';
+      document.getElementById('leadPanel').style.display = !isVol ? 'block' : 'none';
     }
-    setInterval(updateClock, 1000);
-    updateClock();
 
-    function animateCounter(elementId, targetValue, suffix = '') {
-      const el = document.getElementById(elementId);
+    /* ─────────────────────────────────────────────────────────────
+       COUNTER ANIMATION
+    ───────────────────────────────────────────────────────────── */
+    function animateCounter(id, target, suffix) {
+      suffix = suffix || '';
+      const el = document.getElementById(id);
       if (!el) return;
-      const target = parseFloat(targetValue) || 0;
-      const duration = 600;
-      let startTime = null;
-
-      function step(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const progress = Math.min((timestamp - startTime) / duration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const current = Math.round(target * easeOut);
-        el.innerText = current + suffix;
-        if (progress < 1) requestAnimationFrame(step);
-        else el.innerText = target + suffix;
+      const n = parseFloat(target) || 0;
+      const dur = 550;
+      let t0 = null;
+      function step(ts) {
+        if (!t0) t0 = ts;
+        const p = Math.min((ts - t0) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(n * ease) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = n + suffix;
       }
       requestAnimationFrame(step);
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       INITIAL DATA LOAD
+    ───────────────────────────────────────────────────────────── */
     window.onload = function() {
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(onDataLoaded).getInitialData();
       } else {
+        // Development preview stub
         onDataLoaded({
           todayDate: new Date().toLocaleDateString(),
           session: { isOpen: true, startTime: '16:00', endTime: '18:00' },
           checkedInIds: ['p1'],
           roster: [
-            { id: 'p1', name: 'Gomesh', role: 'VOLUNTEER' },
-            { id: 'p2', name: 'Aarav Sharma', role: 'VOLUNTEER' },
-            { id: 'p3', name: 'Priya Patel', role: 'STUDENT' },
-            { id: 'p4', name: 'Rohan Kumar', role: 'STUDENT' },
-            { id: 'p5', name: 'Neha Verma', role: 'VOLUNTEER' }
+            { id: 'p1', name: 'Gomesh',       role: 'VOLUNTEER' },
+            { id: 'p2', name: 'Aarav Sharma',  role: 'VOLUNTEER' },
+            { id: 'p3', name: 'Priya Patel',   role: 'STUDENT'   },
+            { id: 'p4', name: 'Rohan Kumar',   role: 'STUDENT'   },
+            { id: 'p5', name: 'Neha Verma',    role: 'VOLUNTEER' }
           ]
         });
       }
@@ -611,101 +919,110 @@
 
     function onDataLoaded(data) {
       gData = data;
-      const sBadge = document.getElementById('sessionBadge');
-      
+      const badge = document.getElementById('sessionBadge');
+      const label = document.getElementById('sessionLabel');
+
       if (data.session && data.session.isOpen) {
-        sBadge.className = "status-badge badge-open";
-        sBadge.innerHTML = '<span class="status-dot-green"></span> Session Open (' + data.session.startTime + ' - ' + data.session.endTime + ')';
+        badge.className = 'session-chip chip-open';
+        label.textContent = 'Session Open · ' + data.session.startTime + '–' + data.session.endTime;
       } else if (data.session && data.session.isEarly) {
-        sBadge.className = "status-badge badge-closed";
-        sBadge.innerHTML = '<span class="status-dot-red"></span> Opens at ' + data.session.windowStartFormatted;
+        badge.className = 'session-chip chip-closed';
+        label.textContent = 'Opens at ' + (data.session.windowStartFormatted || data.session.startTime);
       } else {
-        sBadge.className = "status-badge badge-closed";
-        sBadge.innerHTML = '<span class="status-dot-red"></span> Check-in Closed';
+        badge.className = 'session-chip chip-closed';
+        label.textContent = 'Check-In Closed';
       }
 
-      updatePillCounts();
+      updateCounts();
       filterRoster();
     }
 
-    function updatePillCounts() {
+    /* ─────────────────────────────────────────────────────────────
+       ROSTER FILTER + RENDER
+    ───────────────────────────────────────────────────────────── */
+    function updateCounts() {
       if (!gData || !gData.roster) return;
-      document.getElementById('cntAll').innerText = gData.roster.length;
-      document.getElementById('cntVol').innerText = gData.roster.filter(p => p.role === 'VOLUNTEER').length;
-      document.getElementById('cntStu').innerText = gData.roster.filter(p => p.role === 'STUDENT').length;
-      document.getElementById('cntChecked').innerText = gData.roster.filter(p => gData.checkedInIds && gData.checkedInIds.includes(p.id)).length;
+      const r = gData.roster;
+      const ci = gData.checkedInIds || [];
+      document.getElementById('cntAll').textContent     = r.length;
+      document.getElementById('cntVol').textContent     = r.filter(p => p.role === 'VOLUNTEER').length;
+      document.getElementById('cntStu').textContent     = r.filter(p => p.role === 'STUDENT').length;
+      document.getElementById('cntChecked').textContent = r.filter(p => ci.includes(p.id)).length;
     }
 
-    function setFilter(filterType) {
-      currentFilterPill = filterType;
-      ['pillAll', 'pillVol', 'pillStu', 'pillChecked'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('active');
+    function setFilter(f) {
+      currentFilter = f;
+      ['pillAll','pillVol','pillStu','pillChecked'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+        document.getElementById(id).setAttribute('aria-selected', 'false');
       });
-      const activeId = filterType === 'ALL' ? 'pillAll' : filterType === 'VOLUNTEER' ? 'pillVol' : filterType === 'STUDENT' ? 'pillStu' : 'pillChecked';
-      const activeEl = document.getElementById(activeId);
-      if (activeEl) activeEl.classList.add('active');
-
+      const map = { ALL:'pillAll', VOLUNTEER:'pillVol', STUDENT:'pillStu', CHECKED_IN:'pillChecked' };
+      const el = document.getElementById(map[f]);
+      if (el) { el.classList.add('active'); el.setAttribute('aria-selected','true'); }
       filterRoster();
+    }
+
+    function filterRoster() {
+      if (!gData || !gData.roster) return;
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      let list = gData.roster;
+      if (currentFilter === 'VOLUNTEER')  list = list.filter(p => p.role === 'VOLUNTEER');
+      else if (currentFilter === 'STUDENT')   list = list.filter(p => p.role === 'STUDENT');
+      else if (currentFilter === 'CHECKED_IN') list = list.filter(p => (gData.checkedInIds||[]).includes(p.id));
+      if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
+      renderRoster(list);
     }
 
     function renderRoster(list) {
       const el = document.getElementById('rosterList');
       if (!list || list.length === 0) {
-        el.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">No matching roster members.</div>';
+        el.innerHTML = '<div class="empty">No matching members.</div>';
         return;
       }
-      let html = '';
-      list.forEach(p => {
-        const isChecked = gData && gData.checkedInIds && gData.checkedInIds.includes(p.id);
+      const ci = gData && gData.checkedInIds ? gData.checkedInIds : [];
+      el.innerHTML = list.map(p => {
+        const checked = ci.includes(p.id);
         const tagClass = p.role === 'STUDENT' ? 'tag-stu' : 'tag-vol';
-        html += `
-          <div class="roster-item" onclick="doCheckIn('${p.id}')">
+        return `
+          <div class="roster-item" role="listitem" onclick="doCheckIn('${p.id}')"
+               tabindex="0" onkeydown="if(event.key==='Enter')doCheckIn('${p.id}')">
             <div>
-              <span style="font-weight:500; font-size:0.88rem;">${p.name}</span>
+              <span class="item-name">${p.name}</span>
               <span class="role-tag ${tagClass}" style="margin-left:6px;">${p.role}</span>
             </div>
-            <div>${isChecked ? '<span style="color:var(--pastel-green-text); font-weight:600; font-size:0.8rem; font-family:var(--font-mono);">Done</span>' : '<span style="color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Tap &rarr;</span>'}</div>
+            <div class="item-right">
+              <span class="${checked ? 'item-done' : 'item-action'}">${checked ? 'Done' : 'Tap'}</span>
+            </div>
           </div>`;
-      });
-      el.innerHTML = html;
+      }).join('');
     }
 
-    function filterRoster() {
-      const q = document.getElementById('searchInput').value.toLowerCase();
-      if (!gData || !gData.roster) return;
-
-      let list = gData.roster;
-      if (currentFilterPill === 'VOLUNTEER') list = list.filter(p => p.role === 'VOLUNTEER');
-      else if (currentFilterPill === 'STUDENT') list = list.filter(p => p.role === 'STUDENT');
-      else if (currentFilterPill === 'CHECKED_IN') list = list.filter(p => gData.checkedInIds && gData.checkedInIds.includes(p.id));
-
-      if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
-      renderRoster(list);
-    }
-
+    /* ─────────────────────────────────────────────────────────────
+       CHECK-IN
+    ───────────────────────────────────────────────────────────── */
     function doCheckIn(personId) {
-      const exactTimeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      
-      const showSuccess = (personName, timeDisplay) => {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+
+      const showSuccess = (name, time) => {
         document.getElementById('volunteerMode').style.display = 'none';
         document.getElementById('successMode').style.display = 'block';
-        document.getElementById('successName').innerText = personName;
-        document.getElementById('successTime').innerText = "Checked in at " + timeDisplay;
+        document.getElementById('successName').textContent = name;
+        document.getElementById('successTime').textContent = 'Checked in at ' + time;
         if (gData && gData.checkedInIds && !gData.checkedInIds.includes(personId)) {
           gData.checkedInIds.push(personId);
         }
-        updatePillCounts();
+        updateCounts();
       };
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
-          if (res.success) showSuccess(res.personName, res.time || exactTimeStr);
-          else alert(res.reason || "Check-in failed.");
+          if (res.success) showSuccess(res.personName, res.time || timeStr);
+          else alert(res.reason || 'Check-in failed.');
         }).checkIn(personId);
       } else {
-        const person = gData.roster.find(p => p.id === personId);
-        showSuccess(person ? person.name : 'Volunteer', exactTimeStr);
+        const p = gData.roster.find(r => r.id === personId);
+        showSuccess(p ? p.name : 'Volunteer', timeStr);
       }
     }
 
@@ -716,6 +1033,9 @@
       setFilter('ALL');
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       NEW PERSON
+    ───────────────────────────────────────────────────────────── */
     function showNewPersonForm() {
       document.getElementById('volunteerMode').style.display = 'none';
       document.getElementById('newPersonMode').style.display = 'block';
@@ -727,144 +1047,140 @@
     }
 
     function submitNewPerson() {
-      const name = document.getElementById('newNameInput').value;
+      const name = document.getElementById('newNameInput').value.trim();
       const role = document.getElementById('newRoleSelect').value;
-      if (!name) return alert("Please enter name");
-
-      const exactTimeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      if (!name) { alert('Please enter your name.'); return; }
+      const timeStr = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
           if (res.success) {
             document.getElementById('newPersonMode').style.display = 'none';
             document.getElementById('successMode').style.display = 'block';
-            document.getElementById('successName').innerText = res.personName;
-            document.getElementById('successTime').innerText = "Added & checked in at " + (res.time || exactTimeStr);
+            document.getElementById('successName').textContent = res.personName;
+            document.getElementById('successTime').textContent = 'Added & checked in at ' + (res.time || timeStr);
           } else { alert(res.reason); }
         }).registerNewPerson(name, role);
       } else {
         const newId = 'p_' + Date.now();
-        gData.roster.push({ id: newId, name: name, role: role });
-        gData.checkedInIds.push(newId);
+        gData.roster.push({ id: newId, name, role });
+        (gData.checkedInIds = gData.checkedInIds || []).push(newId);
         document.getElementById('newPersonMode').style.display = 'none';
         document.getElementById('successMode').style.display = 'block';
-        document.getElementById('successName').innerText = name;
-        document.getElementById('successTime').innerText = "Added & checked in at " + exactTimeStr;
-        updatePillCounts();
+        document.getElementById('successName').textContent = name;
+        document.getElementById('successTime').textContent = 'Added & checked in at ' + timeStr;
+        updateCounts();
       }
     }
 
-    function switchTab(tab) {
-      const isVol = tab === 'VOL';
-      document.getElementById('tabVol').className = "tab-btn " + (isVol ? 'active' : '');
-      document.getElementById('tabLead').className = "tab-btn " + (!isVol ? 'active' : '');
-      document.getElementById('volunteerMode').style.display = isVol ? 'block' : 'none';
-      document.getElementById('successMode').style.display = 'none';
-      document.getElementById('newPersonMode').style.display = 'none';
-      document.getElementById('leaderMode').style.display = !isVol ? 'block' : 'none';
-    }
-
+    /* ─────────────────────────────────────────────────────────────
+       LEADER DASHBOARD
+    ───────────────────────────────────────────────────────────── */
     function loadLeaderData() {
       const pin = document.getElementById('pinInput').value;
-      
-      const renderDashboard = (dashStats, anomaly, atRisks) => {
+
+      const render = (stats, anomaly, atRisks) => {
         document.getElementById('leaderPinSection').style.display = 'none';
         document.getElementById('leaderContent').style.display = 'block';
-        
-        animateCounter('kpiCheckedIn', dashStats.todayCheckedIn || 1);
-        animateCounter('kpiTotalVols', dashStats.totalVolunteers || 12);
-        animateCounter('kpiTurnoutPct', dashStats.turnOutPct || 54, '%');
-        animateCounter('kpiAtRisk', atRisks ? atRisks.length : 2);
 
-        const turnPct = dashStats.turnOutPct ?? 54;
-        const isLowTurnout = turnPct < 60 || (anomaly && anomaly.isAnomaly);
+        animateCounter('kpiCheckedIn',  stats.todayCheckedIn || 0);
+        animateCounter('kpiTotalVols',  stats.totalVolunteers || 0);
+        animateCounter('kpiTurnoutPct', stats.turnOutPct || 0, '%');
+        animateCounter('kpiAtRisk',     atRisks ? atRisks.length : 0);
 
-        if (isLowTurnout) {
-          document.getElementById('anomalyContainer').innerHTML = `
-            <div style="background:var(--pastel-red-bg); border:1px solid var(--pastel-red-border); padding:10px 12px; border-radius:6px; margin-bottom:14px; font-size:0.78rem; color:var(--pastel-red-text);">
-              <strong>Low Turnout Anomaly Warning (${turnPct}% &lt; 60% Threshold)</strong>
-              <p style="margin:4px 0 0 0; color:var(--text-muted); font-size:0.74rem;">Center attendance has dropped below 60%. Coordinator intervention is recommended.</p>
+        const turnPct = stats.turnOutPct ?? 0;
+        const isLow = turnPct < 60 || (anomaly && anomaly.isAnomaly);
+        const aEl = document.getElementById('anomalyContainer');
+        if (isLow) {
+          aEl.innerHTML = `
+            <div class="anomaly-banner">
+              <strong>Low Turnout — ${turnPct}% (below 60% threshold)</strong>
+              <p>Coordinator review recommended before session ends.</p>
             </div>`;
         } else {
-          document.getElementById('anomalyContainer').innerHTML = '';
+          aEl.innerHTML = '';
         }
 
-        let rHtml = '';
+        const rEl = document.getElementById('riskList');
         if (!atRisks || atRisks.length === 0) {
-          rHtml = '<div style="color:var(--pastel-green-text); font-size:0.8rem;">All volunteers healthy (>70% attendance)!</div>';
+          rEl.innerHTML = '<div class="empty" style="color:var(--green); padding:12px 0;">All volunteers within healthy attendance range.</div>';
         } else {
-          atRisks.forEach(item => {
-            const isHigh = (item.consecutiveAbsences || 3) >= 3 || (item.riskReason && item.riskReason.includes('HIGH'));
-            const riskBadge = isHigh ? '<span class="role-tag" style="background:var(--pastel-red-bg); color:var(--pastel-red-text); border:1px solid var(--pastel-red-border);">HIGH RISK</span>' : '<span class="role-tag" style="background:var(--pastel-yellow-bg); color:var(--pastel-yellow-text); border:1px solid var(--pastel-yellow-border);">MODERATE RISK</span>';
-
-            rHtml += `
-              <div style="background:var(--bg-surface-elevated); padding:10px 12px; border-radius:6px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:4px;">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                  <strong style="color:var(--text-main); font-size:0.85rem;">${item.name}</strong>
-                  ${riskBadge}
+          rEl.innerHTML = atRisks.map(item => {
+            const hi = (item.consecutiveAbsences || 0) >= 3 ||
+                       (item.riskReason && item.riskReason.toUpperCase().includes('HIGH'));
+            return `
+              <div class="risk-item">
+                <div class="risk-row">
+                  <span class="risk-name">${item.name}</span>
+                  <span class="risk-badge ${hi ? 'badge-high' : 'badge-mod'}">${hi ? 'High' : 'Moderate'}</span>
                 </div>
-                <div style="font-size:0.74rem; color:var(--pastel-red-text); font-family:var(--font-mono);">
-                  ${item.riskReason || 'Missed 2 of last 3 sessions'}
-                </div>
+                <div class="risk-reason">${item.riskReason || 'Attendance below threshold'}</div>
               </div>`;
-          });
+          }).join('');
         }
-        document.getElementById('riskList').innerHTML = rHtml;
       };
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
-          if (res.success) renderDashboard(res.stats, res.anomalyAlert, res.atRiskList);
+          if (res.success) render(res.stats, res.anomalyAlert, res.atRiskList);
           else alert(res.reason);
         }).getLeaderDashboard(pin);
       } else {
-        renderDashboard(
+        render(
           { todayCheckedIn: 6, totalVolunteers: 12, turnOutPct: 54 },
           { isAnomaly: true },
           [
-            { id: 'p2', name: 'Aarav Sharma', role: 'VOLUNTEER', riskReason: 'Missed 3 consecutive sessions' },
-            { id: 'p5', name: 'Neha Verma', role: 'VOLUNTEER', riskReason: 'Attendance dropped 35% over 4 weeks' }
+            { name: 'Aarav Sharma', riskReason: 'Missed 3 consecutive sessions' },
+            { name: 'Neha Verma',   riskReason: 'Attendance dropped 35% over 4 weeks' }
           ]
         );
       }
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       GEMINI EXECUTIVE SUMMARY
+    ───────────────────────────────────────────────────────────── */
     function generateGeminiSummary() {
       const pin = document.getElementById('pinInput').value;
       const box = document.getElementById('aiSummaryBox');
       const content = document.getElementById('aiSummaryContent');
       box.style.display = 'block';
-      content.innerText = "Synthesizing Gemini Pro Executive Summary...";
+      content.textContent = 'Generating summary…';
 
-      const renderSummary = (text) => {
-        lastGeneratedAiText = text;
-        content.innerText = text;
+      const renderSummary = text => {
+        lastAiText = text;
+        content.textContent = text;
       };
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.withSuccessHandler(res => {
           if (res.success) renderSummary(res.aiSummary);
-          else renderSummary("Notice: " + res.reason);
+          else renderSummary('Notice: ' + res.reason);
         }).generateGeminiExecutiveSummary(pin);
       } else {
-        renderSummary(`Monthly Engagement Overview:
-- Center Reach: Operations at Vihana Center remain active with 12 active volunteers tutoring 45 students across conducted sessions.
-- Curriculum: Covered Fractions and English Reading.
+        renderSummary(
+`Engagement Overview:
+— Vihana Centre is operating with 12 active volunteers and 45 students.
+— Today's turnout: 6/12 (54%) — below target threshold.
 
-Volunteer Retention Watchlist:
-- Retention Health: 2 volunteers flagged for attendance volatility.
+Retention Watchlist:
+— 2 volunteers flagged for attendance pattern concerns.
+— Recommend personal outreach before next session.
 
-Recommended Action Items:
-- Conduct 1-on-1 check-in calls with flagged volunteers.`);
+Action Items:
+— Follow up with flagged volunteers by end of week.
+— Review session schedule for recurring low-turnout slots.`
+        );
       }
     }
 
-    function copyGeminiSummaryText() {
-      if (!lastGeneratedAiText) return;
-      navigator.clipboard.writeText(lastGeneratedAiText);
-      const btn = document.getElementById('copyAiSummaryBtn');
-      btn.innerText = "Copied to Clipboard";
-      setTimeout(() => { btn.innerText = "Copy Summary Text"; }, 2000);
+    function copyAiSummary() {
+      if (!lastAiText) return;
+      navigator.clipboard.writeText(lastAiText).then(() => {
+        const btn = document.getElementById('copyAiBtn');
+        btn.textContent = 'Copied';
+        setTimeout(() => { btn.textContent = 'Copy to Clipboard'; }, 2000);
+      });
     }
   </script>
 </body>

@@ -288,7 +288,7 @@ function getLeaderDashboard(pin) {
       turnOutPct: turnOutPct,
       checkedIn: todayCheckedInCount,
       totalExpected: activeVolsCount,
-      message: `⚠️ Low Turnout Alert: Only ${turnOutPct}% (${todayCheckedInCount}/${activeVolsCount}) checked in today!`
+      message: `Low Turnout: ${turnOutPct}% (${todayCheckedInCount}/${activeVolsCount}) checked in today`
     };
   }
 
@@ -326,7 +326,7 @@ function generateGeminiExecutiveSummary(pin) {
   const dashData = getLeaderDashboard(pin);
   if (!dashData.success) return dashData;
 
-  const prompt = `You are an executive manager for U&I India non-profit organisation. Write a concise, professional, narrative donor and stakeholder summary report based on the following centre attendance data:
+const prompt = `You are an operations manager for U&I India, a non-profit education organisation. Write a concise, professional narrative summary for centre leaders based on the following attendance data:
 
 - Total Active Volunteers: ${dashData.stats.totalVolunteers}
 - Total Sessions Conducted: ${dashData.stats.totalSessions}
@@ -334,10 +334,10 @@ function generateGeminiExecutiveSummary(pin) {
 - Volunteers at Risk of Attrition: ${dashData.atRiskList.length}
 - At-Risk Details: ${JSON.stringify(dashData.atRiskList)}
 
-Format the output cleanly in 3 short bulleted sections:
-1. 📈 **Monthly Engagement Overview**
-2. ⚠️ **Volunteer Retention & Attrition Watchlist**
-3. 🎯 **Recommended Leader Action Items**`;
+Format the output as 3 short sections with plain text headers (no markdown, no emoji):
+1. Engagement Overview
+2. Volunteer Retention & Attrition Watchlist
+3. Recommended Action Items`;
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
