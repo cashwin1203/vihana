@@ -4,54 +4,69 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>U&I Vihana Volunteer Attendance</title>
+  <title>U&I Vihana Volunteer attendance</title>
   
-  <!-- Typography Stack: Outfit (Headings) + Inter/Geist (Tabular-nums Interface) -->
+  <!-- Typographic Stack: Playfair Display / Instrument Serif (Editorial Headings) + Geist / Inter (Clean UI & Tabular Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --brand-red: #CC1100;
-      --brand-red-dark: #880b00;
-      --brand-red-glow: rgba(204, 17, 0, 0.28);
-      --bg-dark: #07080b;
-      --bg-card: rgba(18, 15, 15, 0.92);
-      --bg-input: rgba(255, 255, 255, 0.04);
+      --brand-accent: #CC1100;
+      --bg-canvas: #090a0d;
+      --bg-surface: #111318;
+      --bg-surface-elevated: #161820;
+      --bg-input: #161820;
       --border-subtle: rgba(255, 255, 255, 0.08);
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent-green: #10b981;
-      --accent-amber: #f59e0b;
-      --accent-cyan: #06b6d4;
-      --font-heading: 'Outfit', sans-serif;
-      --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+      --border-crisp: rgba(255, 255, 255, 0.12);
+      
+      --text-main: #f8fafc;
+      --text-muted: #8e99a8;
+      --text-faint: #525a66;
+
+      /* Desaturated Warm Muted Pastels */
+      --pastel-red-bg: rgba(253, 235, 236, 0.12);
+      --pastel-red-text: #f87171;
+      --pastel-red-border: rgba(248, 113, 113, 0.25);
+
+      --pastel-green-bg: rgba(237, 243, 236, 0.12);
+      --pastel-green-text: #4ade80;
+      --pastel-green-border: rgba(74, 222, 128, 0.25);
+
+      --pastel-blue-bg: rgba(225, 243, 254, 0.12);
+      --pastel-blue-text: #38bdf8;
+      --pastel-blue-border: rgba(56, 189, 248, 0.25);
+
+      --pastel-yellow-bg: rgba(251, 243, 219, 0.12);
+      --pastel-yellow-text: #facc15;
+      --pastel-yellow-border: rgba(250, 204, 21, 0.25);
+
+      --font-editorial: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
-      background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(ellipse at 50% 0%, rgba(204, 17, 0, 0.14) 0%, transparent 60%),
-        radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
-      background-attachment: fixed;
-      color: var(--text-primary);
-      font-family: var(--font-body);
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      font-family: var(--font-sans);
       font-variant-numeric: tabular-nums;
       min-height: 100dvh;
-      padding: 16px;
+      padding: 20px 16px;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       -webkit-font-smoothing: antialiased;
     }
 
-    h1, h2, h3, h4 {
-      font-family: var(--font-heading);
-      letter-spacing: -0.025em;
+    h1, h2, h3 {
+      font-family: var(--font-editorial);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
       text-wrap: balance;
     }
 
@@ -61,150 +76,133 @@
       margin: 0 auto;
     }
 
-    /* True Glassmorphism Card Surface */
+    /* Flat Bento Surface with Crisp 1px Borders */
     .card {
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 20px;
+      border-radius: 14px;
       padding: 24px;
-      box-shadow: 
-        0 1px 0 rgba(255, 255, 255, 0.06) inset,
-        0 20px 50px -15px rgba(0, 0, 0, 0.7),
-        0 0 0 1px rgba(0, 0, 0, 0.4);
       margin-bottom: 16px;
     }
 
-    /* Header & Brand Identity */
+    /* Editorial Header */
     .header {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 22px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .logo-badge-row {
+    .brand-meta-row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 10px;
+      justify-content: space-between;
+      margin-bottom: 12px;
     }
 
-    .logo-mark {
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #CC1100 0%, #880b00 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-heading);
-      font-weight: 800;
-      font-size: 1.15rem;
-      color: #ffffff;
-      box-shadow: 0 4px 20px rgba(204, 17, 0, 0.45), 0 0 0 1px rgba(204, 17, 0, 0.3);
-      flex-shrink: 0;
+    .brand-mark {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--brand-accent);
+      background: rgba(204, 17, 0, 0.12);
+      border: 1px solid rgba(204, 17, 0, 0.25);
+      padding: 3px 8px;
+      border-radius: 4px;
     }
 
-    .brand-titles {
-      text-align: left;
-    }
-
-    .brand-titles h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #ffffff;
-      line-height: 1.25;
-    }
-
-    .brand-titles .sub {
-      font-size: 0.76rem;
+    .live-clock-mono {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
       color: var(--text-muted);
-      letter-spacing: 0.02em;
     }
 
-    .live-clock-pill {
-      font-size: 0.74rem;
-      color: #34d399;
-      font-weight: 600;
-      margin-top: 6px;
-      letter-spacing: 0.03em;
+    .title-h1 {
+      font-size: 1.85rem;
+      color: var(--text-main);
+      margin-bottom: 4px;
     }
 
-    /* Pulse Status Badge */
+    .sub-editorial {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      letter-spacing: 0.01em;
+    }
+
+    /* Minimal Status Badges */
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+      padding: 4px 10px;
       border-radius: 9999px;
-      font-size: 0.74rem;
-      font-weight: 600;
+      font-size: 0.70rem;
+      font-family: var(--font-mono);
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 10px;
+      letter-spacing: 0.06em;
+      margin-top: 12px;
     }
 
     .badge-open {
-      background: rgba(16, 185, 129, 0.14);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.30);
+      background: var(--pastel-green-bg);
+      color: var(--pastel-green-text);
+      border: 1px solid var(--pastel-green-border);
     }
 
     .badge-closed {
-      background: rgba(204, 17, 0, 0.14);
-      color: #ff6b5b;
-      border: 1px solid rgba(204, 17, 0, 0.30);
+      background: var(--pastel-red-bg);
+      color: var(--pastel-red-text);
+      border: 1px solid var(--pastel-red-border);
     }
 
-    .pulse-dot {
-      width: 7px;
-      height: 7px;
+    .status-dot-green {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background-color: #10b981;
-      animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      background-color: var(--pastel-green-text);
     }
 
-    @keyframes statusPulse {
-      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    .status-dot-red {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--pastel-red-text);
     }
 
-    /* Accessible Focus Ring */
+    /* Focus States */
     :focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
-      outline: 2px solid var(--brand-red);
-      outline-offset: 3px;
+      outline: 2px solid var(--brand-accent);
+      outline-offset: 2px;
     }
 
     .search-input {
       width: 100%;
-      min-height: 48px;
-      padding: 12px 16px;
+      min-height: 44px;
+      padding: 12px 14px;
       background: var(--bg-input);
       border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      color: var(--text-primary);
-      font-size: 0.95rem;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
       outline: none;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: border-color 0.18s ease;
       margin-bottom: 12px;
     }
 
     .search-input:focus {
-      border-color: var(--brand-red);
-      box-shadow: 0 0 0 3px var(--brand-red-glow);
+      border-color: var(--border-crisp);
     }
 
-    /* Horizontal Filter Pills */
+    /* Horizontal Pastels Filter Pills */
     .filter-pills {
       display: flex;
       gap: 6px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       overflow-x: auto;
-      padding-bottom: 4px;
+      padding-bottom: 2px;
       scrollbar-width: none;
     }
 
@@ -212,61 +210,58 @@
 
     .filter-pill {
       flex: 0 0 auto;
-      min-height: 40px;
+      min-height: 36px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 6px 14px;
-      background: rgba(255, 255, 255, 0.04);
+      padding: 4px 12px;
+      background: transparent;
       border: 1px solid var(--border-subtle);
       border-radius: 9999px;
-      font-size: 0.76rem;
-      font-weight: 600;
-      color: var(--text-secondary);
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s ease;
     }
 
     .filter-pill:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #ffffff;
-      transform: translateY(-1px);
+      border-color: var(--border-crisp);
+      color: var(--text-main);
     }
 
     .filter-pill.active {
-      background: linear-gradient(135deg, rgba(204, 17, 0, 0.35) 0%, rgba(136, 11, 0, 0.25) 100%);
-      border-color: rgba(204, 17, 0, 0.50);
-      color: #ffffff;
-      box-shadow: 0 2px 10px rgba(204, 17, 0, 0.25);
+      background: #ffffff;
+      border-color: #ffffff;
+      color: #090a0d;
+      font-weight: 600;
     }
 
-    /* Roster Item Grid */
+    /* Roster Item List */
     .roster-list {
       max-height: 290px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .roster-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      min-height: 48px;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
+      min-height: 44px;
+      padding: 10px 14px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .roster-item:hover {
-      transform: translateY(-2px);
-      background: rgba(204, 17, 0, 0.08);
-      border-color: rgba(204, 17, 0, 0.32);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+      border-color: var(--border-crisp);
+      background: #1c1f2a;
     }
 
     .roster-item:active {
@@ -274,103 +269,104 @@
     }
 
     .role-tag {
-      font-size: 0.66rem;
-      padding: 2px 7px;
-      border-radius: 6px;
-      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
     }
 
-    .tag-vol { background: rgba(6, 182, 212, 0.14); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.25); }
-    .tag-stu { background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+    .tag-vol { background: var(--pastel-blue-bg); color: var(--pastel-blue-text); border: 1px solid var(--pastel-blue-border); }
+    .tag-stu { background: var(--pastel-yellow-bg); color: var(--pastel-yellow-text); border: 1px solid var(--pastel-yellow-border); }
 
-    /* Action Buttons (Strict 48px Touch Targets) */
+    /* Utilitarian Solid Buttons (Zero Drop Shadow) */
     .btn {
       width: 100%;
-      min-height: 48px;
+      min-height: 44px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #CC1100 0%, #991100 100%);
-      border: none;
-      border-radius: 14px;
+      padding: 10px 16px;
+      background: var(--brand-accent);
+      border: 1px solid var(--brand-accent);
+      border-radius: 6px;
       color: #ffffff;
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       cursor: pointer;
       margin-top: 10px;
-      box-shadow: 0 4px 16px rgba(204, 17, 0, 0.35);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 22px rgba(204, 17, 0, 0.45);
+      background: #b30f00;
+      border-color: #b30f00;
     }
 
     .btn:active {
-      transform: scale(0.98) translateY(1px);
+      transform: scale(0.98);
     }
 
     .btn-sec {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
-      box-shadow: none;
-      color: var(--text-primary);
+      background: transparent;
+      border: 1px solid var(--border-crisp);
+      color: var(--text-main);
     }
 
     .btn-sec:hover {
-      background: rgba(255, 255, 255, 0.10);
-      border-color: rgba(204, 17, 0, 0.30);
+      background: rgba(255, 255, 255, 0.06);
     }
 
     .btn-ai {
-      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35);
+      background: #6d28d9;
+      border-color: #6d28d9;
+      color: #ffffff;
+      margin-top: 12px;
     }
 
     .btn-ai:hover {
-      box-shadow: 0 8px 22px rgba(139, 92, 246, 0.45);
+      background: #5b21b6;
+      border-color: #5b21b6;
     }
 
-    /* Spring Entrance Modal */
+    /* Staggered Modal Entrance */
     .success-box {
       text-align: center;
       padding: 24px 10px;
-      animation: springModal 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: modalFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes springModal {
-      0% { transform: scale(0.85) translateY(16px); opacity: 0; }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
+    @keyframes modalFadeUp {
+      0% { transform: translateY(12px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
     }
 
     .checkmark-wrapper {
-      width: 72px;
-      height: 72px;
+      width: 64px;
+      height: 64px;
       margin: 0 auto 16px;
     }
 
     .svg-checkmark-circle {
       stroke-dasharray: 166;
       stroke-dashoffset: 166;
-      stroke-width: 3;
-      stroke: #10b981;
+      stroke-width: 2.5;
+      stroke: var(--pastel-green-text);
       fill: none;
-      animation: drawCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+      animation: drawCircle 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
     }
 
     .svg-checkmark-check {
       stroke-dasharray: 48;
       stroke-dashoffset: 48;
-      stroke: #10b981;
-      stroke-width: 4;
+      stroke: var(--pastel-green-text);
+      stroke-width: 3.5;
       stroke-linecap: round;
       stroke-linejoin: round;
       fill: none;
-      animation: drawCheck 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.35s forwards;
+      animation: drawCheck 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.3s forwards;
     }
 
     @keyframes drawCircle { 100% { stroke-dashoffset: 0; } }
@@ -378,49 +374,52 @@
 
     .timestamp-badge {
       display: inline-block;
-      background: rgba(16, 185, 129, 0.14);
-      border: 1px solid rgba(16, 185, 129, 0.30);
-      color: #34d399;
-      padding: 6px 16px;
+      background: var(--pastel-green-bg);
+      border: 1px solid var(--pastel-green-border);
+      color: var(--pastel-green-text);
+      padding: 4px 14px;
       border-radius: 9999px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.80rem;
+      font-family: var(--font-mono);
+      font-weight: 500;
       margin-top: 8px;
     }
 
-    /* Tabs Navigation */
+    /* Utilitarian Tabs */
     .tabs {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin-top: 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid var(--border-subtle);
       padding-top: 14px;
     }
 
     .tab-btn {
       flex: 1;
-      min-height: 44px;
+      min-height: 40px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 16px;
+      padding: 8px 12px;
       background: none;
-      border: none;
+      border: 1px solid transparent;
+      border-radius: 6px;
       color: var(--text-muted);
-      font-size: 0.82rem;
-      font-weight: 600;
+      font-size: 0.80rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s ease;
     }
 
     .tab-btn:hover {
-      color: #ffffff;
-      transform: translateY(-1px);
+      color: var(--text-main);
     }
 
     .tab-btn.active {
-      color: var(--brand-red);
-      border-bottom: 2px solid var(--brand-red);
+      background: var(--bg-surface-elevated);
+      border-color: var(--border-crisp);
+      color: var(--text-main);
+      font-weight: 600;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -436,28 +435,24 @@
   <div class="container" role="main">
     <div class="card">
       
-      <!-- BRAND HEADER -->
+      <!-- EDITORIAL BRAND HEADER -->
       <div class="header">
-        <div class="logo-badge-row">
-          <div class="logo-mark" aria-hidden="true">U&amp;I</div>
-          <div class="brand-titles">
-            <h1>U&amp;I Vihana Volunteer attendance</h1>
-            <div class="sub">Vihana Centre Mobile App</div>
-          </div>
+        <div class="brand-meta-row">
+          <span class="brand-mark">U&amp;I</span>
+          <span class="live-clock-mono" id="liveClockReadout">Loading clock...</span>
         </div>
-        
-        <div class="live-clock-pill" id="liveClockReadout" aria-live="polite">
-          Loading live clock...
-        </div>
-        
+
+        <h1 class="title-h1">Vihana Attendance</h1>
+        <div class="sub-editorial">Single-Centre Operational Portal &bull; U&amp;I India</div>
+
         <div id="sessionBadge" class="status-badge badge-closed" role="status" aria-live="polite">
-          <span class="pulse-dot"></span> Checking Session...
+          <span class="status-dot-red"></span> Checking Session...
         </div>
       </div>
 
-      <!-- VOLUNTEER ROSTER & AUTO-FILTER -->
+      <!-- VOLUNTEER ROSTER & AUTO-FILTER MODE -->
       <div id="volunteerMode">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search your name to check in..." oninput="filterRoster()" aria-label="Search roster by name">
+        <input type="text" id="searchInput" class="search-input" placeholder="Filter roster by name..." oninput="filterRoster()" aria-label="Search roster by name">
         
         <!-- Filter Pills -->
         <div class="filter-pills" role="tablist" aria-label="Filter roster by category">
@@ -468,15 +463,15 @@
         </div>
 
         <div class="roster-list" id="rosterList" role="list">
-          <div style="text-align:center; padding:20px; color:var(--text-muted);">Loading roster...</div>
+          <div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">Loading roster...</div>
         </div>
         
         <div style="text-align:center; margin-top:14px;">
-          <a href="#" onclick="showNewPersonForm(); return false;" style="color:#ff6b5b; font-size:0.8rem; text-decoration:none;">Not on the list? Add yourself &rarr;</a>
+          <a href="#" onclick="showNewPersonForm(); return false;" style="color:var(--pastel-red-text); font-size:0.78rem; text-decoration:none;">Not on the list? Add yourself &rarr;</a>
         </div>
       </div>
 
-      <!-- CHECK-IN SUCCESS CONFIRMATION MODAL -->
+      <!-- CHECK-IN SUCCESS CONFIRMATION -->
       <div id="successMode" class="success-box" style="display:none;" role="dialog" aria-modal="true" aria-label="Check-in Success Confirmation">
         <div class="checkmark-wrapper">
           <svg viewBox="0 0 52 52">
@@ -484,7 +479,7 @@
             <path class="svg-checkmark-check" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
           </svg>
         </div>
-        <h2 id="successName" style="margin-bottom:6px; font-size:1.35rem;">Checked In!</h2>
+        <h2 id="successName" style="margin-bottom:4px; font-size:1.6rem; font-family:var(--font-editorial);">Checked In</h2>
         <div id="successTime" class="timestamp-badge">Checked in at 04:02 PM</div>
         
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:20px;">
@@ -493,11 +488,11 @@
         </div>
       </div>
 
-      <!-- NEW PERSON FORM -->
+      <!-- NEW PERSON REGISTRATION -->
       <div id="newPersonMode" style="display:none;" role="dialog" aria-modal="true">
-        <h3 style="font-size:1.05rem; margin-bottom:14px;">First-Time Registration</h3>
+        <h3 style="font-size:1.3rem; margin-bottom:12px;">First-Time Registration</h3>
         <input type="text" id="newNameInput" class="search-input" placeholder="Full Name">
-        <select id="newRoleSelect" class="search-input" style="background:#140e0e;">
+        <select id="newRoleSelect" class="search-input">
           <option value="VOLUNTEER">Volunteer</option>
           <option value="STUDENT">Student</option>
         </select>
@@ -507,49 +502,49 @@
 
       <!-- LEADER DASHBOARD -->
       <div id="leaderMode" style="display:none;" role="region" aria-label="Centre Leader Dashboard">
-        <h3 style="font-size:1.1rem; margin-bottom:14px; color:var(--brand-red); display:flex; align-items:center; justify-content:space-between;">
-          <span>Centre Leader Dashboard</span>
-          <span style="font-size:0.7rem; background:rgba(204,17,0,0.15); border:1px solid rgba(204,17,0,0.3); color:#ff6b5b; padding:2px 8px; border-radius:12px; font-weight:700;">Live</span>
+        <h3 style="font-size:1.3rem; margin-bottom:14px; color:var(--text-main); display:flex; align-items:center; justify-content:space-between;">
+          <span>Leader Dashboard</span>
+          <span style="font-family:var(--font-mono); font-size:0.65rem; background:var(--pastel-blue-bg); border:1px solid var(--pastel-blue-border); color:var(--pastel-blue-text); padding:2px 8px; border-radius:4px; text-transform:uppercase;">Live</span>
         </h3>
         
-        <div id="leaderPinSection" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:14px;">
-          <input type="password" id="pinInput" class="search-input" placeholder="Enter Leader PIN (default: 1234)">
+        <div id="leaderPinSection" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:16px; border-radius:8px;">
+          <input type="password" id="pinInput" class="search-input" placeholder="Leader PIN (default: 1234)">
           <button class="btn" onclick="loadLeaderData()">Login to Dashboard</button>
         </div>
 
         <div id="leaderContent" style="display:none;">
           <div id="anomalyContainer" role="status" aria-live="polite"></div>
 
-          <!-- Glassmorphism KPI Grid (grid-auto-flow: dense) -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
-            <div style="background:linear-gradient(135deg, rgba(204,17,0,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
-              <div style="font-size:1.6rem; font-weight:700; color:#fff;" id="kpiCheckedIn">0</div>
-              <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">TODAY CHECKED IN</div>
+          <!-- Bento KPI Grid (1px Crisp Borders, Zero Drop Shadow) -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;">
+            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:12px; border-radius:8px; text-align:center;">
+              <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono); color:#fff;" id="kpiCheckedIn">0</div>
+              <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">TODAY CHECKED IN</div>
             </div>
-            <div style="background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
-              <div style="font-size:1.6rem; font-weight:700; color:#fff;" id="kpiTotalVols">0</div>
-              <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">ACTIVE ROSTER</div>
+            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:12px; border-radius:8px; text-align:center;">
+              <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono); color:#fff;" id="kpiTotalVols">0</div>
+              <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">ACTIVE ROSTER</div>
             </div>
-            <div style="background:linear-gradient(135deg, rgba(6,182,212,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
-              <div style="font-size:1.6rem; font-weight:700; color:#38bdf8;" id="kpiTurnoutPct">0%</div>
-              <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">TURNOUT RATE</div>
+            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:12px; border-radius:8px; text-align:center;">
+              <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono); color:var(--pastel-blue-text);" id="kpiTurnoutPct">0%</div>
+              <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">TURNOUT RATE</div>
             </div>
-            <div style="background:linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(18,14,14,0.92) 100%); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:14px; text-align:center;">
-              <div style="font-size:1.6rem; font-weight:700; color:#fb7185;" id="kpiAtRisk">0</div>
-              <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">RETENTION RISK</div>
+            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:12px; border-radius:8px; text-align:center;">
+              <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono); color:var(--pastel-red-text);" id="kpiAtRisk">0</div>
+              <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">RETENTION RISK</div>
             </div>
           </div>
 
           <!-- Heuristic Attrition Watchlist -->
-          <h4 style="font-size:0.88rem; margin-bottom:10px; color:#ff6b5b;">Heuristic Attrition Watchlist</h4>
-          <div id="riskList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:10px; margin-bottom:16px;"></div>
+          <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--pastel-red-text); font-weight:600;">Heuristic Attrition Watchlist</h4>
+          <div id="riskList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
 
           <!-- Gemini Pro AI Executive Summary -->
           <button class="btn btn-ai" onclick="generateGeminiSummary()">Generate Gemini Pro AI Summary</button>
           
-          <div id="aiSummaryBox" style="display:none; margin-top:12px; background:rgba(15,23,42,0.95); border:1px solid rgba(139,92,246,0.35); padding:14px; border-radius:14px; font-size:0.82rem; line-height:1.6; white-space:pre-wrap; color:#e2e8f0;">
+          <div id="aiSummaryBox" style="display:none; margin-top:12px; background:var(--bg-surface-elevated); border:1px solid var(--border-crisp); padding:14px; border-radius:8px; font-size:0.82rem; line-height:1.6; white-space:pre-wrap; color:var(--text-main);">
             <div id="aiSummaryContent"></div>
-            <button id="copyAiSummaryBtn" class="btn btn-sec" onclick="copyGeminiSummaryText()" style="margin-top:12px; font-size:0.78rem; padding:8px;">
+            <button id="copyAiSummaryBtn" class="btn btn-sec" onclick="copyGeminiSummaryText()" style="margin-top:12px; font-size:0.76rem; padding:6px 12px;">
               Copy Summary Text
             </button>
           </div>
@@ -570,9 +565,9 @@
 
     function updateClock() {
       const now = new Date();
-      const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
-      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-      document.getElementById('liveClockReadout').innerText = dateStr + ' | ' + timeStr + ' IST | Vihana Center';
+      const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short' });
+      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      document.getElementById('liveClockReadout').innerText = dateStr + ' | ' + timeStr + ' IST';
     }
     setInterval(updateClock, 1000);
     updateClock();
@@ -581,7 +576,7 @@
       const el = document.getElementById(elementId);
       if (!el) return;
       const target = parseFloat(targetValue) || 0;
-      const duration = 750;
+      const duration = 600;
       let startTime = null;
 
       function step(timestamp) {
@@ -621,13 +616,13 @@
       
       if (data.session && data.session.isOpen) {
         sBadge.className = "status-badge badge-open";
-        sBadge.innerHTML = '<span class="pulse-dot"></span> Session Open (' + data.session.startTime + ' - ' + data.session.endTime + ')';
+        sBadge.innerHTML = '<span class="status-dot-green"></span> Session Open (' + data.session.startTime + ' - ' + data.session.endTime + ')';
       } else if (data.session && data.session.isEarly) {
         sBadge.className = "status-badge badge-closed";
-        sBadge.innerText = "Opens at " + data.session.windowStartFormatted;
+        sBadge.innerHTML = '<span class="status-dot-red"></span> Opens at ' + data.session.windowStartFormatted;
       } else {
         sBadge.className = "status-badge badge-closed";
-        sBadge.innerText = "Check-in Closed";
+        sBadge.innerHTML = '<span class="status-dot-red"></span> Check-in Closed';
       }
 
       updatePillCounts();
@@ -658,7 +653,7 @@
     function renderRoster(list) {
       const el = document.getElementById('rosterList');
       if (!list || list.length === 0) {
-        el.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">No matching roster members.</div>';
+        el.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">No matching roster members.</div>';
         return;
       }
       let html = '';
@@ -668,10 +663,10 @@
         html += `
           <div class="roster-item" onclick="doCheckIn('${p.id}')">
             <div>
-              <span style="font-weight:600; font-size:0.9rem;">${p.name}</span>
+              <span style="font-weight:500; font-size:0.88rem;">${p.name}</span>
               <span class="role-tag ${tagClass}" style="margin-left:6px;">${p.role}</span>
             </div>
-            <div>${isChecked ? '<span style="color:#10b981; font-weight:bold; font-size:0.8rem;">Done</span>' : '<span style="color:var(--text-muted); font-size:0.8rem;">Tap &rarr;</span>'}</div>
+            <div>${isChecked ? '<span style="color:var(--pastel-green-text); font-weight:600; font-size:0.8rem; font-family:var(--font-mono);">Done</span>' : '<span style="color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Tap &rarr;</span>'}</div>
           </div>`;
       });
       el.innerHTML = html;
@@ -787,9 +782,9 @@
 
         if (isLowTurnout) {
           document.getElementById('anomalyContainer').innerHTML = `
-            <div style="background:rgba(204,17,0,0.18); border:1px solid rgba(204,17,0,0.45); padding:12px 14px; border-radius:12px; margin-bottom:14px; font-size:0.8rem; color:#ff6b5b;">
+            <div style="background:var(--pastel-red-bg); border:1px solid var(--pastel-red-border); padding:10px 12px; border-radius:6px; margin-bottom:14px; font-size:0.78rem; color:var(--pastel-red-text);">
               <strong>Low Turnout Anomaly Warning (${turnPct}% &lt; 60% Threshold)</strong>
-              <p style="margin:4px 0 8px 0; color:#e2e8f0; font-size:0.75rem;">Center attendance has dropped below 60%. Coordinator intervention is recommended.</p>
+              <p style="margin:4px 0 0 0; color:var(--text-muted); font-size:0.74rem;">Center attendance has dropped below 60%. Coordinator intervention is recommended.</p>
             </div>`;
         } else {
           document.getElementById('anomalyContainer').innerHTML = '';
@@ -797,19 +792,19 @@
 
         let rHtml = '';
         if (!atRisks || atRisks.length === 0) {
-          rHtml = '<div style="color:var(--accent-green);">All volunteers healthy (>70% attendance)!</div>';
+          rHtml = '<div style="color:var(--pastel-green-text); font-size:0.8rem;">All volunteers healthy (>70% attendance)!</div>';
         } else {
           atRisks.forEach(item => {
             const isHigh = (item.consecutiveAbsences || 3) >= 3 || (item.riskReason && item.riskReason.includes('HIGH'));
-            const riskBadge = isHigh ? '<span class="role-tag" style="background:rgba(204,17,0,0.3); color:#ff6b5b; border:1px solid rgba(204,17,0,0.5);">HIGH RISK</span>' : '<span class="role-tag" style="background:rgba(245,158,11,0.3); color:#fbbf24; border:1px solid rgba(245,158,11,0.5);">MODERATE RISK</span>';
+            const riskBadge = isHigh ? '<span class="role-tag" style="background:var(--pastel-red-bg); color:var(--pastel-red-text); border:1px solid var(--pastel-red-border);">HIGH RISK</span>' : '<span class="role-tag" style="background:var(--pastel-yellow-bg); color:var(--pastel-yellow-text); border:1px solid var(--pastel-yellow-border);">MODERATE RISK</span>';
 
             rHtml += `
-              <div style="background:rgba(204,17,0,0.10); padding:12px; border-radius:12px; border:1px solid rgba(204,17,0,0.3); display:flex; flex-direction:column; gap:6px;">
+              <div style="background:var(--bg-surface-elevated); padding:10px 12px; border-radius:6px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:4px;">
                 <div style="display:flex; align-items:center; justify-content:space-between;">
-                  <strong style="color:#fff;">${item.name}</strong>
+                  <strong style="color:var(--text-main); font-size:0.85rem;">${item.name}</strong>
                   ${riskBadge}
                 </div>
-                <div style="font-size:0.75rem; color:#fca5a5;">
+                <div style="font-size:0.74rem; color:var(--pastel-red-text); font-family:var(--font-mono);">
                   ${item.riskReason || 'Missed 2 of last 3 sessions'}
                 </div>
               </div>`;
