@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <base target="_top">
@@ -158,8 +158,16 @@
     .item-action { font-size: 0.75rem; color: var(--ink-3); transition: color 0.15s; }
     .roster-item:hover .item-action { color: var(--ink-2); }
     .item-done   { font-size: 0.75rem; color: var(--mint-ink); font-weight: 500; }
-    .add-link    { display: block; text-align: center; margin-top: 14px; font-size: 0.76rem; color: var(--ink-3); text-decoration: none; transition: color 0.15s; }
-    .add-link:hover { color: var(--ink-2); }
+    .btn-register {
+      display: block; width: 100%; margin-top: 12px;
+      min-height: 38px; padding: 8px 12px;
+      background: transparent; border: 1px solid var(--line);
+      border-radius: var(--r-md); color: var(--ink-2);
+      font-family: var(--sans); font-size: 0.78rem;
+      font-weight: 500; cursor: pointer;
+      transition: all 0.15s ease; text-align: center;
+    }
+    .btn-register:hover { background: var(--ground); border-color: var(--line-hi); color: var(--ink); }
 
     /* BUTTONS */
     .btn {
@@ -240,7 +248,7 @@
   <!-- VOLUNTEER PANEL -->
   <section id="volPanel" role="region" aria-label="Volunteer check-in">
     <div class="page-header">
-      <h1 class="page-title">&#x1F4CB; Volunteer Attendance</h1>
+      <h1 class="page-title">Volunteer Attendance</h1>
       <span class="session-chip chip-closed" id="sessionBadge">
         <span class="chip-dot"></span>
         <span id="sessionLabel">Loading&hellip;</span>
@@ -259,7 +267,7 @@
       <div class="roster-list" id="rosterList" role="list">
         <div class="empty">Loading roster&hellip;</div>
       </div>
-      <a href="#" class="add-link" onclick="showNewPersonForm();return false;">Not on the list? Add yourself &rarr;</a>
+      <button class="btn btn-register" onclick="showNewPersonForm()">Register new member</button>
     </div>
 
     <div class="block" id="successMode" style="display:none;" role="dialog" aria-modal="true">
@@ -292,7 +300,7 @@
   <!-- LEADER PANEL -->
   <section id="leadPanel" style="display:none;" role="region" aria-label="Leader dashboard">
     <div class="block">
-      <h2 class="dash-header">&#x1F4CA; Centre Dashboard</h2>
+      <h2 class="dash-header">Centre Dashboard</h2>
       <div class="pin-block" id="leaderPinSection">
         <input type="password" id="pinInput" class="search" placeholder="Leader PIN" style="margin-bottom:8px;">
         <button class="btn btn-primary" onclick="loadLeaderData()">Access Dashboard</button>
@@ -313,7 +321,7 @@
         <button class="btn btn-ai" onclick="generateGeminiSummary()">Generate Executive Summary</button>
         <div id="aiSummaryBox" style="display:none;">
           <div class="ai-summary-box" id="aiSummaryContent"></div>
-          <button id="copyAiBtn" class="btn btn-ghost" onclick="copyAiSummary()" style="margin-top:8px;font-size:0.78rem;">Copy to Clipboard</button>
+          <button id="copyAiBtn" class="btn btn-ghost" onclick="copyAiSummary()" style="margin-top:8px;font-size:0.78rem;">Copy</button>
         </div>
       </div>
     </div>
@@ -444,8 +452,8 @@
         '<div class="item-avatar">'+initials(p.name)+'</div>'+
         '<span class="item-name">'+p.name+'</span></div>'+
         '<div class="item-right">'+
-        '<span class="role-tag '+tc+'">'+tl+'</span>'+
-        '<span class="'+(ck?'item-done':'item-action')+'">'+(ck?'\u2713':'\u2192')+'</span>'+
+        '<span class="role-tag '+tc+'">'+''+tl+'</span>'+
+        (ck?'<span class="item-done">In</span>':'')+
         '</div></div>';
     }).join('');
   }
